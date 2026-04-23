@@ -73,6 +73,116 @@ def _strip_html_to_plain(html):
     return re.sub(r'<[^>]+>', '', html)
 
 
+# ---- INLINE IMAGE SUPPORT FOR CHAPTER PROSE ----
+# bookwriter chapter HTML is the only context in the project that allows
+# <img>. The opt-in is scoped to this app via sanitize_user_html's
+# additive whitelist parameters; no other app's sanitize_user_html
+# behavior changes.
+#
+# Allowed img attrs (positive whitelist):
+#   src         — must be a relative /media/upload/bookwriter/chapter/<id>/ path
+#   alt         — free text, HTML-escaped on render
+#   class       — bookwriter-prose-image (+ optional size + align modifier
+#                 classes); also tolerates the deprecated float-* family
+#                 from old saved chapters so existing data isn't dropped
+#                 by the sanitizer before the JS migration runs on load
+#   style       — only `width: <int>px|%` (carry-over from the old
+#                 corner-resize era; new images use size classes instead)
+#   data-size   — small | medium | full
+#   data-align  — left | center | right
+#   data-float  — left | right | center | none (deprecated, accepted for
+#                 round-trip survival of pre-pivot saved chapters)
+_IMG_SRC_ALLOWED_PREFIX = '/media/upload/bookwriter/chapter/'
+_IMG_STYLE_PATTERN = re.compile(r'^\s*width\s*:\s*\d{1,4}(?:px|%)\s*;?\s*$')
+# Block-model class set: the base + an optional size modifier + an
+# optional align modifier. Old float-* classes also accepted so the
+# sanitizer doesn't strip pre-pivot saved markup before the JS
+# migration runs.
+_IMG_CLASS_TOKEN_PATTERN = re.compile(
+    r'^bookwriter-prose-image'
+    r'(?:-(?:size-(?:small|medium|full)|align-(?:left|center|right)|float-(?:left|right|center|none)))?$'
+)
+_IMG_SIZE_ALLOWED_VALUES  = frozenset({'small', 'medium', 'full'})
+_IMG_ALIGN_ALLOWED_VALUES = frozenset({'left', 'center', 'right'})
+_IMG_FLOAT_ALLOWED_VALUES = frozenset({'left', 'right', 'center', 'none'})
+
+
+def _validate_chapter_img_src(value):
+    if not isinstance(value, str):
+        return None
+    if not value.startswith(_IMG_SRC_ALLOWED_PREFIX):
+        return None
+    # Reject path traversal segments
+    if '..' in value or '\\' in value:
+        return None
+    return value
+
+
+def _validate_chapter_img_style(value):
+    if not isinstance(value, str):
+        return None
+    return value if _IMG_STYLE_PATTERN.match(value) else None
+
+
+def _validate_chapter_img_class(value):
+    """Whitelist each whitespace-separated class token individually so an
+    attacker can't smuggle an unknown class by stringing it after a
+    valid one. Returns the original value if every token passes; None
+    otherwise (drops the attribute)."""
+    if not isinstance(value, str):
+        return None
+    cleaned = value.strip()
+    if not cleaned:
+        return None
+    for class_token in cleaned.split():
+        if not _IMG_CLASS_TOKEN_PATTERN.match(class_token):
+            return None
+    return cleaned
+
+
+def _validate_chapter_img_data_size(value):
+    if not isinstance(value, str):
+        return None
+    return value if value in _IMG_SIZE_ALLOWED_VALUES else None
+
+
+def _validate_chapter_img_data_align(value):
+    if not isinstance(value, str):
+        return None
+    return value if value in _IMG_ALIGN_ALLOWED_VALUES else None
+
+
+def _validate_chapter_img_data_float(value):
+    if not isinstance(value, str):
+        return None
+    return value if value in _IMG_FLOAT_ALLOWED_VALUES else None
+
+
+CHAPTER_PROSE_SANITIZER_KWARGS = {
+    'extra_allowed_tags': ['img'],
+    'extra_allowed_attrs_by_tag': {
+        'img': ['src', 'alt', 'class', 'style', 'data-size', 'data-align', 'data-float'],
+    },
+    'extra_allowed_void_tags': ['img'],
+    'attr_value_validators_by_tag_attr': {
+        ('img', 'src'):        _validate_chapter_img_src,
+        ('img', 'style'):      _validate_chapter_img_style,
+        ('img', 'class'):      _validate_chapter_img_class,
+        ('img', 'data-size'):  _validate_chapter_img_data_size,
+        ('img', 'data-align'): _validate_chapter_img_data_align,
+        ('img', 'data-float'): _validate_chapter_img_data_float,
+    },
+}
+
+
+def sanitize_chapter_prose_html(html):
+    """Sanitize chapter body HTML. Same as sanitize_user_html but
+    additionally allows <img> with strict src + style + class + data-float
+    constraints. Used by chapter autosave + snapshot create. Default
+    sanitize_user_html stays unchanged for every other caller."""
+    return sanitize_user_html(html, **CHAPTER_PROSE_SANITIZER_KWARGS)
+
+
 def _resolve_chapter_for_owner(chapter_id, user_profile_id):
     """Look up an active chapter and verify the caller owns its book.
 

@@ -92,3 +92,40 @@ U
 চোখের সামনে সন্তানকে অত্যাচার করবে, স্বামীকে অবর্ণনীয় কষ্ট সহ্য করতে হবে। 
 কেস হবে, পুলিশ আসবে, মানুষ ঢিল মারবে, হয়তো একদিন আপনাকে মেরেও ফেলবে। 
 
+
+--add picture
+be able to drag and drop picture, 
+move the picture around. 
+text should automatically adjust and surround it 
+if space available.
+resize picture,
+it should not distort the picture.
+
+
+--notes not saving
+--maybe it is not saving to the db
+i add a note,
+i can see it.
+i refresh page, then vanish.
+
+
+--border and scrolling
+
+only chapter 1 - page,
+i can see all the border.
+other chapters i cannot see all the borders,
+specially the bottom side and not able to scroll either.
+
+actually when i focus on the chapter 1 page 
+- then the red border is visible. 
+but when i keep writing the bottom side are not no longer visible and scrollable. 
+are you clear now?
+the border should be responsive and adjustive to the text. 
+after its initial height, it should expand with the text increasing.
+
+and maybe we can also introduce some of the options 
+which were present in inkwell on the right section 
+- which will also be collapsible 
+- what do you think?
+
+you are suppossed just collapse the left sidebar. but everything is moving on the left side single line including the options from the top. how the fuck that can happen? explain?

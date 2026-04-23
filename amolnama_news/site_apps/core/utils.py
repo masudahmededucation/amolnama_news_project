@@ -98,10 +98,34 @@ class _SanitizingHTMLParser(HTMLParser):
       are rejected.
     """
 
-    def __init__(self):
+    def __init__(self, extra_allowed_tags=None, extra_allowed_attrs_by_tag=None,
+                 extra_allowed_void_tags=None, attr_value_validators_by_tag_attr=None):
         super().__init__(convert_charrefs=True)
         self._output_parts = []
         self._drop_depth = 0  # >0 while inside a drop-content tag
+        # Per-instance overrides on top of the global frozensets — additive,
+        # never restrictive. Lets callers (e.g. bookwriter chapter autosave)
+        # opt in to <img> + a small whitelist of img attrs without changing
+        # the project-wide default for everyone else.
+        self._extra_tags = frozenset(extra_allowed_tags or ())
+        self._extra_attrs_by_tag = {
+            t.lower(): frozenset(a) for t, a in (extra_allowed_attrs_by_tag or {}).items()
+        }
+        self._extra_void_tags = frozenset(extra_allowed_void_tags or ())
+        # Map of (tag, attr_name) -> callable(value) -> sanitized_value or None
+        # to drop. Used to constrain style / src / etc. on opted-in tags.
+        self._attr_validators = attr_value_validators_by_tag_attr or {}
+
+    def _is_tag_allowed(self, tag):
+        return tag in _SANITIZE_ALLOWED_TAGS or tag in self._extra_tags
+
+    def _allowed_attrs_for(self, tag):
+        baseline = _SANITIZE_ALLOWED_ATTRS_BY_TAG.get(tag, frozenset())
+        extra = self._extra_attrs_by_tag.get(tag, frozenset())
+        return baseline | extra
+
+    def _is_void_tag(self, tag):
+        return tag in _SANITIZE_VOID_TAGS or tag in self._extra_void_tags
 
     def handle_starttag(self, tag, attrs):
         tag = tag.lower()
@@ -110,9 +134,9 @@ class _SanitizingHTMLParser(HTMLParser):
             return
         if self._drop_depth > 0:
             return
-        if tag not in _SANITIZE_ALLOWED_TAGS:
+        if not self._is_tag_allowed(tag):
             return  # unwrap: drop the tag, keep the content
-        allowed_attrs = _SANITIZE_ALLOWED_ATTRS_BY_TAG.get(tag, frozenset())
+        allowed_attrs = self._allowed_attrs_for(tag)
         safe_attrs = []
         for attr_name, attr_value in attrs:
             if not attr_name:
@@ -120,7 +144,11 @@ class _SanitizingHTMLParser(HTMLParser):
             attr_name_lower = attr_name.lower()
             # Block ALL event handlers defensively (on* attributes) and
             # style attributes (can contain expression()/url(javascript:))
-            if attr_name_lower.startswith('on') or attr_name_lower == 'style':
+            # — except when an opted-in caller provided a per-attr validator
+            # that explicitly approves a constrained style value.
+            if attr_name_lower.startswith('on'):
+                continue
+            if attr_name_lower == 'style' and (tag, 'style') not in self._attr_validators:
                 continue
             if attr_name_lower not in allowed_attrs:
                 continue
@@ -131,6 +159,13 @@ class _SanitizingHTMLParser(HTMLParser):
             if attr_name_lower == 'href':
                 if not _sanitize_is_safe_url(attr_value):
                     attr_value = '#'
+            # Per-(tag, attr) validator (e.g. img src must be a relative
+            # /media/ path, img style restricted to width: Npx).
+            validator = self._attr_validators.get((tag, attr_name_lower))
+            if validator is not None:
+                attr_value = validator(attr_value)
+                if attr_value is None:
+                    continue  # validator rejected — drop attribute
             # Force safe defaults on links
             safe_attrs.append((attr_name_lower, attr_value))
         # For <a> tags, force rel="noopener noreferrer" when target=_blank
@@ -146,7 +181,7 @@ class _SanitizingHTMLParser(HTMLParser):
             ' {}="{}"'.format(k, html_escape(v, quote=True))
             for k, v in safe_attrs
         )
-        if tag in _SANITIZE_VOID_TAGS:
+        if self._is_void_tag(tag):
             self._output_parts.append('<{}{} />'.format(tag, attr_str))
         else:
             self._output_parts.append('<{}{}>'.format(tag, attr_str))
@@ -159,17 +194,18 @@ class _SanitizingHTMLParser(HTMLParser):
             return
         if self._drop_depth > 0:
             return
-        if tag not in _SANITIZE_ALLOWED_TAGS:
+        if not self._is_tag_allowed(tag):
             return
-        if tag in _SANITIZE_VOID_TAGS:
+        if self._is_void_tag(tag):
             return
         self._output_parts.append('</{}>'.format(tag))
 
     def handle_startendtag(self, tag, attrs):
         # Self-closing tags like <br/> or <img/>
         self.handle_starttag(tag, attrs)
-        if tag.lower() not in _SANITIZE_VOID_TAGS and tag.lower() in _SANITIZE_ALLOWED_TAGS:
-            self.handle_endtag(tag)
+        tag_lower = tag.lower()
+        if not self._is_void_tag(tag_lower) and self._is_tag_allowed(tag_lower):
+            self.handle_endtag(tag_lower)
 
     def handle_data(self, data):
         if self._drop_depth > 0:
@@ -180,18 +216,36 @@ class _SanitizingHTMLParser(HTMLParser):
         return ''.join(self._output_parts)
 
 
-def sanitize_user_html(html):
+def sanitize_user_html(html, extra_allowed_tags=None,
+                       extra_allowed_attrs_by_tag=None,
+                       extra_allowed_void_tags=None,
+                       attr_value_validators_by_tag_attr=None):
     """Sanitize user-submitted rich text HTML via a whitelist parser.
 
     Safe to render with |safe in templates. Use this for any HTML coming from
     a WYSIWYG editor (Quill, TinyMCE, etc.) before storing it in the DB.
+
+    All `extra_*` parameters are ADDITIVE on top of the project-wide defaults
+    — they cannot loosen the global whitelist for other callers. A caller
+    that needs <img> (e.g. bookwriter chapter autosave) passes
+    `extra_allowed_tags=['img']`,
+    `extra_allowed_attrs_by_tag={'img': ['src','alt','class','style']}`,
+    `extra_allowed_void_tags=['img']`, and constrains style/src via
+    `attr_value_validators_by_tag_attr={('img','style'): validate_img_style,
+    ('img','src'): validate_img_src}`. Validators receive the raw attribute
+    value and return either a sanitized value (kept) or None (dropped).
 
     Returns empty string for None/empty input. Never raises — on parse error,
     returns the HTML-escaped original so nothing is ever rendered as live HTML.
     """
     if not html:
         return html
-    parser = _SanitizingHTMLParser()
+    parser = _SanitizingHTMLParser(
+        extra_allowed_tags=extra_allowed_tags,
+        extra_allowed_attrs_by_tag=extra_allowed_attrs_by_tag,
+        extra_allowed_void_tags=extra_allowed_void_tags,
+        attr_value_validators_by_tag_attr=attr_value_validators_by_tag_attr,
+    )
     try:
         parser.feed(html)
         parser.close()

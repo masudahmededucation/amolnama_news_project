@@ -22,6 +22,13 @@ urlpatterns = [
         name="api_chapter_autosave",
     ),
 
+    # Inline image upload (drag-drop into prose, multipart upload).
+    path(
+        "api/chapter/<int:chapter_id>/image/upload/",
+        views_api_chapter.api_bookwriter_chapter_image_upload,
+        name="api_chapter_image_upload",
+    ),
+
     # Phase 1B Step 3 — chapter title autosave, chapter load (for rail
     # click → switch chapter), and append-new-chapter to a book.
     path(

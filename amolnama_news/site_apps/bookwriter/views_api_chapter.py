@@ -34,6 +34,7 @@ from .views_api_helpers import (
     _resolve_book_for_owner,
     _resolve_chapter_for_owner,
     _strip_html_to_plain,
+    sanitize_chapter_prose_html,
 )
 
 
@@ -74,23 +75,58 @@ def api_bookwriter_chapter_autosave(request, chapter_id):
 
     previous_word_count = chapter.chapter_word_count or 0
 
-    sanitized_html = sanitize_user_html(raw_html) or None
+    # Chapter-prose sanitizer: same as project default plus a strict
+    # opt-in for <img> with src/style/class/data-float validators.
+    # See views_api_helpers.CHAPTER_PROSE_SANITIZER_KWARGS.
+    sanitized_html = sanitize_chapter_prose_html(raw_html) or None
     plain_text = _strip_html_to_plain(sanitized_html)
     word_count = _count_words(plain_text)
     saved_at = timezone.now()
 
+    # Bypass Django's ORM cursor for the long-text columns. pyodbc
+    # auto-promotes string params >~2000 chars to SQL_WLONGVARCHAR
+    # (ntext on the wire), and the DB-default UTF-8 collation
+    # (Latin1_General_100_CI_AS_SC_UTF8) rejects ntext at the
+    # parameter-binding layer — BEFORE the SQL runs. CAST in the
+    # query can't save us; only setinputsizes(SQL_WVARCHAR) can.
+    # See memory/troubleshooting.md §5b. Same pattern as
+    # newsengine.embeddings.encode_and_store_embedding.
+    import pyodbc
+    from django.db import connection as django_db_connection
+    plain_text_value = plain_text or None
+    django_db_connection.ensure_connection()
+    raw_cursor = django_db_connection.connection.cursor()
+    try:
+        raw_cursor.setinputsizes([
+            (pyodbc.SQL_WVARCHAR, 0, 0),  # chapter_text_html  — long
+            (pyodbc.SQL_WVARCHAR, 0, 0),  # chapter_text_plain — long
+            None,                          # chapter_word_count
+            None,                          # last_edited_at
+            None,                          # updated_at
+            None,                          # bookwriter_chapter_id (WHERE)
+        ])
+        raw_cursor.execute("""
+            UPDATE [bookwriter].[chapter]
+            SET chapter_text_html  = ?,
+                chapter_text_plain = ?,
+                chapter_word_count = ?,
+                last_edited_at     = ?,
+                updated_at         = ?
+            WHERE bookwriter_chapter_id = ?
+        """, [
+            sanitized_html, plain_text_value, word_count,
+            saved_at, saved_at, chapter.bookwriter_chapter_id,
+        ])
+        django_db_connection.connection.commit()
+    finally:
+        raw_cursor.close()
+    # Mirror to the in-memory chapter instance so any callers below
+    # see consistent values (the .save() path used to do this for us).
     chapter.chapter_text_html = sanitized_html
-    chapter.chapter_text_plain = plain_text or None
+    chapter.chapter_text_plain = plain_text_value
     chapter.chapter_word_count = word_count
     chapter.last_edited_at = saved_at
     chapter.updated_at = saved_at
-    chapter.save(update_fields=[
-        'chapter_text_html',
-        'chapter_text_plain',
-        'chapter_word_count',
-        'last_edited_at',
-        'updated_at',
-    ])
 
     book_total_words, book_total_chapters = _refresh_book_caches(
         chapter.link_bookwriter_coll_book_id
@@ -111,6 +147,50 @@ def api_bookwriter_chapter_autosave(request, chapter_id):
         'today_active_seconds': today_active_seconds,
         'current_streak_days': current_streak_days,
         'saved_at': saved_at.isoformat(),
+    })
+
+
+@login_required
+@require_POST
+def api_bookwriter_chapter_image_upload(request, chapter_id):
+    """Upload one inline image to be embedded in the chapter prose.
+
+    Request: multipart/form-data with field 'chapter_image_file'.
+    Response on success:
+        {
+          "ok": true,
+          "image_url": "/media/upload/bookwriter/chapter/<id>/<uuid>.png",
+          "file_basename": "<uuid>.png"
+        }
+    Response on failure: HTTP 400 with {"ok": false, "error": "..."}.
+
+    The returned image_url is the value the JS module embeds into
+    chapter_text_html as <img src="...">. The matching sanitiser
+    (sanitize_chapter_prose_html) only allows src values that begin
+    with the same '/media/upload/bookwriter/chapter/' prefix —
+    keep both in lock-step.
+    """
+    from .image_uploads import upload_chapter_image  # local import — Pillow
+
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return HttpResponseForbidden('No user profile')
+
+    resolved, error_response = _resolve_chapter_for_owner(chapter_id, user_profile_id)
+    if error_response is not None:
+        return error_response
+
+    uploaded_file = request.FILES.get('chapter_image_file')
+    upload_result = upload_chapter_image(uploaded_file, chapter_id=chapter_id)
+    if not upload_result.get('success'):
+        return JsonResponse(
+            {'ok': False, 'error': upload_result.get('error') or 'Upload failed.'},
+            status=400,
+        )
+    return JsonResponse({
+        'ok': True,
+        'image_url': upload_result['image_url'],
+        'file_basename': upload_result['file_basename'],
     })
 
 

@@ -40,6 +40,18 @@ def _get_embedding_model():
     with _embedding_model_lock:
         if _embedding_model is not None:
             return _embedding_model
+        # The model is small enough to ship cached in ~/.cache/huggingface
+        # — once it's downloaded the first time, all further loads only
+        # need to re-read the local cache. Set HF_HUB_OFFLINE=1 for the
+        # process so huggingface_hub doesn't issue HEAD requests against
+        # the public Hub on every load (which both adds latency AND emits
+        # the "unauthenticated requests to the HF Hub" rate-limit warning
+        # users were seeing on every chapter autosave). Safe because we
+        # already pinned to a single MODEL_NAME — we never need to fetch
+        # a new model at runtime. If the cache is missing, the user can
+        # toggle this off briefly to re-download.
+        import os
+        os.environ.setdefault('HF_HUB_OFFLINE', '1')
         try:
             from sentence_transformers import SentenceTransformer
             _embedding_model = SentenceTransformer(MODEL_NAME)
@@ -82,33 +94,62 @@ def encode_and_store_embedding(content_type_code, content_id, text):
     vector_json = json.dumps(vector)
     now = timezone.now()
 
+    # The vector_json string is ~7 KB (384 floats). pyodbc auto-promotes
+    # any string >2000 chars to SQL_WLONGVARCHAR (→ ntext on the wire),
+    # and SQL Server rejects that against the DB-default UTF-8 collation
+    # (Latin1_General_100_CI_AS_SC_UTF8) at the parameter-binding stage —
+    # BEFORE the CAST inside the query runs. The CAST workaround can't
+    # save us. Documented in memory/troubleshooting.md §5b.
+    #
+    # Fix: bypass the Django cursor wrapper and use raw pyodbc with
+    # setinputsizes() to force SQL_WVARCHAR for the vector_json param.
+    # Use ? placeholders (pyodbc native) instead of %s.
     try:
-        with connection.cursor() as cursor:
-            # Two-step upsert instead of MERGE — avoids pyodbc ntext binding
-            # issue where CAST(%s AS NVARCHAR(MAX)) in MERGE still fails because
-            # pyodbc binds the parameter as SQL_WLONGVARCHAR before SQL Server
-            # can cast it (see CLAUDE.md Gate 7 rule 11).
-            cursor.execute("""
+        import pyodbc  # local import — keeps the no-pyodbc fallback path open
+        connection.ensure_connection()
+        raw_cursor = connection.connection.cursor()
+        try:
+            raw_cursor.setinputsizes([
+                (pyodbc.SQL_WVARCHAR, 0, 0),  # vector_json — long Bengali-safe text
+                None,                          # MODEL_NAME
+                None,                          # EMBEDDING_DIMENSION
+                None,                          # now
+                None,                          # content_type_code
+                None,                          # content_id
+            ])
+            raw_cursor.execute("""
                 UPDATE [newsengine].[fact_content_embedding]
-                SET embedding_vector_json = CAST(%s AS NVARCHAR(MAX)),
-                    embedding_model_name = %s,
-                    embedding_dimension_count = %s,
-                    modified_at = %s,
+                SET embedding_vector_json = ?,
+                    embedding_model_name = ?,
+                    embedding_dimension_count = ?,
+                    modified_at = ?,
                     is_active = 1
-                WHERE embedding_content_type_code = %s
-                  AND embedding_content_id = %s
+                WHERE embedding_content_type_code = ?
+                  AND embedding_content_id = ?
             """, [vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now,
                   content_type_code, content_id])
 
-            if cursor.rowcount == 0:
-                cursor.execute("""
+            if raw_cursor.rowcount == 0:
+                raw_cursor.setinputsizes([
+                    None,                          # content_type_code
+                    None,                          # content_id
+                    (pyodbc.SQL_WVARCHAR, 0, 0),  # vector_json
+                    None,                          # MODEL_NAME
+                    None,                          # EMBEDDING_DIMENSION
+                    None,                          # now
+                    None,                          # now
+                ])
+                raw_cursor.execute("""
                     INSERT INTO [newsengine].[fact_content_embedding]
                         (embedding_content_type_code, embedding_content_id,
                          embedding_vector_json, embedding_model_name,
                          embedding_dimension_count, is_active, created_at, modified_at)
-                    VALUES (%s, %s, CAST(%s AS NVARCHAR(MAX)), %s, %s, 1, %s, %s)
+                    VALUES (?, ?, ?, ?, ?, 1, ?, ?)
                 """, [content_type_code, content_id,
                       vector_json, MODEL_NAME, EMBEDDING_DIMENSION, now, now])
+            connection.connection.commit()
+        finally:
+            raw_cursor.close()
         return True
     except Exception as store_error:
         logger.error('embeddings: store failed for %s:%s — %s',

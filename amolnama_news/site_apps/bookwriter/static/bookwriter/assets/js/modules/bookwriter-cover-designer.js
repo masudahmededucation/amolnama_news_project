@@ -235,6 +235,28 @@
        which writes the FK code to the DB). The 'upload' branch reads
        the file as a data URL for live preview only — full upload
        persistence is a separate feature (deferred). ---------- */
+  /* Single source of truth for "apply this image File as the cover
+     background" — used by both the file-picker click on the Upload
+     tile AND the drag-drop handler below. Swaps the upload-tile
+     active state, sets currentBackgroundCode, paints the cover. */
+  function applyUploadedImageFileAsCoverBackground(imageFile) {
+    if (!imageFile || (imageFile.type || '').indexOf('image/') !== 0) return;
+    var fileReader = new FileReader();
+    fileReader.onload = function (fileReadEvent) {
+      var uploadOptionElement = document.querySelector(
+        '.bookwriter-background-option[data-bg="upload"]'
+      );
+      document.querySelectorAll('.bookwriter-background-option').forEach(function (otherBackgroundOptionElement) {
+        otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
+      });
+      if (uploadOptionElement) uploadOptionElement.classList.add('bookwriter-background-option-is-selected');
+      currentBackgroundCode = 'upload';
+      coverElement.style.background = 'url(' + fileReadEvent.target.result + ') center/cover, ' + currentPalette.bg;
+      if (coverArtElement) coverArtElement.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
+    };
+    fileReader.readAsDataURL(imageFile);
+  }
+
   document.querySelectorAll('.bookwriter-background-option').forEach(function (backgroundOptionElement) {
     backgroundOptionElement.addEventListener('click', function () {
       if (backgroundOptionElement.dataset.bg === 'upload') {
@@ -242,19 +264,8 @@
         fileInputElement.type = 'file';
         fileInputElement.accept = 'image/*';
         fileInputElement.onchange = function (fileChangeEvent) {
-          var uploadedImageFile = fileChangeEvent.target.files[0];
-          if (!uploadedImageFile) return;
-          var fileReader = new FileReader();
-          fileReader.onload = function (fileReadEvent) {
-            document.querySelectorAll('.bookwriter-background-option').forEach(function (otherBackgroundOptionElement) {
-              otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
-            });
-            backgroundOptionElement.classList.add('bookwriter-background-option-is-selected');
-            currentBackgroundCode = 'upload';
-            coverElement.style.background = 'url(' + fileReadEvent.target.result + ') center/cover, ' + currentPalette.bg;
-            if (coverArtElement) coverArtElement.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
-          };
-          fileReader.readAsDataURL(uploadedImageFile);
+          var pickedImageFile = fileChangeEvent.target.files && fileChangeEvent.target.files[0];
+          applyUploadedImageFileAsCoverBackground(pickedImageFile);
         };
         fileInputElement.click();
         return;
@@ -266,6 +277,33 @@
       currentBackgroundCode = backgroundOptionElement.dataset.bg;
       applyBackgroundToCoverPreview();
     });
+  });
+
+  /* Drag-drop image onto the cover surface — same effect as clicking
+     the Upload tile then picking a file, but discoverable for users
+     who already know the drag-drop pattern from prose images. The
+     dragover handler must preventDefault to allow the drop event;
+     dropEffect = 'copy' shows the file-copy cursor over the cover. */
+  function isImageFileDragEvent(dragEvent) {
+    if (!dragEvent.dataTransfer) return false;
+    var transferTypes = dragEvent.dataTransfer.types;
+    if (!transferTypes) return false;
+    for (var transferTypeIndex = 0; transferTypeIndex < transferTypes.length; transferTypeIndex++) {
+      if (transferTypes[transferTypeIndex] === 'Files') return true;
+    }
+    return false;
+  }
+  coverElement.addEventListener('dragover', function (dragOverEvent) {
+    if (!isImageFileDragEvent(dragOverEvent)) return;
+    dragOverEvent.preventDefault();
+    if (dragOverEvent.dataTransfer) dragOverEvent.dataTransfer.dropEffect = 'copy';
+  });
+  coverElement.addEventListener('drop', function (dropEvent) {
+    if (!isImageFileDragEvent(dropEvent)) return;
+    dropEvent.preventDefault();
+    var droppedFiles = dropEvent.dataTransfer && dropEvent.dataTransfer.files;
+    if (!droppedFiles || droppedFiles.length === 0) return;
+    applyUploadedImageFileAsCoverBackground(droppedFiles[0]);
   });
 
   /* ---------- BACKGROUND GRID (8 preset DB-backed backgrounds) —

@@ -47,10 +47,19 @@
   }
   window.bookwriter = {};
 
+  // X-Requested-With header marks our calls as XHR. dev.py's
+  // show_toolbar_callback skips Django Debug Toolbar on any request
+  // carrying this header — without it the toolbar runs on every
+  // chapter API call and adds ~1 sec of overhead per request
+  // (records every SQL query, signal, template render).
   function csrfHeaders() {
     var token = (typeof window.getCsrfTokenValue === 'function')
       ? window.getCsrfTokenValue() : '';
-    return { 'Content-Type': 'application/json', 'X-CSRFToken': token };
+    return {
+      'Content-Type': 'application/json',
+      'X-CSRFToken': token,
+      'X-Requested-With': 'XMLHttpRequest',
+    };
   }
   window.bookwriter.csrfHeaders = csrfHeaders;
 
@@ -73,7 +82,10 @@
     return fetch(urlPath, {
       method: 'DELETE',
       credentials: 'same-origin',
-      headers: { 'X-CSRFToken': csrfHeaders()['X-CSRFToken'] },
+      headers: {
+        'X-CSRFToken': csrfHeaders()['X-CSRFToken'],
+        'X-Requested-With': 'XMLHttpRequest',
+      },
     }).then(_toJsonOrThrow);
   }
   window.bookwriter.apiDelete = apiDelete;
@@ -81,6 +93,7 @@
   function apiGet(urlPath) {
     return fetch(urlPath, {
       credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
     }).then(_toJsonOrThrow);
   }
   window.bookwriter.apiGet = apiGet;

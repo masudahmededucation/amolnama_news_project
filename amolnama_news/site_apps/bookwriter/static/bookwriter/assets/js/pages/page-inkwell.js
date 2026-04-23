@@ -10,6 +10,36 @@
   'use strict';
 
   /* ========================================================
+     EMBEDDED-WRAPPER HEIGHT — measure the real header so the
+     manuscript scrolls correctly.
+     --------------------------------------------------------
+     The CSS rule for .bookwriter-embedded-wrapper is
+     `height: calc(100dvh - var(--bookwriter-header-offset, 64px))`.
+     The 64px default is wrong when the real chrome (auth controls,
+     notification bell, breadcrumb, sticky bar) is taller — the wrapper
+     extends past the viewport bottom and the manuscript's bottom rows
+     can't be reached even though the manuscript itself is scrollable.
+     We measure the real top offset of .bookwriter-embedded-wrapper at
+     page load + on viewport resize, and update the CSS variable so the
+     calc subtracts the actual chrome height. dvh handles iOS dynamic
+     URL bar; vh fallback for older browsers.
+     ======================================================== */
+  function syncBookwriterHeaderOffsetCustomProperty() {
+    var embeddedWrapperElement = document.querySelector('.bookwriter-embedded-wrapper');
+    if (!embeddedWrapperElement) return;
+    var realTopOffsetPx = Math.max(0, Math.round(embeddedWrapperElement.getBoundingClientRect().top));
+    document.documentElement.style.setProperty('--bookwriter-header-offset', realTopOffsetPx + 'px');
+  }
+  syncBookwriterHeaderOffsetCustomProperty();
+  window.addEventListener('resize', syncBookwriterHeaderOffsetCustomProperty);
+  // Re-measure after fonts/images settle — chrome can resize once webfont
+  // swap completes (heavier metrics) or after the SPA shell paints.
+  if (document.readyState !== 'complete') {
+    window.addEventListener('load', syncBookwriterHeaderOffsetCustomProperty);
+  }
+  setTimeout(syncBookwriterHeaderOffsetCustomProperty, 250);
+
+  /* ========================================================
      LOCAL PERSISTENCE — last mode, chapter, scroll position
      --------------------------------------------------------
      Lightweight client-only state so a returning user lands
@@ -40,6 +70,27 @@
       window.localStorage.setItem(STATE_KEY, JSON.stringify(next));
     } catch (e) { /* quota / private mode — drop silently */ }
   }
+
+
+  /* Defensively clear any stale collapse state + body classes from
+     earlier experiments so the rail/desk can't be frozen in a hidden
+     state if the user lands on cached HTML/CSS. */
+  try {
+    var savedStateForCleanup = loadState() || {};
+    if (savedStateForCleanup.isLeftRailCollapsed || savedStateForCleanup.isRightDeskCollapsed
+        || savedStateForCleanup.isRailCollapsed) {
+      delete savedStateForCleanup.isLeftRailCollapsed;
+      delete savedStateForCleanup.isRightDeskCollapsed;
+      delete savedStateForCleanup.isRailCollapsed;
+      window.localStorage.setItem(STATE_KEY, JSON.stringify(savedStateForCleanup));
+    }
+  } catch (e) { /* private mode / quota — ignore */ }
+  document.body.classList.remove(
+    'bookwriter-app-is-left-rail-collapsed',
+    'bookwriter-app-is-right-desk-collapsed',
+    'bookwriter-app-is-rail-collapsed',
+    'bookwriter-app-is-desk-collapsed'
+  );
 
 
   /* ========================================================
@@ -389,6 +440,16 @@
       prose.dataset.chapterId = String(chapterPayload.id || '');
       prose.innerHTML = chapterPayload.html || '';
     }
+    // Reset the manuscript scroll to the top of the new chapter.
+    // Without this, the scrollbar keeps the previous chapter's
+    // scrollTop, which on a SHORTER new chapter looks like the
+    // bottom border / page is cut off and the editor "won't
+    // scroll" — there's nothing to scroll to because the viewport
+    // is parked beyond the new content's height. Reported as
+    // "only chapter 1 shows borders, others are cut off at the
+    // bottom and won't scroll".
+    var manuscriptScrollableElement = document.querySelector('.bookwriter-manuscript');
+    if (manuscriptScrollableElement) manuscriptScrollableElement.scrollTop = 0;
     if (title) title.innerText = chapterPayload.title || '';
     var chapterLabelElement = document.querySelector('.bookwriter-chapter-label');
     // Prefer the ID-stamped crumb element added in Step 7 — falls back

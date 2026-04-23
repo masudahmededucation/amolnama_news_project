@@ -18,6 +18,105 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-autosave-pyodbc-ntext. Doubled chapter content lost on revisit
+Date: 2026-04-22
+Was: User typed a chapter, then doubled it by paste. On chapter re-open
+     the doubled content was gone — only the original survived. Server
+     traceback showed `Cannot convert to text/ntext or collate to
+     'Latin1_General_100_CI_AS_SC_UTF8'` on
+     api_bookwriter_chapter_autosave's chapter.save(update_fields=[
+     'chapter_text_html', 'chapter_text_plain', ...]) call. Same
+     pyodbc bug as memory/troubleshooting.md §5b — pyodbc auto-promoted
+     the long string to SQL_WLONGVARCHAR (ntext on the wire), which the
+     UTF-8 collation rejects at the parameter-binding layer. CAST in
+     the query can't save it. JS .catch() swallowed the 500 silently
+     (saveChip showed "offline · will retry" briefly), DB never
+     received the new content, revisit pulled the OLD content.
+Fix: Replaced the .save(update_fields=[...]) with a raw pyodbc cursor
+     in views_api_chapter.py:api_bookwriter_chapter_autosave. Pattern:
+       import pyodbc
+       django_db_connection.ensure_connection()
+       raw_cursor = django_db_connection.connection.cursor()
+       raw_cursor.setinputsizes([
+           (pyodbc.SQL_WVARCHAR, 0, 0),  # chapter_text_html
+           (pyodbc.SQL_WVARCHAR, 0, 0),  # chapter_text_plain
+           None, None, None, None,       # int + datetimes + WHERE pk
+       ])
+       raw_cursor.execute("UPDATE [bookwriter].[chapter] SET ... WHERE bookwriter_chapter_id = ?", [...])
+       django_db_connection.connection.commit()
+     Mirrored values to the in-memory chapter instance so callers below
+     see consistent state. Verified with a 9107-char throwaway-chapter
+     happy-path test — UPDATE returned 200 and the row carried 9107
+     chars in chapter_text_html post-roundtrip.
+Why .catch() didn't surface this: the autosave is fire-and-forget for
+     UX reasons (don't block typing on a flaky network). Future hardening:
+     escalate persistent autosave failures into a visible "save failed —
+     copy your text now" inline banner instead of a transient saveChip.
+
+### R-bookwriter-prose-image-feature. Drag-drop inline images
+Date: 2026-04-22
+Was: User wanted to drop an image into the manuscript prose, drag it to
+     reposition, resize without distortion, text wrapping around it.
+     None of these existed.
+Fix: Built as a self-contained module + matching backend. Six pieces:
+     1. core/utils.py:sanitize_user_html now accepts additive
+        extra_allowed_tags / extra_allowed_attrs_by_tag /
+        extra_allowed_void_tags / attr_value_validators_by_tag_attr.
+        Default behaviour unchanged for every other caller.
+     2. bookwriter/views_api_helpers.py:sanitize_chapter_prose_html
+        — opts in <img> with src/alt/class/style/data-float, each
+        constrained by per-attr validators (src must start with
+        /media/upload/bookwriter/chapter/, style must match
+        `width: Npx`, class restricted to .bookwriter-prose-image*
+        family, data-float in {left,right,center,none}).
+     3. bookwriter/image_uploads.py — Pillow.verify() validates real
+        image bytes (rejects spoofed extensions + image bombs); SVG
+        explicitly rejected (XSS via <foreignObject>); 5 MB cap;
+        UUID filename to prevent collisions and path traversal.
+     4. POST /bookwriter/api/chapter/<id>/image/upload/ — owner-checked,
+        returns the public /media URL.
+     5. modules/bookwriter-prose-image.js — drag-drop on prose,
+        caret-positioning at drop point via document.caretPositionFromPoint
+        (with caretRangeFromPoint fallback for Safari), click-cycle
+        float (left → center → right → none → left ...), pointerdown
+        hit-tested to bottom-right 18×18px corner for resize-with-aspect-
+        preserved, immediate autosave on insert (so drop never gets
+        stranded if the user closes the tab).
+     6. CSS: .bookwriter-prose-image* with native shape-outside:
+        margin-box for text wrap on float-left/right.
+     Security verified end-to-end via Django shell:
+        - upload: 200, real PNG bytes accepted, /media URL returned
+        - autosave roundtrip preserves <img src + alt + class + style + data-float>
+        - onerror attribute STRIPPED
+        - src=javascript:alert(1) DROPPED
+        - src=https://evil.example/x.png (cross-origin) DROPPED
+
+### R-bookwriter-layout-page-grows. Page-grows-with-text instead of internal manuscript scroll
+Date: 2026-04-22
+Was: Earlier the manuscript was a fixed-height internal scroll container
+     (`flex: 1; overflow-y: auto` with the documented `min-height: 0` flex
+     fix). User feedback: "the border should be responsive and adjustive
+     to the text. after its initial height, it should expand with the
+     text increasing." The fixed-height + internal scroll model
+     contradicted that — the red focus border looked like a small box
+     even on long chapters, and contenteditable caret-tracking broke
+     when the manuscript clipped content.
+Fix: Pivoted to page-grows-with-text:
+       - .bookwriter-stage: `overflow: hidden` removed
+       - .bookwriter-manuscript: `flex: 1` only; no overflow-y: auto
+       - .bookwriter-embedded-wrapper: `height` → `min-height` with
+         dvh + JS-measured `--bookwriter-header-offset` so the chrome
+         offset is exact (was hardcoded 64px; the real header is taller
+         once auth controls + notification bell render).
+       - .bookwriter-page is now a flex column
+       - .bookwriter-prose is `flex: 1` so the red focus border fills
+         the manuscript visible area on a short chapter
+     Sticky rails: .bookwriter-rail + .bookwriter-desk now
+     `position: sticky; top: var(--bookwriter-header-offset);
+     align-self: start; max-height: calc(100dvh - header)` so the
+     side panels stay pinned in the viewport as the page (window)
+     scrolls past them. Matches Notion / Docs / Reedsy UX.
+
 ### R-bookwriter-styling-audit. Styling + best-practices pass
 Date: 2026-04-22
 Findings + applied fixes:

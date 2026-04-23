@@ -4,6 +4,66 @@
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-22  Chapter autosave — raw pyodbc with setinputsizes(SQL_WVARCHAR)
+              for chapter_text_html + chapter_text_plain. Same pattern as
+              newsengine.embeddings (memory/troubleshooting.md §5b).
+              Without this, any autosave with HTML > ~2000 chars (UTF-8
+              text on the DB-default Latin1_General_100_CI_AS_SC_UTF8
+              collation) failed with `Cannot convert to text/ntext`.
+              Resolved the "doubled chapter content lost on revisit"
+              report. 9107-char roundtrip happy-path verified.
+  2026-04-22  newsengine embeddings — same raw pyodbc fix applied to
+              encode_and_store_embedding (UPDATE + INSERT branches).
+              Vector_json (~7 KB) was triggering the same ntext bug.
+              Plus HF_HUB_OFFLINE=1 set in the embedding-model loader
+              to silence "unauthenticated requests to HF Hub" warnings
+              on every model load (model is locally cached after first
+              download — no need to hit the public Hub).
+  2026-04-22  Inline picture in prose — drag-drop image into manuscript
+              with float-cycle (left/center/right/none) + corner-handle
+              resize (aspect-ratio preserved by setting width-only).
+              Components:
+                - image_uploads.py: Pillow-validated multipart uploader
+                  → /media/upload/bookwriter/chapter/<id>/<uuid>.<ext>
+                - api_bookwriter_chapter_image_upload endpoint
+                - sanitize_chapter_prose_html: opt-in <img> support via
+                  the new sanitize_user_html(extra_allowed_tags=...)
+                  parameter family. Per-attr validators constrain
+                  src to /media/upload/bookwriter/chapter/ prefix,
+                  style to 'width: Npx', class to a tight whitelist,
+                  data-float to {left,right,center,none}. SVG rejected
+                  at upload (XSS via <foreignObject>). All other apps'
+                  sanitize_user_html behaviour unchanged.
+                - modules/bookwriter-prose-image.js: drop handler,
+                  click-cycle float, pointerdown-on-corner-handle resize,
+                  immediate autosave on insert.
+                - CSS: .bookwriter-prose-image* rules with native
+                  `shape-outside: margin-box` for text wrap.
+                Verified end-to-end (upload + autosave + 3 attack vectors
+                blocked: onerror dropped, javascript: src dropped,
+                cross-origin src dropped).
+  2026-04-22  Layout pivot — manuscript no longer scrolls internally.
+              Stage's `overflow: hidden` removed; manuscript's `flex:1
+              + overflow-y: auto` replaced with `flex:1` only;
+              embedded-wrapper switched from fixed `height` to
+              `min-height` (uses dvh + JS-measured header offset).
+              .bookwriter-page is now a flex column and .bookwriter-prose
+              is `flex: 1` so the red focus-border box fills the
+              manuscript visible area on a short chapter and grows
+              with text past viewport (window scroll takes over).
+              Reflects "writing surface should be a real page that
+              gets longer as you write" UX — no internal scroll trap.
+  2026-04-22  Sticky rails — .bookwriter-rail (left, chapters + book
+              info) and .bookwriter-desk (right, daily target + synopsis)
+              are now position: sticky; top: var(--bookwriter-header-
+              offset); align-self: start; max-height: calc(100dvh -
+              header). Stops the side panels from drifting down with
+              the now-tall page. Same UX pattern as Notion/Docs/Reedsy.
+  2026-04-22  Multi-line {# #} sweep — 3 multi-line Django comments
+              in _inkwell_body.html collapsed to single lines
+              (margin-notes panel description, cover-background list
+              note, bible JSON-island comment). Multi-line {# #} leaks
+              to HTML (CLAUDE.md / troubleshooting.md §21).
   2026-04-22  Cover designer modularised — extracted to
               modules/bookwriter-cover-designer.js (330 LOC self-
               contained IIFE). page-inkwell.js dropped 2484 → 2175

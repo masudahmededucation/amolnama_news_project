@@ -236,6 +236,9 @@
                   id="bookwriter-tool-notes-button" name="bookwriter_tool_notes_button"
                   onclick="toggleMarginNotes()" title="Margin notes for this chapter">✎ notes</button>
           <button type="button" class="bookwriter-tool-btn"
+                  id="bookwriter-tool-image-button" name="bookwriter_tool_image_button"
+                  title="Insert image — or just drag-drop one into the page"><svg class="bookwriter-tool-btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1"/><circle cx="6" cy="7" r="1.2"/><path d="M14 11l-3.5-3.5L4 13"/></svg> image</button>
+          <button type="button" class="bookwriter-tool-btn"
                   id="bookwriter-tool-share-button"   name="bookwriter_tool_share_button"
                   onclick="openShare()" title="Share with beta readers">share</button>
           <button type="button" class="bookwriter-tool-btn"
@@ -537,8 +540,7 @@
       <div class="bookwriter-section">
         <div class="bookwriter-section-title">Background</div>
         <div class="bookwriter-cover-background-grid" id="bookwriter-cover-background-grid">
-          {# Static list — codes match seeded ref_cover_background. Adding a new one
-             is one INSERT in the seed + one entry here. #}
+          {# Static list — codes match seeded ref_cover_background. Adding a new one is one INSERT in the seed + one entry here. #}
           <button type="button"
                   class="bookwriter-cover-background-button bookwriter-cover-background-solid{% if not saved_cover_design_state.cover_background_code or saved_cover_design_state.cover_background_code == 'solid' %} bookwriter-cover-background-button-is-selected{% endif %}"
                   id="bookwriter-cover-background-solid-button"
@@ -1023,9 +1025,7 @@
   </div>
 
   {% if book_bible_entries_list %}
-    {# Server-rendered JSON island the bible JS reads to hydrate the
-       detail pane on item click without a network round-trip. Each
-       entry is small (a few KB) so this stays lean even at 50+ rows. #}
+    {# Server-rendered JSON island the bible JS reads to hydrate the detail pane on item click without a network round-trip. Each entry is small (a few KB) so this stays lean even at 50+ rows. #}
     {{ book_bible_entries_list|json_script:"bookwriter-bible-entries-data" }}
   {% endif %}
 
@@ -1267,9 +1267,7 @@
 
 
   {# ========================== MARGIN NOTES PANEL ========================== #}
-  {# Right-rail panel mirroring the snapshot-panel pattern. Lazy-loads
-     notes for the active chapter on first open. Anonymous visitors get
-     no panel — toolbar button is harmless (no chapter-id, no fetch). #}
+  {# Right-rail panel mirroring the snapshot-panel pattern. Lazy-loads notes for the active chapter on first open. Anonymous visitors get no panel — toolbar button is harmless (no chapter-id, no fetch). #}
   <aside class="bookwriter-margin-notes-panel" id="bookwriter-margin-notes-panel">
     <div class="bookwriter-snapshot-head">
       <h3>Margin Notes</h3>
