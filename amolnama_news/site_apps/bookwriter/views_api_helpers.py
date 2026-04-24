@@ -709,13 +709,23 @@ def build_book_card_payload(book, cover_design_or_none, viewer_display_name=''):
 # inside a single page. See bookwriter_book_reader view for usage.
 # =====================================================================
 
-# ~200 words = roughly one full page-face at the reader's serif font
-# size + 1.95 line-height (about 21 lines × 10 words/line).
-DEFAULT_READER_WORDS_PER_PAGE = 200
+# Target word budget per page-face. 110 words splits a chapter with
+# 1 image + 6 short-to-medium paragraphs (~200 words text + image)
+# into ~3 pages, which matches what the rendered visual reality looks
+# like (image takes ~half a page, text fills the rest, then overflow
+# pushes to a new page). Pure-text chapters with short paragraphs
+# still fit 1-2 pages naturally.
+DEFAULT_READER_WORDS_PER_PAGE = 110
 
-# Headings and images count as at least this many words so they don't
-# all stack on a single page when the surrounding text is short.
-READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT = 30
+# Headings, images, and blockquotes count as at least this many
+# words for pagination purposes — they take significant VISUAL space
+# (a 510px-wide image consumes ~half the page height) while their
+# text content alone is small or zero. 100 ≈ "almost a full page on
+# its own" so the next paragraph after an image always pushes to a
+# new page. Without this weight, an image squashed next to a couple
+# of paragraphs lands on a single overcrowded page that looks
+# nothing like the rendered visual reality.
+READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT = 100
 
 
 def _extract_top_level_blocks_from_html(html_text):
