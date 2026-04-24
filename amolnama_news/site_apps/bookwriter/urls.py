@@ -58,6 +58,15 @@ urlpatterns = [
         views_api_book.api_bookwriter_book_chapters_reorder,
         name="api_book_chapters_reorder",
     ),
+    # PDF export — entire book as a downloadable PDF (Edge-headless
+    # via shared tools.pdf_export_utils). Owner-only. GET so the
+    # toolbar's Export-PDF button can window.location to it for a
+    # native browser download.
+    path(
+        "api/book/<int:book_id>/export/pdf/",
+        views_api_book.api_bookwriter_book_export_pdf,
+        name="api_bookwriter_book_export_pdf",
+    ),
     path(
         "api/chapter/<int:chapter_id>/delete/",
         views_api_chapter.api_bookwriter_chapter_delete,

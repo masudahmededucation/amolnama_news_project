@@ -3,16 +3,23 @@
 Book-level endpoints: title/metadata save (extended fields like
 synopsis / status / daily target), chapter reorder, cover design save,
 public-reader subscribe-toggle (book-keyed even though it lives in the
-engagement domain logically)."""
+engagement domain logically), book-as-PDF export."""
 
+import logging
 import re
 
 from django.contrib.auth.decorators import login_required
-from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.utils import timezone
-from django.views.decorators.http import require_GET, require_POST, require_http_methods
+from django.views.decorators.http import require_GET, require_POST
 
 from amolnama_news.site_apps.core.utils import get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.tools.pdf_export_utils import (
+    render_django_template_to_book_pdf_response,
+    sanitize_string_to_safe_pdf_filename,
+)
+
+pdf_export_logger = logging.getLogger(__name__)
 
 from .models import (
     BookCoverDesign,
@@ -508,4 +515,93 @@ def api_bookwriter_book_subscribe_toggle(request, book_id):
         'is_subscribed': not is_currently_subscribed,
         'email_notifications_enabled': existing_row.email_notifications_enabled,
     })
+
+
+# ----------------------------------------------------------------
+# PDF export — entire book as a downloadable PDF
+# ----------------------------------------------------------------
+# Loads all active chapters of the book in chapter_number order,
+# renders the bookwriter/exports/book_pdf.html template (A4 layout
+# with title page + chapter sections + page numbers in footer),
+# pipes through the shared tools.pdf_export_utils Edge-headless
+# renderer, optionally injects a chapter outline (sidebar bookmarks
+# in PDF readers — currently a passthrough until pikepdf is
+# installed; see tools/pdf_export_utils.py for the architecture).
+# Owner-only: only the book's author can export.
+
+@login_required
+@require_GET
+def api_bookwriter_book_export_pdf(request, book_id):
+    """Render the full book as a downloadable PDF.
+
+    URL: /bookwriter/api/book/<book_id>/export/pdf/
+    Method: GET (browser navigation triggers the download).
+    Auth: login_required; owner-only via _resolve_book_for_owner.
+    """
+    viewer_user_profile_id = get_user_profile_id(request)
+    if not viewer_user_profile_id:
+        return HttpResponseForbidden()
+    owner_resolved_book, ownership_error_response = _resolve_book_for_owner(
+        book_id, viewer_user_profile_id,
+    )
+    if ownership_error_response is not None:
+        return ownership_error_response
+
+    chapters_in_book_order = list(
+        Chapter.objects.filter(
+            link_bookwriter_coll_book_id=owner_resolved_book.bookwriter_coll_book_id,
+            is_active=True,
+        ).order_by('chapter_number')
+    )
+
+    chapter_render_items = []
+    chapter_titles_for_pdf_outline = []
+    for chapter_row in chapters_in_book_order:
+        resolved_chapter_title = (
+            chapter_row.chapter_title_en
+            or chapter_row.chapter_title_bn
+            or 'Untitled Chapter'
+        )
+        chapter_render_items.append({
+            'chapter_number': chapter_row.chapter_number,
+            'chapter_title': resolved_chapter_title,
+            'chapter_text_html': chapter_row.chapter_text_html or '',
+            'chapter_word_count': chapter_row.chapter_word_count or 0,
+        })
+        chapter_titles_for_pdf_outline.append(resolved_chapter_title)
+
+    book_title_for_pdf = (
+        owner_resolved_book.book_title_en
+        or owner_resolved_book.book_title_bn
+        or 'Untitled Book'
+    )
+    book_author_for_pdf = (
+        owner_resolved_book.book_author_display_en
+        or owner_resolved_book.book_author_display_bn
+        or ''
+    )
+
+    template_context_for_book_pdf = {
+        'book_title': book_title_for_pdf,
+        'book_author': book_author_for_pdf,
+        'chapters': chapter_render_items,
+        'generated_at': timezone.now().strftime('%d %b %Y, %I:%M %p'),
+        'total_chapter_count': len(chapter_render_items),
+    }
+    safe_pdf_download_filename = sanitize_string_to_safe_pdf_filename(book_title_for_pdf)
+
+    try:
+        return render_django_template_to_book_pdf_response(
+            'bookwriter/exports/book_pdf.html',
+            template_context_for_book_pdf,
+            download_filename=safe_pdf_download_filename,
+            request=request,
+            chapter_titles_for_pdf_outline_fallback=chapter_titles_for_pdf_outline,
+        )
+    except Exception as pdf_export_error:
+        pdf_export_logger.exception(
+            'Bookwriter PDF export failed for book %s: %s',
+            book_id, pdf_export_error,
+        )
+        return HttpResponse('PDF export failed.', status=500)
 

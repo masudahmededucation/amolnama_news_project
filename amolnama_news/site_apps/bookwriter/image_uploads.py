@@ -69,7 +69,15 @@ def upload_chapter_image(uploaded_file, chapter_id):
             uploaded_file.seek(0)
             with Image.open(uploaded_file) as image_object:
                 image_object.verify()
-        except Exception:
+        except Exception as image_verification_error:
+            # Pillow's verify() rejects spoofed extensions, broken files, and
+            # decompression bombs. We surface a generic message to the user
+            # but log the underlying exception so an operator can diagnose
+            # whether legitimate images of some new format are being rejected.
+            logger.debug(
+                'Pillow.verify rejected upload: %s', image_verification_error,
+                exc_info=True,
+            )
             return {'success': False, 'error': 'File does not appear to be a valid image.'}
         finally:
             uploaded_file.seek(0)

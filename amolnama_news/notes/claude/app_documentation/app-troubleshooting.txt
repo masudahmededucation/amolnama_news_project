@@ -18,6 +18,67 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-pdf-export-weasyprint-tesseract-dll. WeasyPrint loaded wrong libgobject DLL from Tesseract
+Date: 2026-04-23
+Was: Bookwriter book-as-PDF export shipped using the Edge-headless
+     renderer (tools/pdf_export_utils.render_html_string_to_pdf_bytes).
+     Output had two problems even after the renderer ran cleanly:
+       1. Embedded /media/upload/bookwriter/chapter/*.png images were
+          missing from every chapter page (Edge running in headless
+          file:// mode refuses cross-origin loads of /media URLs even
+          with --allow-file-access-from-files; the only reliable fix
+          is rewriting /media + /static to absolute file:// URIs in
+          the HTML before printing, which adds fragile path-mapping
+          code per app).
+       2. No PDF outline / bookmarks for chapters. Edge headless does
+          not emit an outline from HTML at all. Fallback was a
+          pypdf-based text-search post-pass (already coded as
+          add_outline_bookmarks_to_pdf_bytes) that scans each page's
+          text for the chapter title — works but fragile against text
+          extraction quirks.
+     Decision: switch bookwriter to WeasyPrint, which reads CSS
+     `bookmark-level` + `bookmark-label: content()` natively (PDF
+     outline emitted directly into the catalog), AND resolves /media
+     and /static URLs against a `base_url` argument with no manual
+     rewriting needed, AND uses Pango for real Bengali Unicode
+     shaping. Wrote render_html_to_pdf_bytes_via_weasyprint() in
+     tools/pdf_export_utils.py as a sibling renderer to the
+     Edge path. Bookwriter view tries WeasyPrint first, falls back
+     to Edge-headless on ImportError so export always succeeds.
+     User installed WeasyPrint 68.1 + GTK3 Runtime. First
+     `import weasyprint` raised:
+       OSError: cannot load library
+       'C:\Program Files\Tesseract-OCR\libgobject-2.0-0.dll':
+       error 0x7e
+     Root cause: WeasyPrint loads its native deps via CFFI
+     (Pango / GLib / GDK-PixBuf / Cairo), which uses Windows'
+     standard DLL-search order — and Windows' standard order
+     walks every directory listed in `PATH` from left to right
+     and returns the FIRST hit. Tesseract-OCR ships its own
+     stale `libgobject-2.0-0.dll` (vendored alongside its OCR
+     binaries) and was earlier in PATH than the freshly-installed
+     `C:\Program Files\GTK3-Runtime Win64\bin`. CFFI grabbed the
+     Tesseract copy, which is built against a different GLib ABI,
+     and the load failed before WeasyPrint could even initialise.
+Fix: User reordered system PATH so `C:\Program Files\GTK3-Runtime
+     Win64\bin` appears BEFORE `C:\Program Files\Tesseract-OCR`.
+     After reorder + new shell, `python -c "import weasyprint;
+     print(weasyprint.__version__)"` returned `68.1` cleanly and
+     the bookwriter export round-tripped — user confirmed
+     "i tested, i can see the picture" and bookmarks now appear in
+     Adobe / Edge / Foxit sidebars. Cache v851 → v857.
+Lesson: Any future WeasyPrint consumer on a Windows dev machine
+     that ALSO has Tesseract installed will hit this exact failure
+     unless GTK3-Runtime\bin is ordered before Tesseract-OCR in
+     PATH. Document this as a one-line PATH check before debugging
+     anything else when `import weasyprint` fails on Windows.
+     Linux / Mac don't have this problem (separate package
+     namespaces). The graceful Edge-headless fallback in
+     bookwriter/views_api_book.py:api_bookwriter_book_export_pdf
+     means a missing / broken WeasyPrint never breaks the export
+     — only the bookmarks downgrade from CSS-native to
+     pypdf-text-search.
+
 ### R-bookwriter-bangla-input-conjunct-cursor. Cursor stuck mid-word for conjunct Bengali
 Date: 2026-04-23
 Was: Wired BanglaInput into the bookwriter chapter title + prose +

@@ -1,9 +1,55 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-23 (post-bangla-input-wiring)
+  Last refreshed: 2026-04-24 (post-pdf-export)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-24  Book-as-PDF export. New endpoint
+              api_bookwriter_book_export_pdf at
+              /bookwriter/api/book/<book_id>/export/pdf/ (GET,
+              login_required, owner-only via
+              _resolve_book_for_owner). Loads all active chapters
+              of the book in chapter_number order, renders the
+              new bookwriter/exports/book_pdf.html template
+              (A4 layout: cover/title page + per-chapter sections
+              + page numbers in footer via @page CSS).
+              Renderer: shared
+              tools.pdf_export_utils.render_django_template_to_book_pdf_response
+              one-call helper, which internally tries WeasyPrint
+              first (with request.build_absolute_uri('/') as
+              base_url so relative <img src="/media/upload/bookwriter/...">
+              tags are fetched from the running Django server
+              automatically — no manual file:// path rewriting)
+              and falls back to Edge-headless on ImportError.
+              Native PDF chapter bookmarks via CSS
+              `bookmark-level: 1; bookmark-label: content();`
+              on the chapter h1 — readers (Adobe / Edge / Chrome /
+              Foxit) show the chapter list in their bookmarks
+              sidebar and clicking jumps to that chapter.
+              The view itself is now ~25 lines: load chapters,
+              build template context + chapter_titles list, call
+              the helper. All orchestration (try WeasyPrint →
+              fallback Edge → conditional outline injection →
+              HttpResponse wrapping with attachment headers) lives
+              in the shared util so future report apps (mastermind,
+              historybd, constitutionbd) can reuse it with one call.
+              Toolbar: new "📥 export PDF" button in the inkwell
+              toolbar (between notes and share). Click →
+              window.location to the endpoint → native browser
+              download. Renders only when current_book is set
+              (logged-in book owners).
+              Files added:
+                - bookwriter/views_api_book.py
+                  api_bookwriter_book_export_pdf endpoint
+                - bookwriter/urls.py — URL pattern
+                - bookwriter/templates/bookwriter/exports/
+                  book_pdf.html — A4 PDF template
+                - inkwell toolbar button + JS click handler
+              See app-tools.txt "Shared PDF export utility" for
+              the underlying renderer architecture.
+              Cache v854 -> v855.
+
+  2026-04-23  Bangla input wired into the writing surfaces.
   2026-04-23  Bangla input wired into the writing surfaces. The
               chapter title (<h1 contenteditable>), the chapter
               prose (<div contenteditable>), and the full-screen

@@ -326,6 +326,20 @@
     });
   }
 
+  /* PDF export — toolbar button navigates to the server endpoint
+     which streams back the PDF as an attachment. window.location =
+     URL is the simplest way to trigger a native browser download
+     for a GET endpoint; no fetch / blob / object-URL juggling. */
+  var exportPdfButtonElement = document.getElementById('bookwriter-tool-export-pdf-button');
+  if (exportPdfButtonElement) {
+    exportPdfButtonElement.addEventListener('click', function (clickEvent) {
+      clickEvent.preventDefault();
+      var bookIdForPdfExport = exportPdfButtonElement.getAttribute('data-bookwriter-book-id');
+      if (!bookIdForPdfExport) return;
+      window.location = '/bookwriter/api/book/' + encodeURIComponent(bookIdForPdfExport) + '/export/pdf/';
+    });
+  }
+
 
   /* ========================================================
      BOOK-LEVEL AUTOSAVE — title + author display

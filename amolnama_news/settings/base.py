@@ -218,6 +218,19 @@ NEWSHUB_UPLOAD_DIR = "upload/newshub"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
+# ----------------------------------------------------------------
+# PDF export — headless Edge browser path
+# ----------------------------------------------------------------
+# Used by tools.pdf_export_utils.render_html_string_to_pdf_bytes()
+# (shared by debate arena PDF download and bookwriter book PDF
+# export). Default below points at the standard Windows Edge
+# install. Override this in settings/dev.py / settings/local.py
+# / production environment for Linux / Mac / non-default Edge
+# install paths.
+EDGE_EXECUTABLE_PATH_FOR_PDF_EXPORT = (
+    "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"
+)
+
 # Custom user model
 AUTH_USER_MODEL = "user_account.User"
 

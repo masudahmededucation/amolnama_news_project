@@ -1,20 +1,18 @@
 """Debate views — topic list (home) and arena (topic detail with blue/red boards)."""
 
-import os
-import re
 import logging
-import subprocess
-import tempfile
 
 from django.shortcuts import render, redirect
 from django.http import Http404, HttpResponse
-from django.template.loader import render_to_string
 from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 
-logger = logging.getLogger(__name__)
+from amolnama_news.site_apps.tools.pdf_export_utils import (
+    render_django_template_to_pdf_response,
+    sanitize_string_to_safe_pdf_filename,
+)
 
-EDGE_EXECUTABLE_PATH = 'C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe'
+logger = logging.getLogger(__name__)
 
 from .models import CollTopic, CollPost, CollTopicParticipant, RefTeamSide, RefTopicStatus
 
@@ -502,16 +500,6 @@ def build_debate_promo_items():
     return promo_items
 
 
-def _sanitize_pdf_filename(raw_title):
-    """Clean Bengali title for safe PDF filename — max 5 words, 50 chars."""
-    cleaned = re.sub(r'[?!।:;\'"\/\\<>|*\n\r\t]', '', raw_title).strip()
-    words = cleaned.split()[:5]
-    name = ' '.join(words)
-    if len(name) > 50:
-        name = name[:50].strip()
-    return name + '.pdf'
-
-
 def topic_download_pdf(request, topic_slug):
     """Generate PDF of debate arena via Edge headless — direct download, perfect Bengali text."""
     try:
@@ -619,53 +607,23 @@ def topic_download_pdf(request, topic_slug):
     topic_item['blue_total_score'] = pdf_blue_score
     topic_item['red_total_score'] = pdf_red_score
 
-    html_content = render_to_string('debate/pages/debate-arena-pdf.html', {
+    template_context_for_pdf = {
         'topic': topic_item,
         'blue_threads': blue_thread_items,
         'red_threads': red_thread_items,
         'generated_at': timezone.now().strftime('%d %b %Y, %I:%M %p'),
-    })
-
-    html_temp_path = os.path.join(tempfile.gettempdir(), f'_debate_pdf_{topic_id}.html')
-    pdf_temp_path = os.path.join(tempfile.gettempdir(), f'_debate_pdf_{topic_id}.pdf')
-
+    }
+    safe_pdf_filename = sanitize_string_to_safe_pdf_filename(topic.topic_title)
     try:
-        with open(html_temp_path, 'w', encoding='utf-8') as html_file:
-            html_file.write(html_content)
-
-        # Remove stale PDF from previous run
-        if os.path.exists(pdf_temp_path):
-            os.remove(pdf_temp_path)
-
-        subprocess.run(
-            [EDGE_EXECUTABLE_PATH, '--headless', '--disable-gpu', '--no-sandbox',
-             f'--print-to-pdf={pdf_temp_path}', html_temp_path],
-            capture_output=True, text=True, timeout=30,
+        return render_django_template_to_pdf_response(
+            'debate/pages/debate-arena-pdf.html',
+            template_context_for_pdf,
+            download_filename=safe_pdf_filename,
+            request=request,
         )
-
-        if not os.path.exists(pdf_temp_path):
-            logger.error('Edge headless PDF generation produced no output for topic %s', topic_id)
-            return HttpResponse('PDF generation failed.', status=500)
-
-        with open(pdf_temp_path, 'rb') as pdf_file:
-            pdf_bytes = pdf_file.read()
-
-    except subprocess.TimeoutExpired:
-        logger.error('Edge headless PDF generation timed out for topic %s', topic_id)
-        return HttpResponse('PDF generation timed out.', status=500)
-    except Exception as error:
-        logger.exception('PDF generation failed for topic %s: %s', topic_id, error)
+    except Exception as pdf_generation_error:
+        logger.exception(
+            'PDF generation failed for debate topic %s: %s',
+            topic_id, pdf_generation_error,
+        )
         return HttpResponse('PDF generation failed.', status=500)
-    finally:
-        # Clean up temp files
-        for temp_path in (html_temp_path, pdf_temp_path):
-            try:
-                if os.path.exists(temp_path):
-                    os.remove(temp_path)
-            except OSError:
-                logger.debug('temp file cleanup failed for %s', temp_path, exc_info=True)
-
-    filename = _sanitize_pdf_filename(topic.topic_title)
-    response = HttpResponse(pdf_bytes, content_type='application/pdf')
-    response['Content-Disposition'] = f'attachment; filename="{filename}"'
-    return response

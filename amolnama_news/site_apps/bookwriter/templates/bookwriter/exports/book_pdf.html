@@ -1,0 +1,159 @@
+{% comment %}
+Bookwriter — book-as-PDF export template.
+Used by views_api_book.api_bookwriter_book_export_pdf via the
+shared tools.pdf_export_utils Edge-headless renderer.
+
+Why inline <style> here (one of the few legitimate cases per
+CLAUDE.md GATE 4 "no internal CSS unless absolutely necessary"):
+the PDF is rendered by spawning a separate Edge process against a
+temp HTML file. That file MUST be fully self-contained — no
+external CSS link can be resolved against the dev server, no
+{% static %} URL works because Edge isn't running on the same
+origin. Same constraint that made seo/views.py's offline-page
+HTML inline its <style> block. Documented in tools/pdf_export_utils.py.
+
+Layout:
+  - Cover / title page (page 1): book title + author + date
+  - Per chapter: chapter heading + chapter HTML body
+  - @page CSS: A4, 25mm margins, page numbers in footer
+{% endcomment %}<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="utf-8">
+  <title>{{ book_title }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&family=EB+Garamond:wght@400;500&family=Fraunces:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    /* @page rules — applied by Edge headless --print-to-pdf to
+       set physical paper size + margins + running headers/footers. */
+    @page {
+      size: A4;
+      margin: 25mm 25mm 28mm 25mm;
+      @bottom-center {
+        content: counter(page) ' / ' counter(pages);
+        font-family: 'EB Garamond', Georgia, serif;
+        font-size: 10pt;
+        color: #7a6f5e;
+      }
+    }
+    @page :first { @bottom-center { content: ''; } }
+
+    html, body { margin: 0; padding: 0; }
+    body {
+      font-family: 'EB Garamond', 'Noto Sans Bengali', Georgia, serif;
+      font-size: 12pt;
+      line-height: 1.7;
+      color: #1a1612;
+    }
+
+    /* Cover / title page — first page only. page-break-after
+       forces the next chapter to start on a fresh page. */
+    .bookwriter-pdf-cover-page {
+      text-align: center;
+      padding-top: 80mm;
+      page-break-after: always;
+    }
+    .bookwriter-pdf-cover-title {
+      font-family: 'Fraunces', 'Noto Sans Bengali', serif;
+      font-weight: 700;
+      font-size: 36pt;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 0 0 24mm 0;
+    }
+    .bookwriter-pdf-cover-author {
+      font-family: 'EB Garamond', 'Noto Sans Bengali', serif;
+      font-style: italic;
+      font-size: 16pt;
+      color: #3d342a;
+      margin: 0;
+    }
+    .bookwriter-pdf-cover-generated-at {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9pt;
+      color: #b3a692;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      position: absolute;
+      bottom: 30mm;
+      left: 0;
+      right: 0;
+    }
+
+    /* Each chapter starts a fresh page. */
+    .bookwriter-pdf-chapter-section {
+      page-break-before: always;
+    }
+    .bookwriter-pdf-chapter-section:first-of-type {
+      /* The cover page already forces a break, so the first
+         chapter doesn't need an additional one. */
+      page-break-before: avoid;
+    }
+    .bookwriter-pdf-chapter-number-label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10pt;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: #7a6f5e;
+      text-align: center;
+      margin: 24mm 0 6mm 0;
+    }
+    .bookwriter-pdf-chapter-title {
+      font-family: 'Fraunces', 'Noto Sans Bengali', serif;
+      font-weight: 500;
+      font-size: 28pt;
+      line-height: 1.1;
+      text-align: center;
+      margin: 0 0 18mm 0;
+      /* Native PDF outline — WeasyPrint reads these CSS properties
+         and emits a chapter bookmark in the PDF catalog for each
+         h1, so PDF readers (Adobe, browsers, Foxit) show the
+         chapter list in their sidebar / bookmarks panel and the
+         user can click a chapter to jump to it. Edge-headless
+         ignores these properties — fallback path uses pypdf
+         text-search post-processing (see tools/pdf_export_utils.py
+         add_outline_bookmarks_to_pdf_bytes). */
+      bookmark-level: 1;
+      bookmark-label: content();
+    }
+    .bookwriter-pdf-chapter-body p {
+      margin: 0 0 1em 0;
+      text-indent: 2em;
+    }
+    .bookwriter-pdf-chapter-body p:first-of-type { text-indent: 0; }
+    .bookwriter-pdf-chapter-body img {
+      display: block;
+      max-width: 100%;
+      height: auto;
+      margin: 1.2em auto;
+    }
+    .bookwriter-pdf-chapter-body blockquote {
+      margin: 1em 0 1em 0;
+      padding: 0.4em 0 0.4em 1.2em;
+      border-left: 3px solid #8b2a1f;
+      color: #3d342a;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="bookwriter-pdf-cover-page" id="bookwriter-pdf-cover-page" name="bookwriter_pdf_cover_page">
+    <h1 class="bookwriter-pdf-cover-title" id="bookwriter-pdf-cover-title" name="bookwriter_pdf_cover_title">{{ book_title }}</h1>
+    {% if book_author %}
+      <p class="bookwriter-pdf-cover-author" id="bookwriter-pdf-cover-author" name="bookwriter_pdf_cover_author">by {{ book_author }}</p>
+    {% endif %}
+    <div class="bookwriter-pdf-cover-generated-at" id="bookwriter-pdf-cover-generated-at" name="bookwriter_pdf_cover_generated_at">
+      Generated {{ generated_at }} &middot; {{ total_chapter_count }} chapter{{ total_chapter_count|pluralize }}
+    </div>
+  </div>
+
+  {% for chapter in chapters %}
+    <section class="bookwriter-pdf-chapter-section" id="bookwriter-pdf-chapter-section-{{ chapter.chapter_number }}" name="bookwriter_pdf_chapter_section_{{ chapter.chapter_number }}">
+      <div class="bookwriter-pdf-chapter-number-label">Chapter {{ chapter.chapter_number }}</div>
+      <h1 class="bookwriter-pdf-chapter-title" id="bookwriter-pdf-chapter-title-{{ chapter.chapter_number }}" name="bookwriter_pdf_chapter_title_{{ chapter.chapter_number }}">{{ chapter.chapter_title }}</h1>
+      <div class="bookwriter-pdf-chapter-body" id="bookwriter-pdf-chapter-body-{{ chapter.chapter_number }}" name="bookwriter_pdf_chapter_body_{{ chapter.chapter_number }}">
+        {{ chapter.chapter_text_html|safe }}
+      </div>
+    </section>
+  {% endfor %}
+</body>
+</html>

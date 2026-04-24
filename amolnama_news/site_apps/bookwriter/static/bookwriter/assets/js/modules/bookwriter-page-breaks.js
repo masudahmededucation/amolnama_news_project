@@ -268,6 +268,7 @@
         var resizeObserver = new ResizeObserver(scheduleRecompute);
         resizeObserver.observe(proseElement);
       } catch (resizeObserverError) {
+        console.error('bookwriter-page-breaks: ResizeObserver init failed, falling back to window resize', resizeObserverError);
         window.addEventListener('resize', scheduleRecompute);
       }
     } else {

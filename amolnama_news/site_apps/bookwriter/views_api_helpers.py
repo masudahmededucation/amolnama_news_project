@@ -22,7 +22,7 @@ import re
 import secrets
 from datetime import timedelta
 
-from django.db.models import Count, Max, Sum
+from django.db.models import Count, Sum
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.utils import timezone
 

@@ -81,8 +81,19 @@
       }
     )
       .then(function (response) { return response.json(); })
-      .then(function (data) { return (data && data.ok) ? data.image_url : null; })
-      .catch(function () { return null; });
+      .then(function (data) {
+        if (data && data.ok) return data.image_url;
+        // Server rejected the upload (Pillow.verify failed, file too
+        // big, owner mismatch, etc). Log so the issue is visible in
+        // the console; caller falls back to "image just doesn't
+        // appear" UX which is intentional.
+        console.error('uploadChapterImageFile: server rejected upload', data && data.error);
+        return null;
+      })
+      .catch(function (uploadNetworkError) {
+        console.error('uploadChapterImageFile: network error', uploadNetworkError);
+        return null;
+      });
   }
   function notifyProseChangedImmediately(proseElement) {
     proseElement.dispatchEvent(new Event('input', { bubbles: true }));

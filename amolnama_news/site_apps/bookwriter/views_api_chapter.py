@@ -12,7 +12,7 @@ from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonRespo
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
 
-from amolnama_news.site_apps.core.utils import get_user_profile_id, sanitize_user_html
+from amolnama_news.site_apps.core.utils import get_user_profile_id
 
 from .models import (
     Chapter,

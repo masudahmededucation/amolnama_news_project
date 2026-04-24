@@ -8,6 +8,12 @@ URL prefix: /tools/
 Free client-side utility tools — file compression, conversion, image processing,
 PDF operations, and calculators. All processing done in browser (no server upload).
 
+ALSO hosts the project-wide **shared PDF export utility** (server-side):
+  tools/pdf_export_utils.py — single source of truth for any app
+  that needs to render an HTML template into a downloadable PDF.
+  Used by debate (arena PDF download) and bookwriter (book PDF
+  export). See `## Shared PDF export utility` section below.
+
 ## Models
 None — all tools are client-side JavaScript.
 
@@ -74,3 +80,136 @@ One per tool + landing page. Each is self-contained with client-side JS.
 - All processing is client-side — no file uploads to server
 - api_transliterate is a proxy to Google's transliteration API — may rate-limit
 - CSP allows required CDNs for PDF.js, JSZip, etc.
+
+
+## Shared PDF export utility (server-side) — tools/pdf_export_utils.py
+
+Single source of truth for HTML → PDF generation across the project.
+Used by debate.views.topic_download_pdf and
+bookwriter.views_api_book.api_bookwriter_book_export_pdf. Any future
+app that needs HTML → PDF should import from here, NOT roll its own
+subprocess / temp-file / Edge invocation code.
+
+Public API (two renderers — caller picks based on need):
+
+  EDGE-HEADLESS RENDERER (the "screenshot of a webpage" path):
+    render_html_string_to_pdf_bytes(html_content, *, timeout_seconds=60) -> bytes
+    render_django_template_to_pdf_response(template_name, context, *,
+                                            download_filename,
+                                            request=None,
+                                            timeout_seconds=60) -> HttpResponse
+
+  WEASYPRINT RENDERER (the "real document" path — books, reports):
+    render_html_to_pdf_bytes_via_weasyprint(html_content, *,
+                                             base_url=None) -> bytes
+                                             (raises ImportError if
+                                              GTK3 runtime missing)
+    render_django_template_to_book_pdf_response(template_name, context, *,
+                                                 download_filename,
+                                                 request,
+                                                 chapter_titles_for_pdf_outline_fallback=None,
+                                                 edge_fallback_timeout_seconds=120) -> HttpResponse
+        One-call helper for any "book / multi-chapter document"
+        consumer. Tries WeasyPrint first (native bookmarks via
+        CSS bookmark-level, real Bengali shaping via Pango),
+        falls back to Edge-headless on ImportError so the export
+        never breaks (only the bookmarks downgrade from CSS-
+        native to pypdf text-search using the supplied
+        chapter_titles_for_pdf_outline_fallback). Wraps the bytes
+        in an HttpResponse with attachment Content-Disposition
+        ready to return from a Django view. Bookwriter book
+        export uses this; future report apps (mastermind /
+        historybd / constitutionbd PDFs) should too — single
+        source of truth for the orchestration so consumers
+        don't reimplement the try/fallback/outline/wrap dance.
+
+  SHARED HELPERS:
+    sanitize_string_to_safe_pdf_filename(raw_title_text, *,
+                                          max_words=5, max_chars=50) -> str
+    add_outline_bookmarks_to_pdf_bytes(pdf_bytes,
+                                        ordered_section_titles) -> bytes
+                                        (pypdf text-search outline
+                                         injection — used by Edge
+                                         path; WeasyPrint emits its
+                                         own outline natively via
+                                         CSS bookmark-level)
+
+How it works:
+  1. Caller renders a Django template into HTML (or calls the
+     render_django_template_to_pdf_response helper to do this in
+     one call).
+  2. The HTML string is written to a uniquely-named temp file
+     (tempfile.NamedTemporaryFile — fixes the per-id collision the
+     original debate code had when two users exported the same
+     topic simultaneously).
+  3. Headless Edge is spawned with --print-to-pdf=<temp_pdf_path>.
+  4. The resulting PDF is read back as bytes; both temp files are
+     cleaned up in a `finally` block.
+  5. Bytes are returned (or wrapped in an HttpResponse with
+     attachment headers).
+
+Edge executable path:
+  Resolved from settings.EDGE_EXECUTABLE_PATH_FOR_PDF_EXPORT
+  (defaults to the standard Windows install). Override per
+  environment (Linux servers, Mac dev machines) via
+  settings/dev.py / settings/local.py / production env vars.
+
+Bookmarks (PDF outline) — two paths:
+  - Edge-headless path: Edge does NOT emit a PDF outline from
+    HTML. add_outline_bookmarks_to_pdf_bytes uses pypdf (already
+    installed) to scan each page's extracted text and add an
+    outline entry for the first page that contains each chapter
+    title (in order). Wrapper-and-callback architecture so the
+    Edge consumer (debate) can opt in or skip.
+  - WeasyPrint path: native CSS-driven outline. Add
+    `bookmark-level: 1; bookmark-label: content();` to the
+    chapter title CSS in your template and WeasyPrint emits the
+    outline directly into the PDF catalog. No post-processing.
+    Bookwriter uses this — see book_pdf.html.
+
+When to use which renderer:
+
+  Edge-headless (render_html_string_to_pdf_bytes):
+    - Reports / single-page exports / "screenshot of a webpage"
+    - Consumer: debate arena PDF download.
+    - No GTK3 runtime needed.
+    - Trade-off: text-search post-processing for bookmarks.
+
+  WeasyPrint (render_html_to_pdf_bytes_via_weasyprint):
+    - Books / multi-chapter documents / professional reports
+    - Native PDF outline (bookmarks) via CSS.
+    - Native page numbers / running headers via @page CSS.
+    - Real Bengali Unicode shaping via Pango.
+    - Resolves /media/ + /static/ URLs against base_url
+      automatically — no manual file:// rewriting needed.
+    - Consumer: bookwriter book PDF export.
+    - Requires GTK3 runtime on Windows (Pango / GLib / Cairo
+      DLLs). PATH must order GTK3-Runtime\bin BEFORE Tesseract
+      so CFFI grabs the right libgobject-2.0-0.dll. Linux /
+      Mac: standard apt / brew packages.
+
+Graceful fallback:
+  bookwriter wraps the WeasyPrint call in try/except ImportError
+  and falls back to Edge-headless if WeasyPrint can't load. So
+  the export always succeeds; only the bookmarks downgrade from
+  CSS-native to pypdf-text-search when WeasyPrint isn't available.
+
+Adding a new consumer:
+  - For a book / report with chapter bookmarks (preferred path):
+      1. Add `bookmark-level: 1; bookmark-label: content();` to
+         your chapter title CSS in the export template.
+      2. In your view, build the chapter_titles list (used only
+         for the Edge-headless fallback bookmark injection).
+      3. Call render_django_template_to_book_pdf_response(template,
+         context, download_filename=..., request=request,
+         chapter_titles_for_pdf_outline_fallback=chapter_titles).
+      4. Return the HttpResponse from your view. Done — no
+         try/except for ImportError, no manual HttpResponse
+         wrapping, no manual outline injection.
+  - For a "screenshot of a webpage" PDF (debate-style):
+      1. Render an HTML template (fully self-contained — no
+         external CSS link can be resolved in the temp HTML —
+         inline <style> is the documented exception).
+      2. Call render_django_template_to_pdf_response(template,
+         context, download_filename=...).
+      3. Return the HttpResponse from your view.

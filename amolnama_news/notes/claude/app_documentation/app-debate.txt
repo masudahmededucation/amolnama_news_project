@@ -5,6 +5,22 @@ URL prefix: /debate/
 Nav: ⚖️ তর্ক-বিতর্ক (below Home in sidebar)
 ================================================================
 
+## Recent change log
+
+  2026-04-24  topic_download_pdf refactored to use the shared
+              tools.pdf_export_utils module (single source of
+              truth for project-wide HTML→PDF). No outward
+              behaviour change — PDF output identical to before.
+              Side fix: temp-file naming now uses
+              tempfile.NamedTemporaryFile (random suffix) instead
+              of f'_debate_pdf_{topic_id}.html' which collided
+              when two users exported the same topic
+              simultaneously. The EDGE_EXECUTABLE_PATH constant
+              moved from this view to settings.base
+              (EDGE_EXECUTABLE_PATH_FOR_PDF_EXPORT) so dev / prod
+              environments can override per OS.
+              See app-tools.txt "Shared PDF export utility".
+
 ## Concept
 Scheduled, text-based debate platform — "Digital Colosseum".
 Structured argument arena, NOT a comment section.
