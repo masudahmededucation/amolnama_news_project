@@ -195,18 +195,28 @@
 
   function recomputePageBreakMarkers(proseElement) {
     var overlay = getOrCreatePageBreakOverlay(proseElement);
-    /* scrollHeight = full content height including overflow.
-       Use it (not clientHeight) so we count all content, not
-       just what's currently visible in the viewport. */
-    var totalContentHeightPx = proseElement.scrollHeight;
-    var totalPageCount = Math.max(1, Math.ceil(totalContentHeightPx / APPROX_A4_PAGE_HEIGHT_PX));
+    /* Measure the REAL content bottom (last visible child's bottom
+       edge), not scrollHeight. scrollHeight includes the min-height
+       this function sets on a previous run — when the user switches
+       from a long chapter to a short/empty one, the prose element
+       survives (only innerHTML is swapped), so the previous min-height
+       keeps padding scrollHeight and the page count stays inflated.
+       Symptom: "open a long chapter, switch to a new/empty chapter,
+       see 3 empty pages on the empty chapter".
+       findLastContentBottomPxRelativeToProse skips our own overlay
+       and the empty <p><br></p> placeholder, so it gives a faithful
+       content height regardless of the current min-height padding. */
+    var realContentBottomPx = findLastContentBottomPxRelativeToProse(proseElement);
+    var totalPageCount = Math.max(1, Math.ceil(realContentBottomPx / APPROX_A4_PAGE_HEIGHT_PX));
     /* Expand the prose's min-height up to the next FULL A4 page
        boundary so the last page never appears half-empty. A
        1.5-page chapter renders as 2 full A4 pages — the writer
        sees the rest of the second page as blank writing space.
-       This nudges the prose taller; we don't shrink it (chapters
-       can grow during typing without ResizeObserver feedback
-       loops). */
+       Both grow AND shrink — the previous never-shrink rule was
+       what caused the multi-empty-page bug. The
+       `if currentMinHeightPx !== fullPageHeightPx` guard already
+       prevents the ResizeObserver feedback loop (a second recompute
+       pass sees the same content bottom and exits without writing). */
     var fullPageHeightPx = totalPageCount * APPROX_A4_PAGE_HEIGHT_PX;
     var currentMinHeightPx = parseFloat(proseElement.style.minHeight) || 0;
     if (currentMinHeightPx !== fullPageHeightPx) {

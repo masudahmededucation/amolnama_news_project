@@ -7,7 +7,7 @@ unpublish / status save."""
 import re
 
 from django.contrib.auth.decorators import login_required
-from django.db.models import Max
+from django.db.models import F, Max
 from django.http import HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST, require_http_methods
@@ -357,13 +357,32 @@ def api_bookwriter_chapter_delete(request, chapter_id):
     chapter, _owning_book = resolved
 
     saved_at = timezone.now()
+    deleted_chapter_number = chapter.chapter_number
+    owning_book_id = chapter.link_bookwriter_coll_book_id
     chapter.is_active = False
     chapter.updated_at = saved_at
     chapter.save(update_fields=['is_active', 'updated_at'])
 
-    book_total_words, book_total_chapters = _refresh_book_caches(
-        chapter.link_bookwriter_coll_book_id
+    # Close the gap left by the soft-delete: every remaining active
+    # chapter in this book that sits AFTER the deleted one shifts
+    # one position toward the start. Without this, the visible
+    # numbering develops gaps (deleting chapter 6 from 1..8 leaves
+    # 1,2,3,4,5,7,8) AND the next "+ new chapter" picks
+    # max(chapter_number) + 1 = 9 instead of the next sequential
+    # slot. Both effects are user-visible and were the bug. We
+    # update sort_order with the same shift so the rail keeps the
+    # chapters in their previous visual order.
+    Chapter.objects.filter(
+        link_bookwriter_coll_book_id=owning_book_id,
+        is_active=True,
+        chapter_number__gt=deleted_chapter_number,
+    ).update(
+        chapter_number=F('chapter_number') - 1,
+        sort_order=F('sort_order') - 1,
+        updated_at=saved_at,
     )
+
+    book_total_words, book_total_chapters = _refresh_book_caches(owning_book_id)
 
     return JsonResponse({
         'ok': True,

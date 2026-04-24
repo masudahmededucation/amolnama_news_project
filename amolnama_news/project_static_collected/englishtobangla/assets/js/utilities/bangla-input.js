@@ -351,16 +351,36 @@ const BanglaInput = (function() {
     }
 
     /* For contenteditable, position the suggest box near the current
-       caret on every show. Uses the Selection's bounding rect. */
+       caret on every show. Uses the Selection's bounding rect.
+       Empty-contenteditable fallback: in Chromium-based browsers,
+       a collapsed Range inside an empty contenteditable (no <p>/<br>
+       children — only an absolutely-positioned overlay child) returns
+       a {0,0,0,0} rect from getBoundingClientRect(). The previous code
+       skipped the position update on a zero rect, leaving the dropdown
+       parked at its last-shown coordinates (e.g. carried over from a
+       different chapter). The user saw the dropdown sitting on the
+       page-number pill on the right margin instead of next to the
+       caret in the empty page. The fix: when the rect is degenerate,
+       fall back to the editable element's own top-left so the dropdown
+       still appears where the user is actually typing. */
     function positionSuggestBoxAtCaret() {
       if (!suggestBox || !isContentEditableElement(inputEl)) return;
       var selection = window.getSelection();
       if (!selection || selection.rangeCount === 0) return;
       var caretRect = selection.getRangeAt(0).getBoundingClientRect();
-      if (caretRect.bottom > 0) {
-        suggestBox.style.top = (caretRect.bottom + 4) + 'px';
-        suggestBox.style.left = caretRect.left + 'px';
+      var anchorTopPx;
+      var anchorLeftPx;
+      var caretRectIsDegenerate = (caretRect.bottom === 0 && caretRect.right === 0 && caretRect.width === 0 && caretRect.height === 0);
+      if (caretRectIsDegenerate) {
+        var editableRect = inputEl.getBoundingClientRect();
+        anchorTopPx = editableRect.top + 24;
+        anchorLeftPx = editableRect.left;
+      } else {
+        anchorTopPx = caretRect.bottom + 4;
+        anchorLeftPx = caretRect.left;
       }
+      suggestBox.style.top = anchorTopPx + 'px';
+      suggestBox.style.left = anchorLeftPx + 'px';
     }
 
     function hideSuggestions() {

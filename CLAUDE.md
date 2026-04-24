@@ -423,6 +423,70 @@ Then, in addition:
 
 ---
 
+# 🚨 GATE 11.5 — No fake fix. No memory fix. No lie.
+
+**User's exact wording (verbatim, hard rule):**
+> "no fake fix no memory fix. all fixes should be hard real disk supplied and delivered — no fucking lie. no bring back old bugs. if you try to revert need to check if it was part of the bugs or simply bug check in the code before reverting."
+
+**Decoded:**
+- **No fake fix** = never claim "fixed" when you only changed the conversation, not the file. Every fix must be a real Edit/Write that landed on disk.
+- **No memory fix** = never fix from what you THINK is in the file. Read the current file in this turn, every time.
+- **Hard real disk supplied** = the change must exist on the actual filesystem. After the Edit/Write, prove it with a `Read` or `grep` of the same file BEFORE claiming the fix shipped.
+- **Delivered** = for any served asset (JS / CSS / static / template), the change must also be in `project_static_collected/` (run `collectstatic --noinput` and grep that file too) AND the service-worker `CACHE_NAME` must be bumped in the same edit pass.
+- **No fucking lie** = if any of the above did not happen, you have not fixed anything. Say so.
+- **No bring back old bugs** = before shipping any fix, list every previously-fixed bug touched by the same file or feature and reason in one sentence why this fix preserves each. If you reverted a previous fix to ship this one, you have brought back an old bug — that is a violation. The fix-then-revert-then-refix ping-pong is what burned the user's trust; do not repeat it. When in doubt: ship a NEW change that handles BOTH the old bug and the new symptom; never undo a working fix to make a new one easier.
+- **Pre-revert code check (HARD)** = a revert is only allowed AFTER you have read the suspect code in this turn AND can show — with file + line numbers + a one-sentence causal chain — that the code being reverted is the ACTUAL cause of the new symptom. Symptom timing ("the bug appeared after my edit") is NOT proof. Two independent bugs can happen at the same time; reverting one does not fix the other AND brings back the bug the original fix solved. Required pre-revert checklist:
+  1. Read the file the previous fix touched (Read tool, this turn).
+  2. Re-read the new symptom verbatim from the user.
+  3. Walk the suspect code line-by-line and write the causal chain: "line X does Y, which produces Z, which is the new symptom because…". If you cannot write that sentence, the previous fix is NOT the cause — read other files (BanglaInput, CSS, ResizeObserver, whatever else touches the affected DOM/data) and form a separate hypothesis.
+  4. Only after the causal chain is written may you propose a revert. State the chain in your reply BEFORE the revert Edit.
+  5. If after reading you find the previous fix is innocent, leave it shipped, find the real cause, and ship a SECOND fix alongside it.
+
+**Triggered after every "fix" claim. Hard rule. No exceptions.**
+
+The user has caught this exact pattern repeatedly: claim "fixed", user finds the bug is back or never went away, trust burns. The pattern is named here so it cannot be repeated.
+
+## 1. No fake fix
+A "fix" that hasn't actually changed the SERVED file is not a fix. After every JS/CSS/template/static edit:
+
+- Confirm the file edit succeeded (Edit/Write returned cleanly).
+- For any static asset (JS / CSS / img / fonts): run `collectstatic --noinput` AND grep-verify the new code is actually inside `project_static_collected/` before claiming anything.
+- For any service-worker-cached asset (JS / CSS): bump `CACHE_NAME` in `seo/views.py` in the SAME edit pass. Forgetting this means the user sees old code on hard-refresh.
+- State explicitly which file changed, which collected file was verified, and which cache version is now live.
+- Never end a "fix" reply with "fixed" / "done" / "should work". End with: `Shipped to vXXX. Hard-refresh to verify.` or `Verified end-to-end via shell — input X produced output Y.`
+
+## 2. No memory fix
+Don't fix code based on what you THINK is in the file. Before any edit:
+
+- Read the actual current file in this turn (Read tool, exact line numbers).
+- Grep for callers / dependencies that touch the same code path.
+- Never reason from `MEMORY.md`, prior-conversation summary, training-data assumption, or "I remember this code does X". The file you read in THIS turn is the only truth. The codebase changes; your memory of it is stale.
+
+## 3. No regression-by-revert
+When a new symptom appears after your fix, the FIRST move is to read code and form a separate hypothesis — NOT to revert the fix. Reverting on suspicion un-does verified progress AND leaves the new bug unfixed in one motion. Only revert if BOTH:
+
+- The new symptom did not exist before your edit (confirmed by reading the diff).
+- The edit's logic plausibly explains the new symptom (state the causal chain in one sentence).
+
+If you cannot meet both, do NOT revert. Read more code instead.
+
+## 4. No "should work" / "expected to work" / "this fixes it"
+All claims about a fix must be exactly one of:
+
+- `Shipped to vXXX. Not browser-tested. Hard-refresh to verify.` — when only the user can verify in browser.
+- `Verified end-to-end via Django shell — input X produced output Y.` — when the fix was exercised server-side.
+- `Test pending — installing Playwright to verify in headless browser.` — when committing to verify before claiming done.
+
+Anything else is a lie.
+
+## 5. If you cannot test, say so up front — never imply verification you didn't perform
+The phrase "I'll verify with Playwright" is OK if you actually do it. The phrase "this is fixed" without a stated verification path is a lie. The phrase "should resolve the symptom" is also a lie unless you ran the test.
+
+## Violation handling
+If the user has to remind you a bug is back, a fix didn't land, or a fix you claimed was tested wasn't tested — you have already broken this gate. Acknowledge it directly. Do not defend. Do not blame environment. Do not promise harder. Re-read THIS gate and the file you were supposed to fix, then proceed.
+
+---
+
 # 📄 GATE 12 — Documentation
 
 All architecture notes, feature docs, and app documentation MUST go in the correct location. **Never** put them in the project root `notes/` folder.

@@ -1,9 +1,153 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-24 (post-pdf-export)
+  Last refreshed: 2026-04-24 (post-empty-chapter-fixes + book-settings drawer)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-24  Empty-chapter cursor / typing fix.
+              Symptom: brand-new chapter showed no visible cursor,
+              typing produced nothing visible, Bangla suggestion
+              dropdown parked itself on the page-number pill.
+              Root cause: a contenteditable="true" prose div whose
+              ONLY child was the contenteditable="false" +
+              position:absolute page-break overlay (introduced in
+              commit 09b9474 on 2026-04-24) gives Chromium nowhere
+              in the layout flow to draw the caret. Three visible
+              symptoms shared one root cause: no <p>/<br> in the
+              flow.
+              Fix: ensureProseHasParagraphContainer(prose) +
+              focusProseAndPlaceCaretAtFirstParagraph(prose) helpers
+              in pages/page-inkwell.js. Helper called after every
+              prose.innerHTML assignment (5 sites: applyChapterPayload
+              ToEditor, addChapter, chapter-load intermediate clear,
+              demo branch, last-chapter-deleted branch). Idempotent —
+              skipped when prose already has a <p>. The placeholder
+              is inserted at the FRONT so the page-break overlay (last
+              child) keeps its expected position. Auto-focus + caret
+              placement only when the helper actually injected (i.e.
+              the chapter was empty), so existing-content chapter
+              switches don't get a focus jump.
+              Impact: BanglaInput empty-rect fallback (v861) becomes
+              belt-and-braces — caret rect is now real on empty
+              chapters, fallback won't fire. Page-break overlay's
+              real-content-bottom measurement (v861) counts the
+              <p><br></p> at ~30px → page count = 1, same as desired.
+              Cache v864 -> v865.
+
+  2026-04-24  Book Settings drawer (A+ pattern). Replaces the
+              inline 4-field metadata block (status / daily target /
+              manuscript target / synopsis) inside .bookwriter-book-info
+              with a slide-from-right drawer triggered by a new
+              "⚙ Book settings" button. Drawer markup is a sibling
+              of .bookwriter-margin-notes-panel and uses the same
+              transform: translateX pattern + body class toggle
+              (.bookwriter-book-settings-open). New
+              window.toggleBookSettings() in pages/page-inkwell.js
+              mirrors window.toggleMarginNotes(). Autosave wiring
+              continues to work unchanged because
+              modules/bookwriter-rail-pickers.js attaches the change
+              listener via document.querySelector('.bookwriter-book-
+              metadata-fields') with event delegation — moving the
+              .bookwriter-book-metadata-fields element into the drawer
+              (instead of destroying / recreating it) preserved the
+              listener. Why this layout: the inline block was eating
+              ~700px of left-rail height (textarea + 4 fields), which
+              squeezed the chapter list. Compact block (~120px:
+              title + author + stats + gear button) leaves chapters
+              with maximum space; metadata in a drawer matches the
+              Scrivener / Atticus / Notion industry pattern for
+              rarely-edited settings. Cache v863 -> v864.
+
+  2026-04-24  Chapter renumbering on delete + one-time gap-close.
+              Symptom: deleting a middle chapter left a gap (e.g.
+              1,2,3,4,5,7); next "+ new chapter" took
+              max(chapter_number)+1 = 8 from the gappy state, so
+              the new chapter started at the wrong number.
+              Root cause: api_bookwriter_chapter_delete only set
+              is_active=False; remaining chapter_numbers were never
+              shifted to close the gap.
+              Fix: after the soft-delete in views_api_chapter.py:
+              api_bookwriter_chapter_delete, run
+              `Chapter.objects.filter(book=…, is_active=True,
+                  chapter_number__gt=deleted_number)
+                  .update(chapter_number=F('chapter_number') - 1,
+                          sort_order=F('sort_order') - 1, ...)`.
+              Plus one-time SQL for pre-existing gaps:
+              `UPDATE c SET chapter_number = r.new_number,
+                            sort_order = r.new_number FROM chapter c
+               INNER JOIN (SELECT bookwriter_chapter_id,
+                  ROW_NUMBER() OVER (PARTITION BY book ORDER BY
+                  chapter_number, bookwriter_chapter_id) AS new_number
+                FROM chapter WHERE is_active=1) r
+               ON c.bookwriter_chapter_id = r.bookwriter_chapter_id
+               WHERE c.chapter_number != r.new_number
+                  OR c.sort_order != r.new_number`.
+              Verified end-to-end on real data with savepoint + rollback,
+              then applied for real. Book #4 went from
+              {1,2,3,4,5,7} -> {1,2,3,4,5,6}.
+
+  2026-04-24  Page-break overlay never-shrink fix.
+              Symptom: switching from a long chapter to a short /
+              new chapter showed N empty pages (often 3) on the
+              short chapter — page-break overlay drew page-number
+              pills for pages that had no content.
+              Root cause: recomputePageBreakMarkers in
+              modules/bookwriter-page-breaks.js used
+              proseElement.scrollHeight to measure content height,
+              then set proseElement.style.minHeight to round up to
+              the next full A4 page. scrollHeight returns
+              max(actualContentHeight, minHeight) — so once
+              minHeight grew, scrollHeight stayed inflated by the
+              overlay's own previous output. Chapter switches survive
+              the prose DOM node (only innerHTML is replaced), so
+              leftover style.minHeight from a long chapter persisted
+              into the new empty one.
+              Fix: switched the measurement to
+              findLastContentBottomPxRelativeToProse(prose), which
+              already existed for the end-of-chapter ornament and
+              correctly walks prose.children backwards skipping the
+              overlay. Now uses real content bottom for page count.
+              The existing `if currentMinHeightPx !== fullPageHeightPx`
+              write-guard prevents a ResizeObserver feedback loop
+              when min-height shrinks (second pass sees same content
+              bottom and exits without writing).
+
+  2026-04-24  BanglaInput empty-contenteditable dropdown fix.
+              Symptom: typing in a freshly-emptied / new chapter,
+              the Bengali suggestion dropdown appeared parked on the
+              page-number pill in the right margin instead of next
+              to the caret.
+              Root cause: positionSuggestBoxAtCaret in
+              englishtobangla/bangla-input.js anchors the dropdown
+              via selection.getRangeAt(0).getBoundingClientRect().
+              In a contenteditable with no text-bearing nodes,
+              Chromium returns {0,0,0,0}. Original guard
+              `if (caretRect.bottom > 0)` SILENTLY SKIPPED the
+              position update on the zero rect, leaving the dropdown
+              at its last-shown coordinates from a prior chapter.
+              Fix: detect the degenerate rect (all four bounds are
+              zero) and fall back to the editable element's own
+              getBoundingClientRect() top-left + small offset. Now a
+              belt-and-braces fix — the v865 ensureProseHasParagraph
+              Container helper means the caret rect is now non-zero
+              on empty chapters too, so the fallback rarely fires,
+              but it stays as a safety net.
+
+  2026-04-24  Sidebar layout — chapter list + book-info coexistence.
+              Symptom 1 (older): book-info pushed off-screen by long
+              chapter list. Fix: added min-height: 0 to
+              .bookwriter-chapters so the flex item can shrink and
+              its overflow-y: auto scrollbar engages.
+              Symptom 2 (regression from symptom 1's fix): book-info
+              squeezed the chapter list because flex-shrink: 0 +
+              natural height ~700px ate the rail.
+              Final fix (per Book Settings drawer above): metadata
+              fields moved out, book-info shrank to ~120px, no more
+              squeezing. Removed the temporary max-height: 50% +
+              overflow-y: auto hacks from .bookwriter-book-info that
+              were band-aiding the squeeze.
+              Cache v861 → v862 → v863 → v864.
+
   2026-04-24  Book-as-PDF export. New endpoint
               api_bookwriter_book_export_pdf at
               /bookwriter/api/book/<book_id>/export/pdf/ (GET,

@@ -18,6 +18,162 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-empty-chapter-no-cursor-no-typing. Brand-new chapter showed no cursor; typing produced nothing
+Date: 2026-04-24
+Was: After creating a new chapter (or switching to a chapter whose
+     content was empty), the cursor was invisible in the prose page,
+     typing produced no visible text, and the Bangla suggestion
+     dropdown anchored to {0,0,0,0} caret rect (parking itself on the
+     page-number pill in the right margin). Three visible symptoms.
+     Root cause: ONE shared precondition. The contenteditable="true"
+     prose div ended up with its ONLY child being the
+     contenteditable="false" + position:absolute page-break overlay
+     (a div introduced in commit 09b9474 on 2026-04-24 by the visual
+     A4 page-break feature). With no text-bearing nodes in the layout
+     flow (no <p>, no <br>, no text node), Chromium has nowhere in
+     the box to draw the caret. Symptoms cascade:
+       (a) no cursor (no in-flow text container),
+       (b) execCommand('insertText') has no valid Selection target —
+           text either gets inserted into the non-editable overlay
+           (silently rejected) or into the wrong subtree,
+       (c) Range.getBoundingClientRect() returns all zeros → the
+           BanglaInput "if caretRect.bottom > 0" guard skipped the
+           position update → dropdown stayed at last-shown coords.
+     Bug was DORMANT until 2026-04-24 because every chapter the user
+     edited until then already had <p> content from past sessions.
+     The first new-chapter creation today exposed it.
+Fix: ensureProseHasParagraphContainer(proseElement) helper in
+     pages/page-inkwell.js. After every prose.innerHTML assignment
+     (5 sites), if prose has no <p> direct child, prepend a
+     <p><br></p>. Idempotent — skipped when a <p> already exists.
+     Inserted at the FRONT so the page-break overlay (always last
+     child) keeps its expected position.
+     Companion helper focusProseAndPlaceCaretAtFirstParagraph(prose)
+     uses Range.selectNodeContents + collapse(true) to put the caret
+     at offset 0 of the new <p>, then prose.focus(). Called only when
+     the placeholder was actually injected (chapter was empty), so
+     existing-content chapter switches don't get an unwanted focus
+     jump.
+     Two earlier defensive fixes from this session (v861) become
+     belt-and-braces:
+       - BanglaInput empty-rect fallback in bangla-input.js
+       - findLastContentBottomPxRelativeToProse for page count in
+         bookwriter-page-breaks.js
+     Both still ship; with the placeholder, the caret rect is now
+     non-zero on empty chapters, so neither path is the primary fix.
+Cache v864 -> v865.
+Lesson: a contenteditable element that contains ANY child that is
+     `position: absolute` AND `contenteditable="false"` should also
+     contain at least one in-flow text container (<p>/<br>) by
+     construction. If you can't guarantee that from the markup,
+     inject a placeholder on the JS side before any user interaction
+     can land in the editable region.
+
+### R-bookwriter-chapter-numbering-gap-after-delete. Delete left a gap; new chapter took max+1 from the gap
+Date: 2026-04-24
+Was: Deleting a middle chapter (e.g. chapter 6 from 1..8) left the
+     remaining numbers as 1,2,3,4,5,7,8 — a visible gap. The next
+     "+ new chapter" then computed max(chapter_number)+1 = 9 from
+     the gappy state, producing a chapter number that "continued
+     from past" instead of slotting into the empty position.
+Root cause: api_bookwriter_chapter_delete in views_api_chapter.py
+     only set is_active=False on the row. No shift was applied to
+     remaining chapters' chapter_number / sort_order. The
+     api_bookwriter_book_chapter_create endpoint correctly excluded
+     deleted rows from its Max(chapter_number) aggregate, but the
+     remaining active rows themselves still carried their original
+     numbers, so Max returned the highest pre-deletion number.
+Fix (going forward):
+     `Chapter.objects.filter(book=…, is_active=True,
+        chapter_number__gt=deleted_chapter_number).update(
+            chapter_number=F('chapter_number') - 1,
+            sort_order=F('sort_order') - 1,
+            updated_at=saved_at)`
+     applied immediately after the soft-delete in
+     views_api_chapter.py:api_bookwriter_chapter_delete.
+Fix (one-time for pre-existing gaps):
+     ```sql
+     WITH renumbered AS (
+       SELECT bookwriter_chapter_id,
+              ROW_NUMBER() OVER (
+                  PARTITION BY link_bookwriter_coll_book_id
+                  ORDER BY chapter_number, bookwriter_chapter_id
+              ) AS new_number
+         FROM [bookwriter].[chapter] WHERE is_active = 1)
+     UPDATE c SET c.chapter_number = r.new_number,
+                  c.sort_order     = r.new_number,
+                  c.updated_at     = SYSDATETIME()
+       FROM [bookwriter].[chapter] c
+      INNER JOIN renumbered r ON c.bookwriter_chapter_id =
+                                 r.bookwriter_chapter_id
+      WHERE c.chapter_number != r.new_number
+         OR c.sort_order     != r.new_number
+     ```
+     Verified end-to-end on real data with savepoint + rollback,
+     then applied. Book #4 went {1,2,3,4,5,7} -> {1,2,3,4,5,6}.
+
+### R-bookwriter-page-break-never-shrinks. Empty chapter showed N empty pages after switching from a long chapter
+Date: 2026-04-24
+Was: Switching from a long chapter (3+ pages of content) to a
+     short or empty chapter showed the empty chapter with N empty
+     A4 page outlines instead of 1.
+Root cause: recomputePageBreakMarkers in
+     modules/bookwriter-page-breaks.js measured content height with
+     proseElement.scrollHeight, then set proseElement.style.minHeight
+     to round up to the next full A4 page. scrollHeight returns
+     max(actualContentHeight, minHeight) — so once minHeight grew,
+     scrollHeight was forever inflated by the overlay's own previous
+     output. The contenteditable prose element survives chapter
+     switches (only innerHTML is replaced), so leftover style.minHeight
+     persisted into the new empty chapter and the page count locked
+     in at the previous high value.
+Fix: switched the measurement to
+     findLastContentBottomPxRelativeToProse(proseElement) — a helper
+     that already existed for the end-of-chapter ornament. It walks
+     proseElement.children backwards, skips the overlay, skips the
+     empty <p><br></p> placeholder (height < 12), and returns the
+     bottom edge of the last real-content child. Bypasses the
+     min-height padding entirely.
+     The existing `if currentMinHeightPx !== fullPageHeightPx`
+     write-guard prevents a ResizeObserver feedback loop when
+     min-height shrinks: the second recompute pass sees the same
+     content bottom and exits without writing.
+
+### R-bookwriter-rail-flex-overflow-not-scrolling. Book-info pushed off-screen / squeezed chapter list
+Date: 2026-04-24
+Was: Two related symptoms across attempts:
+     (1) Long chapter list (8+ chapters) pushed the book-info block
+         OUT of the rail's visible area — book-info stays anchored
+         in the rail per CSS but its bottom got clipped by the
+         rail's overflow:hidden + max-height.
+     (2) Adding flex-shrink: 0 to .bookwriter-book-info to fix (1)
+         caused the OPPOSITE bug: book-info's natural height (~700px
+         for stats + 4 metadata fields + synopsis textarea) ate the
+         rail and squeezed the chapter list to nothing.
+Root cause:
+     For (1): .bookwriter-chapters had `flex: 1; overflow-y: auto`
+     but NO `min-height: 0`. Default flex-item min-height is `auto`,
+     which forbids shrinking below intrinsic content size. So the
+     chapter list refused to shrink, pushing book-info past the
+     rail's max-height.
+     For (2): flex-shrink: 0 alone made book-info incompressible at
+     its natural ~700px. With no upper bound, chapters got squeezed.
+Final fix (architectural — see Book Settings drawer change-log):
+     Moved the 4 metadata fields out of inline book-info into a
+     slide-from-right drawer (.bookwriter-book-settings-panel),
+     leaving book-info compact (~120px: title + author + stats +
+     gear button). With book-info naturally short:
+       - .bookwriter-chapters keeps `flex: 1; min-height: 0;
+         overflow-y: auto` for proper internal scroll
+       - .bookwriter-book-info keeps `flex-shrink: 0` (safety, no
+         longer needed in practice but cheap)
+       - The intermediate `max-height: 50%; overflow-y: auto` hacks
+         on book-info were REMOVED — the drawer made them obsolete
+Lesson: any flex-column item with `overflow: auto/scroll` MUST also
+     have `min-height: 0` (column) or `min-width: 0` (row) for the
+     scrollbar to actually engage. Default `min-height: auto` is the
+     trap. This is a well-documented CSS gotcha.
+
 ### R-bookwriter-pdf-export-weasyprint-tesseract-dll. WeasyPrint loaded wrong libgobject DLL from Tesseract
 Date: 2026-04-23
 Was: Bookwriter book-as-PDF export shipped using the Edge-headless

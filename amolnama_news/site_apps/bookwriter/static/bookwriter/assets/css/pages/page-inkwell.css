@@ -233,6 +233,15 @@ body.bookwriter-standalone {
   flex: 1;
   overflow-y: auto;
   padding: 8px 16px 20px;
+  /* CRITICAL: flex items default to min-height: auto, which forbids
+     shrinking below intrinsic content size. Without this 0, a long
+     chapter list (8+ chapters) refuses to shrink, pushes
+     .bookwriter-book-info past the rail's max-height, and the rail's
+     overflow: hidden clips the book metadata block out of view —
+     symptom is "book info shows at top, gets pushed down off-screen
+     as new chapters are added". With min-height: 0, the list shrinks
+     to fit and the existing overflow-y: auto scrollbar engages. */
+  min-height: 0;
 }
 
 .bookwriter-chapters::-webkit-scrollbar { width: 6px; }
@@ -297,6 +306,79 @@ body.bookwriter-standalone {
   padding: 14px 18px;
   border-top: 1px solid var(--line);
   background: var(--paper-shadow);
+  /* Compact block — only title, author, stats, settings-trigger button.
+     The 4 metadata fields (status, daily target, manuscript target,
+     synopsis) live in the slide-from-right .bookwriter-book-settings-panel
+     drawer below, opened by the gear button inside this block.
+     flex-shrink: 0 keeps the block at its natural compact height
+     (~120px) so the chapter list above gets the remaining rail space.
+     No more max-height/overflow hacks needed — the block is small
+     enough to coexist with chapters by construction. */
+  flex-shrink: 0;
+}
+
+.bookwriter-book-settings-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin-top: 28px;
+  padding: 8px 10px;
+  background: transparent;
+  border: 1px dashed var(--line-strong, rgba(26,22,18,0.25));
+  border-radius: var(--radius-xs, 2px);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs, 11px);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-fade, #7a6f5e);
+  cursor: pointer;
+  min-height: var(--touch-target, 44px);
+  touch-action: manipulation;
+  transition: background 0.18s, border-color 0.18s, color 0.18s;
+}
+.bookwriter-book-settings-trigger:hover {
+  background: var(--paper, #f4ede0);
+  border-color: var(--accent, #1B6B4A);
+  color: var(--ink, #1a1612);
+}
+.bookwriter-book-settings-trigger:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.bookwriter-book-settings-trigger-icon {
+  flex-shrink: 0;
+}
+
+/* Slide-from-right drawer for the rarely-edited book metadata fields.
+   Mirrors .bookwriter-margin-notes-panel in geometry, transition, and
+   open/close mechanics — so users learn one drawer pattern, not two.
+   Body class .bookwriter-book-settings-open is toggled by toggleBookSettings()
+   in page-inkwell.js. */
+.bookwriter-book-settings-panel {
+  position: absolute;
+  top: 0; right: 0; bottom: 0;
+  width: 380px;
+  max-width: 90%;
+  background: var(--paper-deep);
+  border-left: 1px solid var(--line-strong);
+  box-shadow: -20px 0 40px rgba(0,0,0,0.1);
+  z-index: 95;
+  transform: translateX(100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+  display: flex;
+  flex-direction: column;
+}
+body.bookwriter-book-settings-open .bookwriter-book-settings-panel {
+  transform: translateX(0);
+}
+.bookwriter-book-settings-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px 20px 24px;
+}
+@media (max-width: 600px) {
+  .bookwriter-book-settings-panel { width: 100%; }
 }
 
 .bookwriter-book-title {

@@ -426,6 +426,7 @@
             nextActiveRow.click();
           } else if (prose) {
             prose.innerHTML = '';
+            ensureProseHasParagraphContainer(prose);
             if (title) title.innerText = '';
             if (prose.dataset) delete prose.dataset.chapterId;
           }
@@ -470,11 +471,56 @@
     }
   }
 
+  /* Empty-contenteditable cursor-trap fix.
+     A contenteditable="true" div with NO <p>/<br> children — only an
+     absolutely-positioned, contenteditable="false" page-break overlay —
+     gives Chromium nowhere in the layout flow to draw the caret. Symptom
+     stack on a brand-new / freshly-emptied chapter:
+       (a) clicking the prose page shows no visible cursor,
+       (b) typed characters never appear,
+       (c) BanglaInput suggestion dropdown anchors to {0,0,0,0} caret rect
+           and parks itself on the page-number pill.
+     One placeholder <p><br></p> at the front of prose gives the caret a
+     real text container and resolves all three. Idempotent: skipped if
+     prose already has a <p>. Inserted at the front so the page-break
+     overlay (always last child) keeps its expected position. */
+  function ensureProseHasParagraphContainer(proseElement) {
+    if (!proseElement) return false;
+    for (var childIndex = 0; childIndex < proseElement.children.length; childIndex++) {
+      if (proseElement.children[childIndex].tagName === 'P') return false;
+    }
+    var placeholderParagraph = document.createElement('p');
+    placeholderParagraph.appendChild(document.createElement('br'));
+    proseElement.insertBefore(placeholderParagraph, proseElement.firstChild);
+    return true;
+  }
+
+  /* Move focus into the prose AND collapse the selection to the start of
+     the first <p>. Used after applying a freshly-created or just-loaded
+     empty chapter so the writer can start typing immediately without an
+     extra click. Caret-placement uses Range.selectNodeContents + collapse
+     because contenteditable.focus() alone in Chromium often leaves the
+     selection unset and the cursor invisible. */
+  function focusProseAndPlaceCaretAtFirstParagraph(proseElement) {
+    if (!proseElement) return;
+    var firstParagraph = proseElement.querySelector('p');
+    if (!firstParagraph) return;
+    proseElement.focus();
+    var browserSelection = window.getSelection();
+    if (!browserSelection) return;
+    var caretRange = document.createRange();
+    caretRange.selectNodeContents(firstParagraph);
+    caretRange.collapse(true);
+    browserSelection.removeAllRanges();
+    browserSelection.addRange(caretRange);
+  }
+
   function applyChapterPayloadToEditor(chapterPayload) {
     if (!chapterPayload) return;
     if (prose) {
       prose.dataset.chapterId = String(chapterPayload.id || '');
       prose.innerHTML = chapterPayload.html || '';
+      var paragraphPlaceholderInjected = ensureProseHasParagraphContainer(prose);
       /* Page-break overlay (visual A4 markers) needs to recompute
          after the prose innerHTML is replaced wholesale — the
          per-element ResizeObserver should fire too, but a manual
@@ -482,6 +528,13 @@
          frame the new content lands in. */
       if (window.bookwriterPageBreaks && window.bookwriterPageBreaks.refresh) {
         window.bookwriterPageBreaks.refresh();
+      }
+      /* If the chapter was empty (we had to inject the placeholder),
+         move the caret into the new <p> so the writer can type
+         immediately — saves a click, removes the "I clicked but
+         nothing happened" feeling for new-chapter creation. */
+      if (paragraphPlaceholderInjected) {
+        focusProseAndPlaceCaretAtFirstParagraph(prose);
       }
     }
     // Reset the manuscript scroll to the top of the new chapter.
@@ -534,6 +587,7 @@
       if (demoCrumb) demoCrumb.innerText = 'Chapter ' + demoChapterNum.replace('.', '').trim();
       if (prose) {
         prose.innerHTML = (demoChapterNum === initialPrimedChapterNum) ? initialPrimedProseHtml : '';
+        ensureProseHasParagraphContainer(prose);
         refresh();
       }
       saveState({ chapterId: chapterRow.dataset.chapterId || null, chapterNum: demoChapterNum, manuscriptScrollY: 0 });
@@ -582,6 +636,7 @@
     if (title) title.innerText = '';
     if (prose) {
       prose.innerHTML = '';
+      ensureProseHasParagraphContainer(prose);
       delete prose.dataset.chapterId;
     }
     var stageWhileLoading = document.querySelector('.bookwriter-stage');
@@ -824,6 +879,7 @@
       if (title) title.innerText = '';
       if (prose) {
         prose.innerHTML = '';
+        ensureProseHasParagraphContainer(prose);
         delete prose.dataset.chapterId;
       }
       window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(bookId) + '/chapter/create/', {})
@@ -994,6 +1050,18 @@
     if (wasClosed) loadSnapshotHistoryFromBackend();
   }
   window.toggleSnapshots = toggleSnapshots;
+
+  /* Slide-out drawer for the rarely-edited book metadata fields
+     (status / daily target / manuscript target / synopsis). The
+     fields live in #bookwriter-book-settings-panel; their autosave
+     wiring is attached by bookwriter-rail-pickers.js via event
+     delegation on .bookwriter-book-metadata-fields, which works
+     unchanged because we only MOVED the element into the drawer
+     (same DOM node, same listeners). */
+  function toggleBookSettings() {
+    document.body.classList.toggle('bookwriter-book-settings-open');
+  }
+  window.toggleBookSettings = toggleBookSettings;
 
   function loadSnapshotHistoryFromBackend() {
     if (!prose) return;
