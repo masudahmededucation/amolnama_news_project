@@ -220,7 +220,7 @@ folders,
 \notes\claude\memory-training\
 \notes root directory- user space
 --bump cache
-bump cache + Collect-static + service worker cache.
+bump cache + Collect-static + service worker cache + OLD cache.
 
 
 --compare the plan

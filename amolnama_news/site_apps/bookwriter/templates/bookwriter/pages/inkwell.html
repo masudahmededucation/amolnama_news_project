@@ -28,10 +28,12 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;0,9..144,900;1,9..144,300;1,9..144,400&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=JetBrains+Mono:wght@300;400;500&display=swap" rel="stylesheet">
 
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/components/breadcrumb.css' %}">
   <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-inkwell.css' %}">
 </head>
 <body class="bookwriter-standalone">
   <div class="bookwriter-shell">
+    {% include "bookwriter/partials/_bookwriter_breadcrumb.html" %}
     {% include "bookwriter/partials/_inkwell_body.html" %}
   </div>
   {# bookwriter-namespace.js MUST load FIRST — defines window.bookwriter used by every other script for CSRF / fetch / two-click confirm. #}

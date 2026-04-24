@@ -31,6 +31,7 @@ from amolnama_news.site_apps.core.utils import sanitize_user_html
 from .models import (
     BetaReader,
     BibleEntry,
+    BookCoverDesign,
     Chapter,
     CollBook,
     EngUserStreak,
@@ -564,4 +565,362 @@ def _resolve_published_release(release_id):
         )
     except SerialRelease.DoesNotExist:
         return None
+
+
+# =====================================================================
+# LIBRARY PAGE HELPERS — single source of truth for the My Library grid.
+# =====================================================================
+
+# Eight curated cover palettes from the v02 prototype. Each palette is
+# the {main, dark, gold} triplet the library card needs to paint a
+# distinct leather-bound spine. Picked deterministically by book id so
+# every book that has not yet had its cover designed always shows the
+# same fallback cover (no flicker on reload).
+BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES = (
+    {'main': '#6b1e14', 'dark': '#3d0f08', 'gold': '#c9a961'},  # burgundy
+    {'main': '#1e4a2e', 'dark': '#0f2818', 'gold': '#c9a961'},  # forest
+    {'main': '#1a2e5c', 'dark': '#0a1632', 'gold': '#d4b869'},  # navy
+    {'main': '#8b5a2b', 'dark': '#4d2e12', 'gold': '#e8d4a0'},  # leather brown
+    {'main': '#4a1e4c', 'dark': '#2a0e2e', 'gold': '#c9a961'},  # deep purple
+    {'main': '#2a2a2a', 'dark': '#101010', 'gold': '#b89968'},  # charcoal
+    {'main': '#2c5566', 'dark': '#132e3a', 'gold': '#d4b869'},  # sea blue
+    {'main': '#7a2040', 'dark': '#401020', 'gold': '#e8c888'},  # wine
+)
+
+
+def resolve_book_cover_palette(book, cover_design_or_none):
+    """Resolve the {main, dark, gold} hex triplet for a library book
+    card. Maps from BookCoverDesign's {bg, accent, fg} overrides if
+    present; missing slots fall back to the deterministic palette
+    indexed by `book.bookwriter_coll_book_id`. Same book always yields
+    the same fallback so covers don't flicker between page loads."""
+    palette_pool_size = len(BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES)
+    fallback_palette = BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES[
+        book.bookwriter_coll_book_id % palette_pool_size
+    ]
+    if cover_design_or_none is None:
+        return dict(fallback_palette)
+    return {
+        'main': cover_design_or_none.cover_palette_bg_hex_override or fallback_palette['main'],
+        'dark': cover_design_or_none.cover_palette_accent_hex_override or fallback_palette['dark'],
+        'gold': cover_design_or_none.cover_palette_fg_hex_override or fallback_palette['gold'],
+    }
+
+
+def prefetch_book_cover_designs(books):
+    """Bulk-load BookCoverDesign rows for a list of books to avoid the
+    N+1 query that a per-card lookup would create. Returns a dict
+    {book_id: BookCoverDesign}; books without a saved design simply
+    aren't present in the dict, and callers pass None to
+    `resolve_book_cover_palette` for those."""
+    if not books:
+        return {}
+    book_ids_list = [book.bookwriter_coll_book_id for book in books]
+    saved_designs = BookCoverDesign.objects.filter(
+        link_bookwriter_coll_book_id__in=book_ids_list,
+        is_active=True,
+    )
+    return {
+        design.link_bookwriter_coll_book_id: design
+        for design in saved_designs
+    }
+
+
+def _estimate_book_pages_from_word_count(word_count, chapter_count):
+    """Estimate book page count from word count (250 words per printed
+    page is the publishing-industry convention for trade paperbacks).
+    Falls back to chapter_count when no words have been written yet so
+    a brand-new book with one empty chapter still shows '1 page'."""
+    if word_count > 0:
+        return max(1, round(word_count / 250))
+    return max(1, chapter_count)
+
+
+def _format_relative_time(at_timestamp):
+    """Render a timestamp as an English relative-time string for the
+    library card meta line. 'just now', '5 minutes ago', '2 hours ago',
+    '3 days ago', '2 weeks ago', '4 months ago', '2 years ago'.
+    Returns empty string when the timestamp is None."""
+    if at_timestamp is None:
+        return ''
+    now = timezone.now()
+    seconds_elapsed = int((now - at_timestamp).total_seconds())
+    if seconds_elapsed < 60:
+        return 'just now'
+    if seconds_elapsed < 3600:
+        minutes_elapsed = seconds_elapsed // 60
+        return '%d minute%s ago' % (minutes_elapsed, '' if minutes_elapsed == 1 else 's')
+    if seconds_elapsed < 86400:
+        hours_elapsed = seconds_elapsed // 3600
+        return '%d hour%s ago' % (hours_elapsed, '' if hours_elapsed == 1 else 's')
+    if seconds_elapsed < 604800:
+        days_elapsed = seconds_elapsed // 86400
+        return '%d day%s ago' % (days_elapsed, '' if days_elapsed == 1 else 's')
+    if seconds_elapsed < 2592000:
+        weeks_elapsed = seconds_elapsed // 604800
+        return '%d week%s ago' % (weeks_elapsed, '' if weeks_elapsed == 1 else 's')
+    if seconds_elapsed < 31536000:
+        months_elapsed = seconds_elapsed // 2592000
+        return '%d month%s ago' % (months_elapsed, '' if months_elapsed == 1 else 's')
+    years_elapsed = seconds_elapsed // 31536000
+    return '%d year%s ago' % (years_elapsed, '' if years_elapsed == 1 else 's')
+
+
+def build_book_card_payload(book, cover_design_or_none, viewer_display_name=''):
+    """Resolve every field a library book card needs to render. Single
+    source of truth — the SSR template AND any future JSON list endpoint
+    must read from this dict so the two surfaces never drift."""
+    book_title = (
+        book.book_title_bn or book.book_title_en or 'Untitled Book'
+    )
+    book_subtitle = (
+        book.book_subtitle_bn or book.book_subtitle_en or ''
+    )
+    book_author = (
+        book.book_author_display_bn
+        or book.book_author_display_en
+        or viewer_display_name
+        or ''
+    )
+    cover_palette = resolve_book_cover_palette(book, cover_design_or_none)
+    estimated_pages = _estimate_book_pages_from_word_count(
+        book.book_word_count_cached or 0,
+        book.book_chapter_count_cached or 0,
+    )
+    last_modified_at = book.updated_at or book.created_at
+    return {
+        'book_id': book.bookwriter_coll_book_id,
+        'book_title': book_title,
+        'book_subtitle': book_subtitle,
+        'book_author': book_author,
+        'book_estimated_pages': estimated_pages,
+        'book_relative_updated_label': _format_relative_time(last_modified_at),
+        'book_chapter_count': book.book_chapter_count_cached or 0,
+        'book_word_count': book.book_word_count_cached or 0,
+        'cover_main_hex': cover_palette['main'],
+        'cover_dark_hex': cover_palette['dark'],
+        'cover_gold_hex': cover_palette['gold'],
+    }
+
+
+# =====================================================================
+# READER PAGINATION — splits a chapter's HTML into N page-face chunks
+# at top-level block boundaries so the reader never has to scroll
+# inside a single page. See bookwriter_book_reader view for usage.
+# =====================================================================
+
+# ~200 words = roughly one full page-face at the reader's serif font
+# size + 1.95 line-height (about 21 lines × 10 words/line).
+DEFAULT_READER_WORDS_PER_PAGE = 200
+
+# Headings and images count as at least this many words so they don't
+# all stack on a single page when the surrounding text is short.
+READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT = 30
+
+
+def _extract_top_level_blocks_from_html(html_text):
+    """Return top-level (depth=1) HTML elements as a list of strings.
+    Uses stdlib html.parser so the bookwriter has no extra dependency.
+    Loose text outside any tag gets wrapped in <p> so the splitter
+    always sees block-level units. Never splits an element across
+    blocks — paragraphs, headings, blockquotes, and images each emit
+    as one atomic string."""
+    if not html_text:
+        return []
+    from html.parser import HTMLParser
+
+    class _BlockExtractor(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=False)
+            self.collected_blocks = []
+            self.current_block_parts = []
+            self.current_depth = 0
+
+        def _format_attrs_string(self, attrs):
+            return ''.join(
+                ' %s="%s"' % (attr_name, (attr_value or '').replace('"', '&quot;'))
+                for attr_name, attr_value in attrs
+            )
+
+        def handle_starttag(self, tag, attrs):
+            self.current_block_parts.append(
+                '<%s%s>' % (tag, self._format_attrs_string(attrs))
+            )
+            self.current_depth += 1
+
+        def handle_endtag(self, tag):
+            self.current_depth -= 1
+            self.current_block_parts.append('</%s>' % tag)
+            if self.current_depth <= 0:
+                self.current_depth = 0
+                emitted_block = ''.join(self.current_block_parts).strip()
+                if emitted_block:
+                    self.collected_blocks.append(emitted_block)
+                self.current_block_parts = []
+
+        def handle_startendtag(self, tag, attrs):
+            tag_html = '<%s%s/>' % (tag, self._format_attrs_string(attrs))
+            if self.current_depth <= 0:
+                self.collected_blocks.append(tag_html)
+            else:
+                self.current_block_parts.append(tag_html)
+
+        def handle_data(self, data):
+            if self.current_depth > 0:
+                self.current_block_parts.append(data)
+            elif data.strip():
+                # Loose text outside any tag — wrap so the splitter
+                # treats it as a block.
+                self.collected_blocks.append('<p>%s</p>' % data)
+
+        def handle_entityref(self, name):
+            if self.current_depth > 0:
+                self.current_block_parts.append('&%s;' % name)
+
+        def handle_charref(self, name):
+            if self.current_depth > 0:
+                self.current_block_parts.append('&#%s;' % name)
+
+    block_extractor = _BlockExtractor()
+    block_extractor.feed(html_text)
+    return block_extractor.collected_blocks
+
+
+def paginate_chapter_html_into_pages(
+    chapter_html, target_words_per_page=DEFAULT_READER_WORDS_PER_PAGE,
+):
+    """Split chapter HTML into a list of page-face HTML strings, each
+    targeting `target_words_per_page` words. Splits only at top-level
+    block boundaries so paragraphs, headings, blockquotes, lists, and
+    images stay intact. Headings + images count as min 30 words so
+    they get a fresh page when the previous one is nearly full.
+
+    Returns at least one entry — empty chapters yield [''] so the
+    template still renders one (blank) page-face for that chapter.
+
+    Known limitation: a single very long paragraph (>target words) lands
+    on its own page and may overflow the visible box (CSS clips it).
+    True rendered-height pagination is a future enhancement."""
+    extracted_blocks = _extract_top_level_blocks_from_html(chapter_html or '')
+    if not extracted_blocks:
+        return ['']
+
+    paginated_pages = []
+    current_page_block_parts = []
+    current_page_word_count = 0
+
+    for block_html in extracted_blocks:
+        block_plain_text = re.sub(r'<[^>]+>', '', block_html)
+        block_word_count = len(re.findall(r'\S+', block_plain_text))
+        if re.search(r'<\s*(h[1-6]|img|blockquote)\b', block_html, re.IGNORECASE):
+            block_word_count = max(block_word_count, READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT)
+
+        if (current_page_word_count + block_word_count > target_words_per_page
+                and current_page_block_parts):
+            paginated_pages.append(''.join(current_page_block_parts))
+            current_page_block_parts = []
+            current_page_word_count = 0
+
+        current_page_block_parts.append(block_html)
+        current_page_word_count += block_word_count
+
+    if current_page_block_parts:
+        paginated_pages.append(''.join(current_page_block_parts))
+
+    return paginated_pages or ['']
+
+
+def pack_chapter_pages_into_book_sheets(chapters_with_pages):
+    """Pack each chapter's paginated pages onto book sheets (front +
+    back faces, two faces per sheet). Each chapter starts a fresh
+    sheet so the chapter title always lands at the top of a clean
+    page (book convention). Returns a flat list of sheet dicts ready
+    for the reader template:
+
+        [{'chapter_number': 1,
+          'chapter_title': 'Chapter One',
+          'is_chapter_start_on_front': True,   # show title above front_html
+          'front_html': '...',
+          'back_html': '...' or '',
+          'has_back_content': bool,
+          'front_page_label': 1,                # running arabic
+          'back_page_label': 2 or '',
+         }, ...]
+
+    `chapters_with_pages` is a list of dicts {chapter_number, chapter_title, pages_html_list}.
+    """
+    book_sheets = []
+    running_page_number = 0
+
+    for chapter_dict in chapters_with_pages:
+        chapter_pages = chapter_dict['pages_html_list']
+        for sheet_index_in_chapter in range(0, len(chapter_pages), 2):
+            front_page_html = chapter_pages[sheet_index_in_chapter]
+            has_back = (sheet_index_in_chapter + 1) < len(chapter_pages)
+            back_page_html = chapter_pages[sheet_index_in_chapter + 1] if has_back else ''
+
+            running_page_number += 1
+            front_page_label = running_page_number
+            if has_back:
+                running_page_number += 1
+                back_page_label = running_page_number
+            else:
+                back_page_label = ''
+
+            book_sheets.append({
+                'chapter_number': chapter_dict['chapter_number'],
+                'chapter_title': chapter_dict['chapter_title'],
+                'is_chapter_start_on_front': sheet_index_in_chapter == 0,
+                'front_html': front_page_html,
+                'back_html': back_page_html,
+                'has_back_content': has_back,
+                'front_page_label': front_page_label,
+                'back_page_label': back_page_label,
+            })
+
+    return book_sheets
+
+
+def build_bookwriter_breadcrumb_trail(*, current_book=None, current_mode_label=None):
+    """Build the breadcrumb chain for any bookwriter page.
+
+    Variants (driven by which kwargs are passed):
+      - Library page: pass nothing
+        -> [{Book Library, current=True}]
+      - Per-book inkwell / reader / future publish/store page:
+        pass current_book + current_mode_label
+        -> [Book Library, [Book Title], current_mode_label]
+
+    Returns a list of dicts: {label, href, is_current}. The template
+    renders `is_current` as plain text + aria-current; everything else
+    becomes a clickable link. Crumb labels are intentionally English so
+    they read consistently across the whole bookwriter app — see
+    notes/book-writer.txt for the language convention."""
+    from django.urls import reverse  # local import — URLs aren't wired at module import time
+    breadcrumb_trail = [{
+        'label': 'Book Library',
+        'href': reverse('bookwriter:library'),
+        'is_current': current_book is None and current_mode_label is None,
+    }]
+    if current_book is not None:
+        book_title_for_crumb = (
+            current_book.book_title_bn
+            or current_book.book_title_en
+            or 'Untitled Book'
+        )
+        breadcrumb_trail.append({
+            'label': book_title_for_crumb,
+            'href': reverse(
+                'bookwriter:write',
+                kwargs={'book_id': current_book.bookwriter_coll_book_id},
+            ),
+            'is_current': current_mode_label is None,
+        })
+    if current_mode_label is not None:
+        breadcrumb_trail.append({
+            'label': current_mode_label,
+            'href': None,
+            'is_current': True,
+        })
+    return breadcrumb_trail
 

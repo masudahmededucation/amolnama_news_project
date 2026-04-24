@@ -13,7 +13,27 @@ from . import (
 app_name = "bookwriter"
 
 urlpatterns = [
-    path("", views.bookwriter_inkwell, name="landing"),
+    # My Library landing — grid of every book the logged-in user owns.
+    # Clicking a cover deep-links into `bookwriter:write` for that book.
+    path("", views.bookwriter_library, name="library"),
+
+    # Inkwell editor for ONE specific book. Owner-only (404 otherwise).
+    path("write/<int:book_id>/edit/", views.bookwriter_inkwell, name="write"),
+
+    # Library "+ New book" → POST → creates blank book + Chapter One,
+    # responds with redirect_url so the JS can navigate into the editor.
+    path(
+        "api/book/create/",
+        views_api_book.api_bookwriter_book_create,
+        name="api_book_create",
+    ),
+
+    # Library card hover-action archive (soft-delete; recoverable).
+    path(
+        "api/book/<int:book_id>/archive/",
+        views_api_book.api_bookwriter_book_archive,
+        name="api_book_archive",
+    ),
 
     # Phase 1B Step 1 — chapter body autosave (debounced ~800ms by JS).
     path(
@@ -294,6 +314,16 @@ urlpatterns = [
         "api/refs/<slug:ref_group_code>/",
         views_api_refs.api_bookwriter_ref_list,
         name="api_ref_list",
+    ),
+
+    # Owner preview reader — full book in the 3D leather-bound reader.
+    # Lives ABOVE the public-chapter slug pattern so a numeric path like
+    # /bookwriter/read/123/ binds to this view (int converter), not the
+    # slug converter below (which would also match "123" lexically).
+    path(
+        "read/<int:book_id>/",
+        views.bookwriter_book_reader,
+        name="read",
     ),
 
     # Public reader pages (no auth required).

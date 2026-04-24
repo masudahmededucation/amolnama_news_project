@@ -1,0 +1,970 @@
+/* ====================================================================
+   কলম / Book Reader page (owner preview)
+   --------------------------------------------------------------------
+   3D leather-bound book preview surface — port of
+     media/app_static/mastermind/books/book-reader-button change-v02.html
+   into project tokens (--text-*, --radius-*, --elevation-*, --touch-
+   target, --duration-*, --ease-*) with a page-scoped warm/dark stage
+   palette declared on .bookwriter-book-reader-page (no leak to global
+   :root).
+
+   Markup contract (templates):
+     pages/book_reader.html       — overall shell, breadcrumb + stage
+     partials/_bookwriter_breadcrumb — breadcrumb row at top
+
+   Class prefix: every selector starts with .bookwriter-book-reader-*
+   so it cannot collide with .bookwriter-public-reader (the existing
+   single-chapter reader for serial releases) or any other bookwriter
+   page.
+   ==================================================================== */
+
+.bookwriter-book-reader-page {
+  /* Page-scoped palette — does NOT leak to global :root.
+     Matches the My Library cream/paper aesthetic so the bookwriter
+     app reads as one cohesive surface (not "library cream → reader
+     dark theatre"). */
+  --bookwriter-reader-stage-bg-1:        #f5ead0;
+  --bookwriter-reader-stage-bg-2:        #f0e4c8;
+  --bookwriter-reader-stage-bg-3:        #e8d9b4;
+  --bookwriter-reader-paper-bg-1:        #f5ead0;
+  --bookwriter-reader-paper-bg-2:        #f0e4c4;
+  --bookwriter-reader-paper-bg-3:        #ead9b4;
+  --bookwriter-reader-paper-bg-4:        #d9c79a;
+  --bookwriter-reader-paper-edge-light:  #e8d6aa;
+  --bookwriter-reader-paper-edge-mid:    #c9b784;
+  --bookwriter-reader-paper-edge-dark:   #b8a477;
+  --bookwriter-reader-ink:               #1a1410;
+  --bookwriter-reader-ink-red:           #c8321e;
+  --bookwriter-reader-ink-soft:          rgba(26, 20, 16, .55);
+  --bookwriter-reader-ink-muted:         rgba(26, 20, 16, .35);
+  --bookwriter-reader-floating-bg:       #f5ead0;
+  --bookwriter-reader-floating-border:   rgba(26, 20, 16, .4);
+  --bookwriter-reader-cover-main:        #6b1e14;  /* per-book hex (overridden inline) */
+  --bookwriter-reader-cover-dark:        #3d0f08;  /* per-book hex (overridden inline) */
+  --bookwriter-reader-cover-gold:        #c9a961;  /* per-book hex (overridden inline) */
+
+  /* Book stage dimensions — clamp keeps it readable across viewports. */
+  --bookwriter-reader-book-width:  min(640px, calc(100vw - 60px));
+  --bookwriter-reader-book-height: min(860px, calc(100vh - 200px));
+
+  position: relative;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0;
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-ink);
+  isolation: isolate;
+}
+
+/* Stage wrapper provides the dark theatre backdrop + perspective. */
+.bookwriter-book-reader-stage-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: var(--bookwriter-reader-book-height);
+  padding: 40px 20px 90px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background:
+    radial-gradient(ellipse at top,
+      var(--bookwriter-reader-stage-bg-1) 0%,
+      var(--bookwriter-reader-stage-bg-2) 50%,
+      var(--bookwriter-reader-stage-bg-3) 100%);
+  border-radius: var(--radius-sm);
+  perspective: 2400px;
+  overflow: hidden;
+}
+
+.bookwriter-book-reader-stage {
+  position: relative;
+  width: 100%;
+  max-width: var(--bookwriter-reader-book-width);
+  height: var(--bookwriter-reader-book-height);
+  transform-style: preserve-3d;
+}
+
+/* ============ COVER ============ */
+.bookwriter-book-reader-cover {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.4s cubic-bezier(.645, .045, .355, 1);
+  cursor: pointer;
+  z-index: 100;
+  outline: none;
+}
+
+.bookwriter-book-reader-cover:focus-visible {
+  outline: 3px solid var(--bookwriter-reader-cover-gold);
+  outline-offset: 4px;
+}
+
+.bookwriter-book-reader-cover-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 3px 8px 8px 3px;
+  box-shadow:
+    0 2px 4px rgba(0, 0, 0, .4),
+    0 12px 30px rgba(0, 0, 0, .5),
+    0 30px 60px rgba(0, 0, 0, .6);
+  overflow: hidden;
+}
+
+.bookwriter-book-reader-cover-front {
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, .12) 0%, transparent 60%),
+    linear-gradient(135deg,
+      var(--bookwriter-reader-cover-main) 0%,
+      var(--bookwriter-reader-cover-dark) 100%);
+  padding: 70px 55px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bookwriter-book-reader-cover-front::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='400'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.35 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: .6;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+.bookwriter-book-reader-cover-border {
+  position: absolute;
+  inset: 30px;
+  border: 2px solid var(--bookwriter-reader-cover-gold);
+  border-radius: 2px;
+  box-shadow: inset 0 0 0 5px rgba(201, 169, 97, .4);
+  pointer-events: none;
+  z-index: 1;
+}
+.bookwriter-book-reader-cover-border::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(201, 169, 97, .5);
+}
+
+.bookwriter-book-reader-cover-top,
+.bookwriter-book-reader-cover-bottom {
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.bookwriter-book-reader-cover-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-cover-gold);
+  font-size: var(--text-3xl);
+  letter-spacing: 8px;
+  margin-bottom: 20px;
+  opacity: .9;
+}
+
+.bookwriter-book-reader-cover-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-cover-gold);
+  font-size: clamp(var(--text-4xl), 8vw, 72px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-shadow:
+    0 1px 0 rgba(0, 0, 0, .4),
+    0 2px 2px rgba(0, 0, 0, .3);
+  line-height: 1.1;
+}
+
+.bookwriter-book-reader-cover-subtitle {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-cover-gold);
+  font-size: var(--text-lg);
+  font-weight: 500;
+  margin-top: 20px;
+  letter-spacing: 3px;
+  opacity: .85;
+}
+
+.bookwriter-book-reader-cover-author {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-cover-gold);
+  font-size: var(--text-xl);
+  font-weight: 500;
+  letter-spacing: 2px;
+}
+
+.bookwriter-book-reader-cover-hint {
+  position: absolute;
+  bottom: -42px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(201, 169, 97, .6);
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-base);
+  letter-spacing: 2px;
+  white-space: nowrap;
+  animation: bookwriter-book-reader-cover-hint-pulse 2.4s ease-in-out infinite;
+}
+
+@keyframes bookwriter-book-reader-cover-hint-pulse {
+  0%, 100% { opacity: .5; }
+  50%      { opacity: .9; }
+}
+
+.bookwriter-book-reader-cover-back {
+  background: radial-gradient(ellipse at 40% 50%,
+    rgba(255, 255, 255, .15) 0%,
+    var(--bookwriter-reader-cover-dark) 80%);
+  transform: rotateY(180deg);
+}
+
+/* When the cover is open, it rotates 175° onto the left side. After
+   the 1.4s flip animation completes, the `bookwriter-cover-hide-after-
+   flip` animation drops visibility to hidden — this is CSS-only so it
+   works even when JS misfires or the script is cached old. Inside the
+   stage's `transform-style: preserve-3d` context, z-index alone can't
+   keep the cover behind flipped pages; visibility:hidden is the only
+   reliable way to remove it from the rendering pipeline.
+
+   On close (.stage-open removed), the animation rule is gone too →
+   visibility resets to visible and the cover transitions back to its
+   closed position over 1.4s. */
+.bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
+  .bookwriter-book-reader-cover {
+  transform: rotateY(-175deg);
+  box-shadow: -30px 10px 40px rgba(0, 0, 0, .4);
+  z-index: 0;
+  animation: bookwriter-cover-hide-after-flip 1.4s linear forwards;
+}
+
+@keyframes bookwriter-cover-hide-after-flip {
+  0%, 99% { visibility: visible; }
+  100%    { visibility: hidden; }
+}
+
+.bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
+  .bookwriter-book-reader-cover-hint {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ============ PAGES STACK ============ */
+.bookwriter-book-reader-pages {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+}
+
+.bookwriter-book-reader-page-sheet {
+  position: absolute;
+  inset: 0;
+  transform-origin: left center;
+  transform-style: preserve-3d;
+  transition: transform 1.3s cubic-bezier(.645, .045, .355, 1);
+  border-radius: 2px 4px 4px 2px;
+}
+
+/* Stacking order — first sheet on top, later sheets underneath */
+.bookwriter-book-reader-page-sheet:nth-child(1) { z-index: 50; }
+.bookwriter-book-reader-page-sheet:nth-child(2) { z-index: 49; }
+.bookwriter-book-reader-page-sheet:nth-child(3) { z-index: 48; }
+.bookwriter-book-reader-page-sheet:nth-child(4) { z-index: 47; }
+.bookwriter-book-reader-page-sheet:nth-child(5) { z-index: 46; }
+.bookwriter-book-reader-page-sheet:nth-child(6) { z-index: 45; }
+.bookwriter-book-reader-page-sheet:nth-child(7) { z-index: 44; }
+.bookwriter-book-reader-page-sheet:nth-child(8) { z-index: 43; }
+.bookwriter-book-reader-page-sheet:nth-child(9) { z-index: 42; }
+.bookwriter-book-reader-page-sheet:nth-child(10) { z-index: 41; }
+.bookwriter-book-reader-page-sheet:nth-child(n+11) { z-index: 40; }
+
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped {
+  transform: rotateY(-175deg);
+}
+
+/* Flipped sheets stack so most-recently-flipped is on top of left pile */
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(1)  { z-index: 1; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(2)  { z-index: 2; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(3)  { z-index: 3; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(4)  { z-index: 4; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(5)  { z-index: 5; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(6)  { z-index: 6; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(7)  { z-index: 7; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(8)  { z-index: 8; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(9)  { z-index: 9; }
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(10) { z-index: 10; }
+
+.bookwriter-book-reader-page-face {
+  position: absolute;
+  inset: 0;
+  backface-visibility: hidden;
+  border-radius: 2px 4px 4px 2px;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 30% 20%, var(--bookwriter-reader-paper-bg-1) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, var(--bookwriter-reader-paper-bg-2) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bookwriter-reader-paper-bg-1) 0%, var(--bookwriter-reader-paper-bg-2) 100%);
+}
+
+.bookwriter-book-reader-page-front {
+  padding: 55px 65px 70px;
+}
+.bookwriter-book-reader-page-back {
+  padding: 55px 65px 70px;
+  transform: rotateY(180deg);
+}
+
+/* Paper fiber grain — small turbulence noise. */
+.bookwriter-book-reader-page-face::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch' seed='7'/><feColorMatrix values='0 0 0 0 0.20  0 0 0 0 0.13  0 0 0 0 0.06  0 0 0 0.12 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: .7;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Cloud-style large unevenness layer. */
+.bookwriter-book-reader-page-face::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='500' height='500'><filter id='b'><feTurbulence type='fractalNoise' baseFrequency='0.012' numOctaves='2' seed='5'/><feColorMatrix values='0 0 0 0 0.30  0 0 0 0 0.18  0 0 0 0 0.08  0 0 0 0.10 0'/></filter><rect width='100%25' height='100%25' filter='url(%23b)'/></svg>");
+  opacity: .5;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Mid-turn shadow — darkens the front face during a flip. */
+.bookwriter-book-reader-page-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .35) 0%,
+    rgba(0, 0, 0, .12) 25%,
+    rgba(0, 0, 0, 0) 60%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .6s ease;
+  z-index: 5;
+  border-radius: 2px 4px 4px 2px;
+}
+
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-turning
+  .bookwriter-book-reader-page-shade {
+  opacity: 1;
+}
+
+/* Spine binding shadow — darkens the gutter near the spine. */
+.bookwriter-book-reader-binding-shadow {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, .22) 0%,
+    rgba(0, 0, 0, .08) 40%,
+    rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+  z-index: 4;
+}
+
+.bookwriter-book-reader-binding-shadow-mirrored {
+  left: auto;
+  right: 0;
+  transform: scaleX(-1);
+}
+
+/* ============ PAGE CONTENT ============ */
+.bookwriter-book-reader-folio {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--bookwriter-reader-ink-soft);
+  letter-spacing: 3px;
+  z-index: 3;
+}
+
+.bookwriter-book-reader-chapter-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: clamp(var(--text-2xl), 5vw, var(--text-4xl));
+  font-weight: 700;
+  color: var(--bookwriter-reader-ink-red);
+  margin-bottom: 40px;
+  letter-spacing: .3px;
+  line-height: 1.25;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.bookwriter-book-reader-chapter-body {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: clamp(var(--text-base), 2.2vw, var(--text-xl));
+  font-weight: 500;
+  line-height: 1.95;
+  color: var(--bookwriter-reader-ink);
+  position: relative;
+  z-index: 2;
+  /* No scrolling — content is paginated server-side by
+     paginate_chapter_html_into_pages() so each page-face holds ~200
+     words. If a single very long paragraph still overflows, CSS clips
+     it (acceptable for v1; future enhancement = client-side rendered-
+     height measurement to split inside paragraphs at sentence
+     boundaries). */
+  overflow: hidden;
+}
+.bookwriter-book-reader-chapter-body p { margin: 0 0 .75em; }
+.bookwriter-book-reader-chapter-body img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--radius-xs);
+}
+
+/* Frontispiece (sheet 1 front) */
+.bookwriter-book-reader-frontispiece {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  padding: 40px;
+  gap: 12px;
+}
+.bookwriter-book-reader-frontispiece-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-ink-red);
+  font-size: var(--text-2xl);
+  letter-spacing: 6px;
+  margin-bottom: 40px;
+  opacity: .7;
+}
+.bookwriter-book-reader-frontispiece-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: clamp(var(--text-4xl), 7vw, 54px);
+  font-weight: 700;
+  color: var(--bookwriter-reader-ink-red);
+  letter-spacing: 3px;
+}
+.bookwriter-book-reader-frontispiece-subtitle {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-base);
+  color: var(--bookwriter-reader-ink);
+  letter-spacing: 4px;
+  opacity: .75;
+  margin-bottom: 80px;
+}
+.bookwriter-book-reader-frontispiece-author {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-xl);
+  color: var(--bookwriter-reader-ink);
+  letter-spacing: 2px;
+  font-weight: 500;
+}
+
+/* Table of contents (sheet 1 back) */
+.bookwriter-book-reader-toc-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--bookwriter-reader-ink-red);
+  text-align: center;
+  margin-bottom: 40px;
+  letter-spacing: 2px;
+  position: relative;
+  z-index: 2;
+}
+.bookwriter-book-reader-toc-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  position: relative;
+  z-index: 2;
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-lg);
+  line-height: 2.4;
+}
+.bookwriter-book-reader-toc-item {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+.bookwriter-book-reader-toc-text {
+  color: var(--bookwriter-reader-ink);
+}
+.bookwriter-book-reader-toc-dotline {
+  flex: 1;
+  border-bottom: 1px dotted var(--bookwriter-reader-ink-muted);
+  margin: 0 4px;
+  transform: translateY(-5px);
+}
+.bookwriter-book-reader-toc-page {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: rgba(26, 20, 16, .6);
+}
+.bookwriter-book-reader-toc-empty {
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--bookwriter-reader-ink-soft);
+  font-size: var(--text-base);
+  position: relative;
+  z-index: 2;
+}
+
+/* Closing colophon */
+.bookwriter-book-reader-colophon {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+  gap: 30px;
+}
+.bookwriter-book-reader-colophon-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--bookwriter-reader-ink-red);
+  font-size: var(--text-2xl);
+  letter-spacing: 6px;
+  opacity: .7;
+}
+.bookwriter-book-reader-colophon-text {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--bookwriter-reader-ink-soft);
+  font-size: var(--text-lg);
+  letter-spacing: 4px;
+}
+
+/* ============ PAPER-TAB CONTROLS ============
+   Bottom paper tab — page indicator + jump-to-page only. Lives in
+   the wrapper's normal 2D context (NOT inside the 3D stage) so it
+   never disappears behind page sheets and z-index works normally.
+   Anchored to the bottom of the centered book via calc() against
+   the wrapper bottom + book height. */
+.bookwriter-book-reader-controls {
+  position: absolute;
+  /* Anchor to where the book actually ends. Wrapper has padding-top
+     40px; book has height var(--bookwriter-reader-book-height); pull
+     up 8px so the paper tab visually attaches to the bottom edge of
+     the book like a real tab sticking out from a page. */
+  top: calc(40px + var(--bookwriter-reader-book-height) - 8px);
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 50;
+  padding: 0 30px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .5s ease .4s;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Reveal once the cover is flipped. The .stage-open class sits on
+   the stage; controls are now its prev sibling in the wrapper, so
+   use the general sibling combinator. */
+.bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
+  ~ .bookwriter-book-reader-controls,
+.bookwriter-book-reader-controls.bookwriter-book-reader-controls-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.bookwriter-book-reader-tab {
+  position: relative;
+  background: #fffaea;
+  color: var(--bookwriter-reader-ink);
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: var(--text-base);
+  letter-spacing: .5px;
+  padding: 12px 24px;
+  border: 1px solid var(--bookwriter-reader-paper-edge-mid);
+  cursor: pointer;
+  border-radius: 0 0 6px 6px;
+  min-height: var(--touch-target);
+  /* Stacked thick-page edges + drop shadow to look like a paper tab.
+     Uses darker stacked edges + a stronger drop shadow so the tab
+     reads as raised against the cream stage backdrop (on the old
+     dark backdrop a softer shadow worked; cream needs stronger
+     contrast). */
+  box-shadow:
+    0 1px 0 var(--bookwriter-reader-paper-edge-dark),
+    0 2px 0 var(--bookwriter-reader-paper-edge-mid),
+    0 3px 0 var(--bookwriter-reader-paper-edge-dark),
+    0 6px 12px rgba(60, 40, 20, .3),
+    inset 0 1px 0 rgba(255, 255, 255, .7);
+  transition:
+    transform var(--duration-fast, .15s) ease,
+    box-shadow var(--duration-fast, .15s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-book-reader-tab:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow:
+    0 1px 0 var(--bookwriter-reader-paper-edge-dark),
+    0 2px 0 var(--bookwriter-reader-paper-edge-mid),
+    0 3px 0 var(--bookwriter-reader-paper-edge-dark),
+    0 4px 0 var(--bookwriter-reader-paper-edge-mid),
+    0 5px 0 var(--bookwriter-reader-paper-edge-dark),
+    0 9px 16px rgba(60, 40, 20, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .8);
+}
+
+.bookwriter-book-reader-tab:focus-visible {
+  outline: 2px solid var(--bookwriter-reader-ink-red);
+  outline-offset: 3px;
+}
+
+.bookwriter-book-reader-tab:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+  color: var(--bookwriter-reader-ink-soft);
+}
+
+.bookwriter-book-reader-tab-middle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  position: relative;
+  flex-wrap: nowrap;
+}
+
+.bookwriter-book-reader-page-indicator {
+  color: var(--bookwriter-reader-ink);
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: var(--text-base);
+  letter-spacing: .5px;
+  padding: 0 4px;
+  white-space: nowrap;
+}
+
+.bookwriter-book-reader-tab-divider {
+  width: 1px;
+  align-self: stretch;
+  background: rgba(26, 20, 16, .2);
+  margin: 2px 4px;
+}
+
+.bookwriter-book-reader-jump-label {
+  color: rgba(26, 20, 16, .75);
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 500;
+  font-size: var(--text-sm);
+  letter-spacing: .5px;
+}
+
+.bookwriter-book-reader-jump-input {
+  width: 70px;
+  padding: 7px 10px;
+  background: #fffaea;
+  border: 1px solid rgba(26, 20, 16, .35);
+  color: var(--bookwriter-reader-ink);
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-base);
+  font-weight: 600;
+  text-align: center;
+  outline: none;
+  transition: border-color var(--duration-fast, .2s) ease,
+              background var(--duration-fast, .2s) ease,
+              box-shadow var(--duration-fast, .2s) ease;
+  box-shadow: inset 0 1px 2px rgba(26, 20, 16, .15);
+  border-radius: 2px;
+  -moz-appearance: textfield;
+  min-height: var(--touch-target);
+}
+.bookwriter-book-reader-jump-input::-webkit-outer-spin-button,
+.bookwriter-book-reader-jump-input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.bookwriter-book-reader-jump-input:focus,
+.bookwriter-book-reader-jump-input:focus-visible {
+  border-color: var(--bookwriter-reader-ink-red);
+  background: #fff;
+  box-shadow:
+    inset 0 1px 2px rgba(26, 20, 16, .15),
+    0 0 0 2px rgba(200, 50, 30, .2);
+}
+.bookwriter-book-reader-jump-input::placeholder {
+  color: rgba(26, 20, 16, .35);
+  font-weight: 400;
+}
+
+.bookwriter-book-reader-jump-button {
+  background: transparent;
+  border: 1px solid rgba(26, 20, 16, .3);
+  color: var(--bookwriter-reader-ink);
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 6px 12px;
+  letter-spacing: .5px;
+  border-radius: 2px;
+  min-height: var(--touch-target);
+  transition: background var(--duration-fast, .2s) ease,
+              border-color var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+.bookwriter-book-reader-jump-button:hover {
+  background: rgba(26, 20, 16, .08);
+  border-color: rgba(26, 20, 16, .6);
+}
+.bookwriter-book-reader-jump-button:focus-visible {
+  outline: 2px solid var(--bookwriter-reader-ink-red);
+  outline-offset: 2px;
+}
+
+.bookwriter-book-reader-jump-error {
+  position: absolute;
+  bottom: calc(100% + 8px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bookwriter-reader-stage-bg-1);
+  color: var(--bookwriter-reader-paper-bg-1);
+  padding: 8px 16px;
+  border-radius: 3px;
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  letter-spacing: .5px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast, .3s) ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, .5);
+  z-index: 10;
+}
+.bookwriter-book-reader-jump-error::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 5px solid transparent;
+  border-top-color: var(--bookwriter-reader-stage-bg-1);
+}
+.bookwriter-book-reader-jump-error.bookwriter-book-reader-jump-error-show {
+  opacity: 1;
+}
+
+/* ============ FLOATING BUTTONS (edit + close) ============
+   These buttons live OUTSIDE .bookwriter-book-reader-stage so they
+   are not in its `transform-style: preserve-3d` rendering context.
+   Inside that context the page sheets (z-index 40-50) paint over a
+   flat-Z child even with higher z-index, because children stack by
+   final 3D position first. Moving them out into the wrapper's normal
+   2D stacking context fixes the partial-cover bug for every page.
+
+   Positioning: the stage-wrapper centers the book horizontally and
+   sits it at top: 40px (its own padding-top). We anchor the buttons
+   to those visual corners using calc() against the page-scoped
+   --bookwriter-reader-book-width var — they always land at the corner
+   of the centered book regardless of viewport width. */
+.bookwriter-book-reader-floating-button {
+  position: absolute;
+  width: 36px;
+  height: 36px;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  background: var(--bookwriter-reader-floating-bg);
+  border: 1px solid var(--bookwriter-reader-floating-border);
+  color: var(--bookwriter-reader-ink);
+  font-family: 'Cormorant Garamond', serif;
+  font-size: var(--text-lg);
+  text-decoration: none;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  border-radius: var(--radius-full);
+  z-index: 50;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .3);
+  transition:
+    background var(--duration-fast, .2s) ease,
+    transform var(--duration-fast, .3s) ease,
+    color var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+.bookwriter-book-reader-floating-button:hover {
+  background: var(--bookwriter-reader-paper-bg-3);
+  color: var(--bookwriter-reader-ink-red);
+  text-decoration: none;
+}
+.bookwriter-book-reader-floating-button:focus-visible {
+  outline: 2px solid var(--bookwriter-reader-ink-red);
+  outline-offset: 3px;
+}
+
+/* Edit pill: top-left of the centered book stage. */
+.bookwriter-book-reader-floating-edit {
+  top: 28px;
+  left: calc(50% - var(--bookwriter-reader-book-width) / 2 - 18px);
+}
+.bookwriter-book-reader-floating-edit:hover {
+  transform: rotate(-15deg) scale(1.05);
+}
+
+/* Close pill: top-right of the centered book stage. */
+.bookwriter-book-reader-floating-close {
+  top: 28px;
+  right: calc(50% - var(--bookwriter-reader-book-width) / 2 - 18px);
+}
+.bookwriter-book-reader-floating-close:hover {
+  transform: rotate(90deg);
+}
+
+/* ============ FLOATING PREV / NEXT (lightbox pattern) ============
+   Hybrid pattern: the click-half-of-stage gesture in page-book-reader.js
+   is the PRIMARY way to turn pages; these floating arrow buttons are
+   a visible indicator + bigger click target so first-time readers know
+   navigation exists. 56px circle (large enough to be discoverable, not
+   so large it competes with the book), bolder background + heavier
+   chevron so they read as buttons not decoration.
+
+   Position: always inside the wrapper via max() so they never clip on
+   narrow viewports — at wide viewports they sit ~60px outside the book
+   edges; at narrow viewports they snap to 12px from the wrapper edge. */
+.bookwriter-book-reader-floating-prev,
+.bookwriter-book-reader-floating-next {
+  width: 56px;
+  height: 56px;
+  background: rgba(255, 252, 240, .95);
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  top: 50%;
+  transform: translateY(-50%);
+  box-shadow:
+    0 4px 12px rgba(0, 0, 0, .45),
+    0 2px 4px rgba(0, 0, 0, .3),
+    inset 0 1px 0 rgba(255, 255, 255, .4);
+  transition:
+    background var(--duration-fast, .2s) ease,
+    color var(--duration-fast, .2s) ease,
+    transform var(--duration-fast, .2s) ease,
+    box-shadow var(--duration-fast, .2s) ease;
+}
+
+.bookwriter-book-reader-floating-prev {
+  left: max(12px, calc(50% - var(--bookwriter-reader-book-width) / 2 - 64px));
+}
+
+.bookwriter-book-reader-floating-next {
+  right: max(12px, calc(50% - var(--bookwriter-reader-book-width) / 2 - 64px));
+}
+
+/* Always visible — even before the book is open. The arrows reinforce
+   "you can navigate" from the moment the page loads. (The previous
+   reveal-on-open behaviour made them feel like glitches because they'd
+   appear 1.4s after the cover flip with low contrast.) */
+.bookwriter-book-reader-floating-prev:not(:disabled):hover {
+  transform: translateY(-50%) translateX(-4px);
+  background: #fff;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, .5),
+    0 3px 6px rgba(0, 0, 0, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+.bookwriter-book-reader-floating-next:not(:disabled):hover {
+  transform: translateY(-50%) translateX(4px);
+  background: #fff;
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, .5),
+    0 3px 6px rgba(0, 0, 0, .35),
+    inset 0 1px 0 rgba(255, 255, 255, .5);
+}
+
+.bookwriter-book-reader-floating-prev:disabled,
+.bookwriter-book-reader-floating-next:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+
+/* ============ MOBILE BREAKPOINT ============ */
+@media (max-width: 700px) {
+  .bookwriter-book-reader-page {
+    --bookwriter-reader-book-width:  calc(100vw - 30px);
+    --bookwriter-reader-book-height: 720px;
+  }
+  .bookwriter-book-reader-stage-wrapper {
+    padding: 30px 12px 100px;
+    perspective: 1800px;
+  }
+  .bookwriter-book-reader-cover-front  { padding: 50px 35px; }
+  .bookwriter-book-reader-page-front,
+  .bookwriter-book-reader-page-back    { padding: 40px 35px 55px; }
+  .bookwriter-book-reader-cover-title  { font-size: clamp(var(--text-3xl), 9vw, var(--text-4xl)); }
+  .bookwriter-book-reader-frontispiece-title { font-size: clamp(var(--text-3xl), 8vw, 40px); }
+  .bookwriter-book-reader-controls     { padding: 0 8px; }
+  .bookwriter-book-reader-tab          { font-size: var(--text-sm); padding: 10px 14px; }
+  .bookwriter-book-reader-tab-middle   { padding: 8px 10px; gap: 6px; flex: 0 1 auto; }
+  .bookwriter-book-reader-tab-divider  { display: none; }
+  .bookwriter-book-reader-jump-input   { width: 55px; padding: 6px; }
+  /* On phones the book takes the full width, so the side-arrows have
+     nowhere to live outside the book — pull them inside the book edge
+     so they remain reachable without overlapping page text. */
+  .bookwriter-book-reader-floating-prev {
+    left: 8px;
+  }
+  .bookwriter-book-reader-floating-next {
+    right: 8px;
+  }
+}
+
+/* ============ TOUCH DEVICES ============ */
+@media (pointer: coarse) {
+  /* Tighter perspective + always-visible floating buttons (no hover). */
+  .bookwriter-book-reader-stage-wrapper { perspective: 1600px; }
+}
+
+/* ============ REDUCED MOTION ============
+   Lives at the END of this file so the cascade naturally beats every
+   per-element transition declared above (same single-class specificity,
+   later rule wins) — no !important needed. */
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-book-reader-cover,
+  .bookwriter-book-reader-page-sheet,
+  .bookwriter-book-reader-page-shade,
+  .bookwriter-book-reader-controls,
+  .bookwriter-book-reader-tab,
+  .bookwriter-book-reader-jump-input,
+  .bookwriter-book-reader-jump-button,
+  .bookwriter-book-reader-floating-button {
+    transition: none;
+  }
+  .bookwriter-book-reader-cover-hint {
+    animation: none;
+    opacity: .7;
+  }
+}

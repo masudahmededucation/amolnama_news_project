@@ -24,6 +24,10 @@ def robots_txt(request):
         "# Newshub: blocked to prevent content copying",
         "Disallow: /newshub/",
         "",
+        "# Bookwriter: per-user library + private editor surfaces",
+        "Disallow: /bookwriter/",
+        "Allow: /bookwriter/read/",
+        "",
         "# Disallow API endpoints within apps",
         "Disallow: /evaluation_vote/api/",
         "Disallow: /election_vote/api/",
@@ -199,7 +203,7 @@ def service_worker_js(request):
     concrete color values and cannot reference CSS variables.
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v867';
+var CACHE_NAME = 'amolnama-v881';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

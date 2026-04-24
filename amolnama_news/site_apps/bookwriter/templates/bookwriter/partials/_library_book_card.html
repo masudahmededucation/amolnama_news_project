@@ -1,0 +1,92 @@
+{% comment %}
+  Single book card for the My Library grid. Receives one `book` dict
+  pre-built by views_api_helpers.build_book_card_payload — never reads
+  raw model fields, so the SSR template + any future JSON list endpoint
+  cannot drift.
+
+  Action layout (per the v03 prototype the user picked):
+    - Click cover/meta  → READ this book in the 3D reader
+                          (/bookwriter/read/<book_id>/)
+    - ✎ Edit pencil top-right (hover-revealed circle, tooltip "Edit")
+                          → opens the inkwell editor for this book
+    - ✕ Archive top-LEFT (hover-revealed circle, two-click confirm)
+                          → soft-deletes the book from library
+
+  CSS-var injection pattern (per CLAUDE.md GATE 4 #2): the inline
+  `style` carries ONLY the three dynamic palette hexes; visual rules
+  (radial gradient, leather grain, gold border) live in
+  page-library.css and read those vars. No design rules in markup.
+
+  The buttons are rendered OUTSIDE the read link (button-inside-link
+  is invalid HTML); the JS in page-library.js stops propagation so
+  edit/archive clicks don't also fire the cover-click navigation.
+{% endcomment %}
+<article class="bookwriter-library-card" data-book-id="{{ book.book_id }}" data-search-haystack="{{ book.book_title|lower }} {{ book.book_subtitle|lower }} {{ book.book_author|lower }}">
+
+  {# Primary action: clicking the cover/meta opens the 3D reader. #}
+  <a class="bookwriter-library-card-link"
+     href="{% url 'bookwriter:read' book_id=book.book_id %}"
+     id="bookwriter-library-card-link-{{ book.book_id }}"
+     name="bookwriter_library_card_link_{{ book.book_id }}"
+     aria-label="Read {{ book.book_title }}">
+    <div class="bookwriter-library-card-visual">
+      <div class="bookwriter-library-card-pages" aria-hidden="true"></div>
+      <div class="bookwriter-library-card-cover"
+           style="--bookwriter-library-cover-main: {{ book.cover_main_hex }}; --bookwriter-library-cover-dark: {{ book.cover_dark_hex }}; --bookwriter-library-cover-gold: {{ book.cover_gold_hex }};">
+        <div class="bookwriter-library-card-spine" aria-hidden="true"></div>
+        <div class="bookwriter-library-card-cover-border" aria-hidden="true"></div>
+        <div class="bookwriter-library-card-cover-content">
+          <div class="bookwriter-library-card-ornament" aria-hidden="true">&#x2042; &nbsp; &#x2042; &nbsp; &#x2042;</div>
+          <div class="bookwriter-library-card-cover-main">
+            <div class="bookwriter-library-card-cover-title">{{ book.book_title }}</div>
+            {% if book.book_subtitle %}
+              <div class="bookwriter-library-card-cover-subtitle">{{ book.book_subtitle }}</div>
+            {% endif %}
+          </div>
+          {% if book.book_author %}
+            <div class="bookwriter-library-card-cover-author">{{ book.book_author }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="bookwriter-library-card-meta">
+      <div class="bookwriter-library-card-meta-title">{{ book.book_title }}</div>
+      {% if book.book_author %}
+        <div class="bookwriter-library-card-meta-author">{{ book.book_author }}</div>
+      {% endif %}
+      <div class="bookwriter-library-card-meta-detail">{{ book.book_estimated_pages }} pages &middot; {{ book.book_relative_updated_label }}</div>
+    </div>
+  </a>
+
+  {% comment %}
+    Secondary action: pencil top-right — primary corner because
+    editing is the more common follow-on after browsing.
+  {% endcomment %}
+  <a class="bookwriter-library-card-edit-button"
+     href="{% url 'bookwriter:write' book_id=book.book_id %}"
+     id="bookwriter-library-card-edit-button-{{ book.book_id }}"
+     name="bookwriter_library_card_edit_button_{{ book.book_id }}"
+     title="Edit"
+     aria-label="Edit {{ book.book_title }}">
+    <span class="bookwriter-library-card-edit-icon" aria-hidden="true">&#x270E;</span>
+  </a>
+
+  {% comment %}
+    Destructive action: archive top-left — visually subordinate to the
+    primary edit/read affordances. Two-click confirm via the
+    data-confirm-state machine in page-library.js.
+  {% endcomment %}
+  <button type="button"
+          class="bookwriter-library-card-archive-button"
+          id="bookwriter-library-card-archive-button-{{ book.book_id }}"
+          name="bookwriter_library_card_archive_button_{{ book.book_id }}"
+          data-archive-book-id="{{ book.book_id }}"
+          data-confirm-state="idle"
+          aria-label="Archive {{ book.book_title }}"
+          title="Archive">
+    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" focusable="false">
+      <path fill="currentColor" d="M3 4h18v4H3V4zm2 6h14v10a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V10zm4 4v2h6v-2H9z"/>
+    </svg>
+    <span class="bookwriter-library-card-archive-confirm-label" aria-live="polite"></span>
+  </button>
+</article>

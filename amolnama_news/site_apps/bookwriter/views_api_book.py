@@ -10,6 +10,7 @@ import re
 
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseForbidden, JsonResponse
+from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET, require_POST
 
@@ -613,4 +614,69 @@ def api_bookwriter_book_export_pdf(request, book_id):
             book_id, pdf_export_error,
         )
         return HttpResponse('PDF export failed.', status=500)
+
+
+# =====================================================================
+# LIBRARY-PAGE BOOK CRUD — create + archive endpoints called by
+# the My Library grid (page-library.js).
+# =====================================================================
+
+@login_required
+@require_POST
+def api_bookwriter_book_create(request):
+    """Create a new blank book + 'Chapter One' for the logged-in user.
+
+    Used by the library "+ New book" button. Returns the new book id +
+    the inkwell URL the JS should redirect to. No request body needed —
+    every freshly-created book starts as 'Untitled Book' / Bengali /
+    private / draft. Author / title / cover are filled in later via
+    the inkwell book-settings drawer + cover designer.
+
+    Reuses `create_blank_book_for_user` from views.py (same factory the
+    inkwell's defensive auto-provision used to call) so library-created
+    books and inkwell-auto-created books are byte-identical."""
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return HttpResponseForbidden('No user profile')
+    from .views import create_blank_book_for_user  # local import — sibling module
+    new_book, _new_first_chapter = create_blank_book_for_user(user_profile_id)
+    return JsonResponse({
+        'ok': True,
+        'book_id': new_book.bookwriter_coll_book_id,
+        'redirect_url': reverse(
+            'bookwriter:write',
+            kwargs={'book_id': new_book.bookwriter_coll_book_id},
+        ),
+    })
+
+
+@login_required
+@require_POST
+def api_bookwriter_book_archive(request, book_id):
+    """Soft-delete a book from the library. Owner-only.
+
+    Sets is_active=False + book_archived_at=now on the CollBook row;
+    chapters / bible / plot cards / snapshots / beta share links are
+    NOT cascaded — they stay in the DB so a future 'restore book' UI
+    can reverse the action with no data loss. The library grid query
+    filters on is_active=True so an archived book disappears from the
+    UI immediately."""
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return HttpResponseForbidden('No user profile')
+    owning_book, error_response = _resolve_book_for_owner(book_id, user_profile_id)
+    if error_response is not None:
+        return error_response
+    archived_at_timestamp = timezone.now()
+    CollBook.objects.filter(
+        bookwriter_coll_book_id=owning_book.bookwriter_coll_book_id,
+    ).update(
+        is_active=False,
+        book_archived_at=archived_at_timestamp,
+        updated_at=archived_at_timestamp,
+    )
+    return JsonResponse({
+        'ok': True,
+        'archived_at_iso': archived_at_timestamp.isoformat(),
+    })
 

@@ -1,0 +1,702 @@
+/* ====================================================================
+   কলম / My Library page
+   ====================================================================
+   Warm-paper aesthetic translated from
+     media/app_static/mastermind/books/library-preview-v02.html
+   into project tokens (--text-*, --radius-*, --elevation-*, --touch-
+   target, --duration-*, --ease-*). Page-scoped tokens declared on
+   .bookwriter-library-page so the warm-paper palette never leaks
+   globally.
+
+   Markup contract:
+     pages/library.html          -> overall page shell + header + grid
+     partials/_library_book_card  -> one card (link + visual + meta + archive btn)
+     partials/_bookwriter_breadcrumb -> ol breadcrumb (uses components/breadcrumb.css)
+   ==================================================================== */
+
+.bookwriter-library-page {
+  /* Page-scoped warm-paper palette — does NOT leak to global :root. */
+  --bookwriter-library-paper-bg:        #f0e4c8;
+  --bookwriter-library-paper-bg-warm:   #e8d9b4;
+  --bookwriter-library-paper-bg-light:  #f5ead0;
+  --bookwriter-library-ink:             #2a1f12;
+  --bookwriter-library-ink-soft:        #4a3820;
+  --bookwriter-library-ink-muted:       #7a6340;
+  --bookwriter-library-rule:            #c9b784;
+  --bookwriter-library-accent:          #8b2a1a;
+  --bookwriter-library-card-shadow:     0 8px 16px rgba(60, 40, 20, .25),
+                                         0 16px 32px rgba(60, 40, 20, .2);
+  --bookwriter-library-card-pages-grad: linear-gradient(90deg, #c9b784 0%, #e8d6aa 40%, #b8a477 100%);
+
+  position: relative;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 60px 30px 80px;
+  background:
+    radial-gradient(ellipse at top,
+      var(--bookwriter-library-paper-bg-light) 0%,
+      var(--bookwriter-library-paper-bg) 50%,
+      var(--bookwriter-library-paper-bg-warm) 100%);
+  color: var(--bookwriter-library-ink);
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  isolation: isolate;
+}
+
+/* Subtle paper grain — fixed under the content, never blocks pointers. */
+.bookwriter-library-page::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.08 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: .5;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: -1;
+}
+
+/* ============ HEADER ============ */
+.bookwriter-library-header {
+  max-width: 1280px;
+  margin: 0 auto 60px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: var(--space-5, 20px);
+  padding-bottom: var(--space-6, 24px);
+  border-bottom: 1px solid var(--bookwriter-library-rule);
+}
+
+.bookwriter-library-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookwriter-library-title {
+  font-weight: 700;
+  font-size: clamp(var(--text-4xl), 5vw, var(--text-5xl));
+  color: var(--bookwriter-library-ink);
+  letter-spacing: 2px;
+  line-height: 1;
+  margin: 0;
+}
+
+.bookwriter-library-subtitle {
+  font-style: italic;
+  color: var(--bookwriter-library-ink-muted);
+  font-size: var(--text-base);
+  letter-spacing: 3px;
+}
+
+.bookwriter-library-header-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4, 18px);
+  flex-wrap: wrap;
+}
+
+.bookwriter-library-search-input {
+  background: rgba(255, 252, 240, 0.7);
+  border: 1px solid var(--bookwriter-library-rule);
+  color: var(--bookwriter-library-ink);
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-base);
+  font-style: italic;
+  padding: 9px 16px;
+  border-radius: var(--radius-xs);
+  outline: none;
+  width: 220px;
+  min-height: var(--touch-target);
+  transition:
+    border-color var(--duration-fast, .2s) ease,
+    background  var(--duration-fast, .2s) ease,
+    width       var(--duration-fast, .2s) ease,
+    box-shadow  var(--duration-fast, .2s) ease;
+}
+
+.bookwriter-library-search-input:focus,
+.bookwriter-library-search-input:focus-visible {
+  border-color: var(--bookwriter-library-accent);
+  background: rgba(255, 252, 240, 0.95);
+  box-shadow: 0 0 0 2px rgba(139, 42, 26, 0.15);
+  width: 260px;
+}
+
+.bookwriter-library-search-input::placeholder {
+  color: var(--bookwriter-library-ink-muted);
+  opacity: .7;
+}
+
+.bookwriter-library-count {
+  font-style: italic;
+  color: var(--bookwriter-library-ink-muted);
+  font-size: var(--text-sm);
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.bookwriter-library-create-button {
+  background: var(--bookwriter-library-accent);
+  color: #fff8e8;
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: none;
+  padding: 10px 18px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  box-shadow: var(--elevation-2);
+  transition: transform var(--duration-fast, .2s) ease,
+              box-shadow var(--duration-fast, .2s) ease,
+              background var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-library-create-button:hover {
+  background: #6f1f12;
+  transform: translateY(-1px);
+  box-shadow: var(--elevation-3);
+}
+
+.bookwriter-library-create-button:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 3px;
+}
+
+.bookwriter-library-create-button:active {
+  transform: translateY(0);
+  box-shadow: var(--elevation-1);
+}
+
+/* ============ GRID ============ */
+.bookwriter-library-grid {
+  max-width: 1280px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 56px 32px;
+}
+
+/* ============ BOOK CARD ============ */
+.bookwriter-library-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bookwriter-library-card-link {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: inherit;
+  perspective: 1200px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  outline: none;
+}
+
+.bookwriter-library-card-link:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 6px;
+}
+
+.bookwriter-library-card-visual {
+  position: relative;
+  width: 170px;
+  height: 240px;
+  transform-style: preserve-3d;
+  transform: rotateY(-20deg);
+  transition: transform .5s cubic-bezier(.4, 0, .2, 1);
+  margin-bottom: var(--space-5, 20px);
+}
+
+.bookwriter-library-card-link:hover .bookwriter-library-card-visual,
+.bookwriter-library-card-link:focus-visible .bookwriter-library-card-visual {
+  transform: rotateY(-6deg) translateY(-6px);
+}
+
+/* Cover face */
+.bookwriter-library-card-cover {
+  position: absolute;
+  inset: 0;
+  border-radius: 2px 5px 5px 2px;
+  padding: 22px 18px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  text-align: center;
+  overflow: hidden;
+  box-shadow: var(--bookwriter-library-card-shadow);
+  /* The radial gradient is the only place per-card colour applies. */
+  background: radial-gradient(ellipse at 30% 20%,
+    var(--bookwriter-library-cover-main, #6b1e14) 0%,
+    var(--bookwriter-library-cover-dark, #3d0f08) 80%);
+}
+
+/* Leather grain — non-blocking visual layer. */
+.bookwriter-library-card-cover::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.38 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  opacity: .6;
+  mix-blend-mode: multiply;
+  pointer-events: none;
+}
+
+/* Spine shadow — left edge for thickness illusion. */
+.bookwriter-library-card-spine {
+  position: absolute;
+  left: 0;
+  top: 2px;
+  bottom: 2px;
+  width: 10px;
+  background: linear-gradient(90deg, rgba(0, 0, 0, .55), rgba(0, 0, 0, 0) 100%);
+  border-radius: 2px 0 0 2px;
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Page edges peeking out on the right side. */
+.bookwriter-library-card-pages {
+  position: absolute;
+  right: -3px;
+  top: 5px;
+  bottom: 5px;
+  width: 6px;
+  background: var(--bookwriter-library-card-pages-grad);
+  border-radius: 0 2px 2px 0;
+  box-shadow: inset 0 0 4px rgba(0, 0, 0, .25);
+  z-index: 0;
+}
+
+.bookwriter-library-card-pages::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(0deg,
+      rgba(80, 50, 20, .2) 0px,
+      rgba(80, 50, 20, .2) 1px,
+      transparent 1px,
+      transparent 2px);
+  border-radius: inherit;
+}
+
+/* Gold double-rule border on the cover face. */
+.bookwriter-library-card-cover-border {
+  position: absolute;
+  inset: 12px;
+  border: 1.5px solid var(--bookwriter-library-cover-gold, #c9a961);
+  border-radius: 1px;
+  pointer-events: none;
+  opacity: .75;
+  z-index: 2;
+}
+
+.bookwriter-library-card-cover-border::before {
+  content: "";
+  position: absolute;
+  inset: 4px;
+  border: .5px solid var(--bookwriter-library-cover-gold, #c9a961);
+  opacity: .5;
+}
+
+.bookwriter-library-card-cover-content {
+  position: relative;
+  z-index: 3;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bookwriter-library-card-ornament {
+  font-size: var(--text-sm);
+  letter-spacing: 4px;
+  color: var(--bookwriter-library-cover-gold, #c9a961);
+  opacity: .9;
+}
+
+.bookwriter-library-card-cover-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  justify-content: center;
+}
+
+.bookwriter-library-card-cover-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--bookwriter-library-cover-gold, #c9a961);
+  letter-spacing: 1.5px;
+  line-height: 1.15;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .4);
+  max-width: 100%;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bookwriter-library-card-cover-subtitle {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-xs);
+  color: var(--bookwriter-library-cover-gold, #c9a961);
+  opacity: .85;
+  letter-spacing: 2px;
+}
+
+.bookwriter-library-card-cover-author {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-size: var(--text-xs);
+  color: var(--bookwriter-library-cover-gold, #c9a961);
+  letter-spacing: 1px;
+  opacity: .95;
+}
+
+/* ============ META BELOW BOOK ============ */
+.bookwriter-library-card-meta {
+  text-align: center;
+  max-width: 170px;
+}
+
+.bookwriter-library-card-meta-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 700;
+  color: var(--bookwriter-library-ink);
+  font-size: var(--text-base);
+  margin-bottom: 3px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookwriter-library-card-meta-author {
+  font-style: italic;
+  color: var(--bookwriter-library-ink-soft);
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookwriter-library-card-meta-detail {
+  font-style: italic;
+  color: var(--bookwriter-library-ink-muted);
+  font-size: var(--text-xs);
+  letter-spacing: 1px;
+  margin-top: 6px;
+}
+
+/* ============ EDIT PENCIL BUTTON (hover-revealed top-right) ============
+   Primary secondary action — clicking the cover/meta opens the
+   reader; this pencil opens the inkwell editor. Mirrors the v03
+   prototype's floating pencil pattern: small circle, hover-fades-in,
+   tooltip via ::after on hover, scales slightly on hover, always
+   visible on touch devices. */
+.bookwriter-library-card-edit-button {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 32px;
+  height: 32px;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border-radius: var(--radius-full);
+  background: rgba(255, 252, 240, .9);
+  border: 1px solid var(--bookwriter-library-rule);
+  color: var(--bookwriter-library-ink-soft);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-sm);
+  text-decoration: none;
+  line-height: 1;
+  padding: 0;
+  opacity: 0;
+  transform: translateY(-4px) scale(.9);
+  z-index: 5;
+  box-shadow: 0 2px 6px rgba(60, 40, 20, .15);
+  transition:
+    opacity var(--duration-fast, .2s) ease,
+    transform var(--duration-fast, .2s) ease,
+    background var(--duration-fast, .2s) ease,
+    color var(--duration-fast, .2s) ease,
+    border-color var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-library-card:hover .bookwriter-library-card-edit-button,
+.bookwriter-library-card:focus-within .bookwriter-library-card-edit-button,
+.bookwriter-library-card-edit-button:focus-visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.bookwriter-library-card-edit-button:hover {
+  background: #fff;
+  color: var(--bookwriter-library-accent);
+  border-color: var(--bookwriter-library-accent);
+  transform: translateY(0) scale(1.1);
+  text-decoration: none;
+}
+
+.bookwriter-library-card-edit-button:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-library-card-edit-icon {
+  display: inline-block;
+  font-size: var(--text-base);
+  line-height: 1;
+}
+
+/* Tooltip on hover — pure CSS pseudo-element, no JS. */
+.bookwriter-library-card-edit-button::after {
+  content: "Edit";
+  position: absolute;
+  bottom: calc(100% + 6px);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bookwriter-library-ink);
+  color: #f5ead0;
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-style: italic;
+  font-size: var(--text-xs);
+  padding: 4px 10px;
+  border-radius: var(--radius-xs);
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--duration-fast, .2s) ease;
+}
+.bookwriter-library-card-edit-button:hover::after,
+.bookwriter-library-card-edit-button:focus-visible::after {
+  opacity: 1;
+}
+
+/* ============ ARCHIVE BUTTON (hover-revealed top-LEFT) ============
+   Destructive action; visually subordinate to the edit pencil.
+   Two-click confirm — first click swaps data-confirm-state to
+   "awaiting-confirm" and reveals the "Archive?" label; the JS in
+   page-library.js auto-resets after 3s. */
+.bookwriter-library-card-archive-button {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 32px;
+  height: 32px;
+  min-height: var(--touch-target);
+  min-width: var(--touch-target);
+  border-radius: var(--radius-full);
+  background: rgba(255, 252, 240, .9);
+  border: 1px solid var(--bookwriter-library-rule);
+  color: var(--bookwriter-library-ink-soft);
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-4px) scale(.9);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 0 8px;
+  z-index: 5;
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-sm);
+  box-shadow: 0 2px 6px rgba(60, 40, 20, .15);
+  transition:
+    opacity var(--duration-fast, .2s) ease,
+    transform var(--duration-fast, .2s) ease,
+    background var(--duration-fast, .2s) ease,
+    color var(--duration-fast, .2s) ease,
+    border-color var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-library-card:hover .bookwriter-library-card-archive-button,
+.bookwriter-library-card:focus-within .bookwriter-library-card-archive-button,
+.bookwriter-library-card-archive-button:focus-visible,
+.bookwriter-library-card-archive-button[data-confirm-state="awaiting-confirm"] {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.bookwriter-library-card-archive-button:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-library-card-archive-button:hover {
+  background: #fff;
+  color: var(--bookwriter-library-accent);
+  border-color: var(--bookwriter-library-accent);
+}
+
+.bookwriter-library-card-archive-button[data-confirm-state="awaiting-confirm"] {
+  background: var(--bookwriter-library-accent);
+  color: #fff8e8;
+  border-color: var(--bookwriter-library-accent);
+  width: auto;
+  border-radius: 16px;
+  padding: 0 12px;
+}
+
+.bookwriter-library-card-archive-confirm-label {
+  display: none;
+  font-style: italic;
+  letter-spacing: .5px;
+}
+
+.bookwriter-library-card-archive-button[data-confirm-state="awaiting-confirm"]
+  .bookwriter-library-card-archive-confirm-label {
+  display: inline;
+}
+
+/* ============ EMPTY STATE ============ */
+.bookwriter-library-empty {
+  max-width: 500px;
+  margin: 100px auto;
+  text-align: center;
+  color: var(--bookwriter-library-ink-muted);
+  font-style: italic;
+  font-size: var(--text-lg);
+  padding: var(--space-10, 40px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-4, 16px);
+}
+
+.bookwriter-library-empty-ornament {
+  font-size: var(--text-5xl);
+  color: var(--bookwriter-library-rule);
+  letter-spacing: 8px;
+}
+
+.bookwriter-library-empty-text {
+  margin: 0;
+}
+
+.bookwriter-library-empty-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bookwriter-library-accent);
+  color: #fff8e8;
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-base);
+  font-style: normal;
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: none;
+  padding: 10px 24px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  text-decoration: none;
+  box-shadow: var(--elevation-2);
+  transition: transform var(--duration-fast, .2s) ease,
+              box-shadow var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-library-empty-cta:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--elevation-3);
+}
+
+.bookwriter-library-empty-cta:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 3px;
+}
+
+/* ============ TOUCH DEVICES — disable 3D tilt (jittery) ============ */
+@media (pointer: coarse) {
+  .bookwriter-library-card-visual {
+    transform: rotateY(-10deg);
+  }
+  .bookwriter-library-card-link:hover .bookwriter-library-card-visual,
+  .bookwriter-library-card-link:focus-visible .bookwriter-library-card-visual {
+    transform: rotateY(-10deg) translateY(-2px);
+  }
+}
+
+/* ============ MOBILE BREAKPOINT ============ */
+@media (max-width: 640px) {
+  .bookwriter-library-page {
+    padding: 40px 16px 60px;
+  }
+  .bookwriter-library-header {
+    margin-bottom: 36px;
+  }
+  .bookwriter-library-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .bookwriter-library-search-input,
+  .bookwriter-library-search-input:focus {
+    width: 100%;
+    flex: 1;
+  }
+  .bookwriter-library-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 40px 18px;
+  }
+  .bookwriter-library-card-visual {
+    width: 140px;
+    height: 200px;
+  }
+  .bookwriter-library-card-cover-title {
+    font-size: var(--text-xl);
+  }
+  .bookwriter-library-card-meta-title {
+    font-size: var(--text-sm);
+  }
+  .bookwriter-library-card-meta {
+    max-width: 140px;
+  }
+  /* Always show edit + archive on touch — no hover state on phones. */
+  .bookwriter-library-card-edit-button,
+  .bookwriter-library-card-archive-button {
+    opacity: .9;
+    transform: translateY(0) scale(1);
+  }
+  /* Skip the edit-tooltip on touch — there's no hover, the icon
+     alone communicates intent. */
+  .bookwriter-library-card-edit-button::after {
+    display: none;
+  }
+}
+
+/* ============ REDUCED MOTION ============ */
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-library-card-visual,
+  .bookwriter-library-card-link:hover .bookwriter-library-card-visual,
+  .bookwriter-library-card-link:focus-visible .bookwriter-library-card-visual {
+    transform: none;
+    transition: none;
+  }
+  .bookwriter-library-search-input,
+  .bookwriter-library-create-button,
+  .bookwriter-library-empty-cta,
+  .bookwriter-library-card-edit-button,
+  .bookwriter-library-card-archive-button {
+    transition: none;
+  }
+}

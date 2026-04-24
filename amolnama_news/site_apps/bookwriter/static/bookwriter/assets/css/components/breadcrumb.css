@@ -1,0 +1,142 @@
+/* ================================================================
+   Bookwriter breadcrumb — used by every bookwriter page.
+   Ink-on-paper aesthetic, serif (inherits from page-level font
+   settings). Project tokens only (text sizes, radii, elevations,
+   touch target). Focus-visible rings, reduced-motion block included.
+   ================================================================ */
+
+/* Wrapper row: breadcrumb on the left, optional close link on the right.
+   Used by inkwell pages so the writer always has a one-click exit back
+   to the library next to the breadcrumb chain. */
+.bookwriter-breadcrumb-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4, 16px);
+  max-width: 1280px;
+  margin: 0 auto var(--space-4, 16px);
+  flex-wrap: wrap;
+}
+
+.bookwriter-breadcrumb {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  font-size: var(--text-sm);
+}
+
+.bookwriter-breadcrumb-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bookwriter-breadcrumb-item {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  color: var(--muted, #7a6340);
+}
+
+.bookwriter-breadcrumb-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--touch-target);
+  padding: 4px 6px;
+  margin: -4px -6px;
+  color: var(--muted, #7a6340);
+  text-decoration: none;
+  border-radius: var(--radius-xs);
+  transition: color var(--duration-fast, .18s) var(--ease-standard, ease);
+  touch-action: manipulation;
+}
+
+.bookwriter-breadcrumb-link:hover,
+.bookwriter-breadcrumb-link:focus-visible {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.bookwriter-breadcrumb-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-breadcrumb-label {
+  color: var(--text, #1a1410);
+  font-weight: 600;
+}
+
+.bookwriter-breadcrumb-item-current .bookwriter-breadcrumb-label {
+  /* Explicit marker for the last crumb in case future theming wants it */
+}
+
+.bookwriter-breadcrumb-separator {
+  color: var(--muted, #c9b784);
+  font-weight: 400;
+  opacity: .7;
+  user-select: none;
+}
+
+/* ============ Action links (opt-in, right side of breadcrumb row) ============
+   Wrapper holds 0..N action pills. Today: "Open Reader" (👁) on the
+   inkwell, "Close" (✕) on inkwell + reader. Future actions plug in
+   here without each page touching breadcrumb CSS. */
+.bookwriter-breadcrumb-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2, 8px);
+  flex: 0 0 auto;
+}
+
+.bookwriter-breadcrumb-action-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--touch-target);
+  padding: 6px 14px;
+  background: rgba(255, 252, 240, .85);
+  border: 1px solid var(--border, rgba(0, 0, 0, .12));
+  border-radius: var(--radius-xs);
+  color: var(--text);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background var(--duration-fast, .2s) ease,
+    color      var(--duration-fast, .2s) ease,
+    border-color var(--duration-fast, .2s) ease;
+  touch-action: manipulation;
+}
+
+.bookwriter-breadcrumb-action-link:hover {
+  background: #fff8e8;
+  color: var(--accent);
+  border-color: var(--accent);
+  text-decoration: none;
+}
+
+.bookwriter-breadcrumb-action-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.bookwriter-breadcrumb-action-icon {
+  font-size: var(--text-lg);
+  line-height: 1;
+}
+
+/* Honour viewer's reduced-motion preference — no transitions. */
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-breadcrumb-link,
+  .bookwriter-breadcrumb-action-link {
+    transition: none;
+  }
+}

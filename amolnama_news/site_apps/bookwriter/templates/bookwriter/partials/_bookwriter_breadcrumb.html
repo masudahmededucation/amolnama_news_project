@@ -1,0 +1,62 @@
+{% comment %}
+  Bookwriter breadcrumb partial — used by every bookwriter page.
+  Renders the trail built by views_api_helpers.build_bookwriter_breadcrumb_trail
+  as an accessible nav. Last crumb is plain text + aria-current="page";
+  every other crumb is a clickable link.
+
+  Optional close link (right side of the row): when the rendering view
+  passes `bookwriter_close_link_url` in context, a "✕ Close" pill is
+  rendered at the right edge of the breadcrumb row. Used by the inkwell
+  editor to give the writer a clear "leave this surface" affordance
+  back to the library. Library page itself does not pass the var, so
+  no close link appears there.
+{% endcomment %}
+{% load static %}
+{% if bookwriter_breadcrumb_trail or bookwriter_close_link_url %}
+  <div class="bookwriter-breadcrumb-row">
+    {% if bookwriter_breadcrumb_trail %}
+      <nav class="bookwriter-breadcrumb" aria-label="Breadcrumb" id="bookwriter-breadcrumb" name="bookwriter_breadcrumb">
+        <ol class="bookwriter-breadcrumb-list">
+          {% for crumb in bookwriter_breadcrumb_trail %}
+            <li class="bookwriter-breadcrumb-item{% if crumb.is_current %} bookwriter-breadcrumb-item-current{% endif %}">
+              {% if crumb.is_current or not crumb.href %}
+                <span class="bookwriter-breadcrumb-label" aria-current="page">{{ crumb.label }}</span>
+              {% else %}
+                <a class="bookwriter-breadcrumb-link" href="{{ crumb.href }}">{{ crumb.label }}</a>
+              {% endif %}
+              {% if not forloop.last %}
+                <span class="bookwriter-breadcrumb-separator" aria-hidden="true">&rsaquo;</span>
+              {% endif %}
+            </li>
+          {% endfor %}
+        </ol>
+      </nav>
+    {% endif %}
+    {% if bookwriter_open_reader_url or bookwriter_close_link_url %}
+      <div class="bookwriter-breadcrumb-actions">
+        {% if bookwriter_open_reader_url %}
+          <a class="bookwriter-breadcrumb-action-link bookwriter-breadcrumb-open-reader-link"
+             href="{{ bookwriter_open_reader_url }}"
+             id="bookwriter-breadcrumb-open-reader-link"
+             name="bookwriter_breadcrumb_open_reader_link"
+             title="Open reader — see how this book reads"
+             aria-label="Open reader to preview this book">
+            <span class="bookwriter-breadcrumb-action-icon" aria-hidden="true">&#x1F441;</span>
+            <span class="bookwriter-breadcrumb-action-label">Read</span>
+          </a>
+        {% endif %}
+        {% if bookwriter_close_link_url %}
+          <a class="bookwriter-breadcrumb-action-link bookwriter-breadcrumb-close-link"
+             href="{{ bookwriter_close_link_url }}"
+             id="bookwriter-breadcrumb-close-link"
+             name="bookwriter_breadcrumb_close_link"
+             title="Close — back to library"
+             aria-label="Close and return to library">
+            <span class="bookwriter-breadcrumb-action-icon" aria-hidden="true">&times;</span>
+            <span class="bookwriter-breadcrumb-action-label">Close</span>
+          </a>
+        {% endif %}
+      </div>
+    {% endif %}
+  </div>
+{% endif %}

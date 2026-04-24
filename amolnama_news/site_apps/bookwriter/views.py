@@ -5,7 +5,8 @@ from datetime import timedelta
 from django.conf import settings
 from django.db import models
 from django.http import Http404
-from django.shortcuts import render
+from django.shortcuts import redirect, render
+from django.urls import reverse
 from django.utils import timezone
 
 from amolnama_news.site_apps.core.utils import get_user_profile_id
@@ -33,76 +34,165 @@ from .models import (
     SerialRelease,
     WritingSession,
 )
+from .views_api_helpers import (
+    build_book_card_payload,
+    build_bookwriter_breadcrumb_trail,
+    pack_chapter_pages_into_book_sheets,
+    paginate_chapter_html_into_pages,
+    prefetch_book_cover_designs,
+    resolve_book_cover_palette,
+    strip_page_break_overlay_from_html,
+)
 
 
-def _ensure_default_book_for_user(user_profile_id):
-    """Auto-provision a scratch book + first chapter for a logged-in user
-    on first visit. Returns (book, chapter) tuple. Idempotent — safe to
-    call on every page load. Returns the user's most recent active book
-    if one already exists; never creates a second book here."""
-    existing_book = (
-        CollBook.objects
-        .filter(link_owner_user_profile_id=user_profile_id, is_active=True)
-        .order_by('-created_at')
-        .first()
+def _create_first_chapter_for_book(owning_book_id, created_at_timestamp):
+    """Insert the default 'Chapter One' row for a freshly-created book.
+    Single source of truth so `create_blank_book_for_user` (always
+    creates) and `bookwriter_inkwell` (defensive missing-chapter
+    recovery when a book has zero active chapters) share the exact
+    same chapter shape."""
+    return Chapter.objects.create(
+        link_bookwriter_coll_book_id=owning_book_id,
+        chapter_number=1,
+        chapter_title_en='Chapter One',
+        chapter_word_count=0,
+        chapter_status_code='blank',
+        chapter_visibility_code='private',
+        sort_order=1,
+        is_active=True,
+        created_at=created_at_timestamp,
     )
 
-    now = timezone.now()
-    if existing_book is None:
-        existing_book = CollBook.objects.create(
-            link_owner_user_profile_id=user_profile_id,
-            book_title_en='Untitled Book',
-            book_language_code='bn',
-            book_daily_word_target=500,
-            book_status_code='draft',
-            book_visibility_code='private',
-            book_word_count_cached=0,
-            book_chapter_count_cached=0,
-            is_active=True,
-            created_at=now,
-        )
 
-    existing_chapter = (
-        Chapter.objects
-        .filter(
-            link_bookwriter_coll_book_id=existing_book.bookwriter_coll_book_id,
-            is_active=True,
-        )
-        .order_by('sort_order', 'chapter_number')
+def create_blank_book_for_user(user_profile_id):
+    """Create a fresh blank book + 'Chapter One' for a user. Always
+    creates new — never deduplicates against existing books. Returns
+    (book, chapter). Called by the library "+ New book" button via
+    `views_api_book.api_bookwriter_book_create`.
+
+    Title is intentionally left NULL: the inkwell title input renders
+    a "New Book" placeholder so the writer never has to backspace a
+    pre-filled value before typing their own."""
+    created_at_timestamp = timezone.now()
+    new_book = CollBook.objects.create(
+        link_owner_user_profile_id=user_profile_id,
+        book_language_code='bn',
+        book_daily_word_target=500,
+        book_status_code='draft',
+        book_visibility_code='private',
+        book_word_count_cached=0,
+        book_chapter_count_cached=0,
+        is_active=True,
+        created_at=created_at_timestamp,
+    )
+    new_chapter = _create_first_chapter_for_book(
+        new_book.bookwriter_coll_book_id, created_at_timestamp,
+    )
+    return new_book, new_chapter
+
+
+def _resolve_viewer_display_name(user_profile_id):
+    """Best-effort UserProfile.display_name lookup. Used purely for
+    cosmetic fallback (author crumb on a book that hasn't yet had its
+    own author display name set). Returns '' on any failure — never
+    raises, since this is a presentational nicety, not a security check."""
+    if user_profile_id is None:
+        return ''
+    from amolnama_news.site_apps.user_account.models import UserProfile
+    profile_row = (
+        UserProfile.objects
+        .filter(user_profile_id=user_profile_id)
+        .values_list('display_name', flat=True)
         .first()
     )
+    return profile_row or ''
 
-    if existing_chapter is None:
-        existing_chapter = Chapter.objects.create(
-            link_bookwriter_coll_book_id=existing_book.bookwriter_coll_book_id,
-            chapter_number=1,
-            chapter_title_en='Chapter One',
-            chapter_word_count=0,
-            chapter_status_code='blank',
-            chapter_visibility_code='private',
-            sort_order=1,
-            is_active=True,
-            created_at=now,
+
+def bookwriter_library(request):
+    """My Library landing — grid of every book the logged-in user owns.
+
+    URL: /bookwriter/
+
+    States:
+      - Anonymous viewer    → empty grid + 'log in to start writing' CTA.
+      - Logged in, 0 books  → empty grid + 'Start writing' button that
+                              POSTs to api_bookwriter_book_create then
+                              redirects to inkwell.
+      - Logged in, N books  → cards sorted most-recently-edited first.
+                              Click cover → /bookwriter/write/<id>/edit/.
+
+    Cover palette: from BookCoverDesign overrides if present, otherwise
+    a deterministic fallback from `BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES`
+    indexed by book id. See views_api_helpers.resolve_book_cover_palette.
+
+    Single source of truth for card data is `build_book_card_payload`
+    so the SSR template and any future JSON list endpoint cannot drift.
+    """
+    user_profile_id = get_user_profile_id(request)
+    library_books_list = []
+    if user_profile_id is not None:
+        owned_books_list = list(
+            CollBook.objects
+            .filter(link_owner_user_profile_id=user_profile_id, is_active=True)
+            .order_by('-updated_at', '-created_at')
         )
+        cover_designs_by_book_id = prefetch_book_cover_designs(owned_books_list)
+        viewer_display_name = _resolve_viewer_display_name(user_profile_id)
+        for owned_book in owned_books_list:
+            saved_cover_design = cover_designs_by_book_id.get(
+                owned_book.bookwriter_coll_book_id,
+            )
+            library_books_list.append(
+                build_book_card_payload(
+                    owned_book, saved_cover_design, viewer_display_name,
+                )
+            )
 
-    return existing_book, existing_chapter
+    return render(request, 'bookwriter/pages/library.html', {
+        'library_books_list': library_books_list,
+        'is_authenticated_writer': user_profile_id is not None,
+        'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(),
+        'active_sidebar_nav_id': 'bookwriter',
+        'seo': {
+            'title': 'Book Library — কলম',
+            'description': (
+                'Your personal book library — every book you are writing in কলম.'
+            ),
+            'canonical': request.build_absolute_uri(),
+            'og_type': 'website',
+        },
+    })
 
 
-def bookwriter_inkwell(request):
-    """Render the Inkwell writing surface.
+def bookwriter_inkwell(request, book_id):
+    """Render the Inkwell writing surface for ONE specific book.
+
+    URL: /bookwriter/write/<book_id>/edit/
 
     Picks one of two templates based on settings.BOOKWRITER_LAYOUT_MODE:
+      - 'embedded'   → inkwell_embedded.html (global chrome stays)
+      - 'standalone' → inkwell.html          (full-screen takeover)
 
-      - 'embedded'   → inkwell_embedded.html
-                       (extends core/base.html — global chrome stays visible)
-      - 'standalone' → inkwell.html
-                       (full-screen takeover, no global chrome)
-
-    Logged-in users get an auto-provisioned book + first chapter so the
-    autosave endpoint has a real chapter_id to write against. Anonymous
-    visitors see the hardcoded demo content (used as a teaser /
-    marketing surface — no DB writes happen for them).
+    Owner-only. Anonymous visitors are redirected to the library landing
+    (which gates them with a login CTA). Non-owner book ids return 404
+    so the existence of other users' books is not leaked. Defensive
+    chapter recovery: if the book exists but has zero active chapters,
+    inserts a fresh 'Chapter One' so the autosave endpoint always has a
+    real chapter_id to write against.
     """
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return redirect('bookwriter:library')
+
+    try:
+        current_book = CollBook.objects.get(
+            bookwriter_coll_book_id=book_id,
+            link_owner_user_profile_id=user_profile_id,
+            is_active=True,
+        )
+    except CollBook.DoesNotExist:
+        raise Http404('Book not found')
+
     layout_mode = getattr(settings, 'BOOKWRITER_LAYOUT_MODE', 'embedded')
     template_name = (
         'bookwriter/pages/inkwell_embedded.html'
@@ -110,124 +200,289 @@ def bookwriter_inkwell(request):
         else 'bookwriter/pages/inkwell.html'
     )
 
-    context = {}
-    user_profile_id = get_user_profile_id(request)
-    if user_profile_id is not None:
-        current_book, active_chapter = _ensure_default_book_for_user(user_profile_id)
-        book_chapters_list = list(
-            Chapter.objects
-            .filter(
-                link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-                is_active=True,
-            )
-            .order_by('sort_order', 'chapter_number')
+    active_chapter = (
+        Chapter.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
         )
-        today_session_words, today_session_seconds, current_streak_days, last_seven_streak_days = (
-            _read_writer_dashboard_stats(user_profile_id, current_book.bookwriter_coll_book_id)
+        .order_by('sort_order', 'chapter_number')
+        .first()
+    )
+    if active_chapter is None:
+        active_chapter = _create_first_chapter_for_book(
+            current_book.bookwriter_coll_book_id, timezone.now(),
         )
-        book_plot_cards_list = list(
-            PlotCard.objects
-            .filter(
-                link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-                is_active=True,
-            )
-            .order_by('sort_order', 'card_scene_number')
+
+    book_chapters_list = list(
+        Chapter.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
         )
-        book_bible_categories_list, book_bible_entries_list = _read_book_bible_data(
-            current_book.bookwriter_coll_book_id
+        .order_by('sort_order', 'chapter_number')
+    )
+    today_session_words, today_session_seconds, current_streak_days, last_seven_streak_days = (
+        _read_writer_dashboard_stats(user_profile_id, current_book.bookwriter_coll_book_id)
+    )
+    book_plot_cards_list = list(
+        PlotCard.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
         )
-        saved_cover_design_state = _read_book_cover_design_state(
-            current_book.bookwriter_coll_book_id
+        .order_by('sort_order', 'card_scene_number')
+    )
+    book_bible_categories_list, book_bible_entries_list = _read_book_bible_data(
+        current_book.bookwriter_coll_book_id
+    )
+    saved_cover_design_state = _read_book_cover_design_state(
+        current_book.bookwriter_coll_book_id
+    )
+    published_chapter_ids_set = set(
+        SerialRelease.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            serial_release_status_code='published',
+            is_active=True,
         )
-        published_chapter_ids_set = set(
-            SerialRelease.objects
-            .filter(
-                link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-                serial_release_status_code='published',
-                is_active=True,
-            )
-            .values_list('link_bookwriter_chapter_id', flat=True)
+        .values_list('link_bookwriter_chapter_id', flat=True)
+    )
+    active_beta_share_links_list = list(
+        BetaShareLink.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+            share_revoked_at__isnull=True,
         )
-        active_beta_share_links_list = list(
-            BetaShareLink.objects
-            .filter(
-                link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-                is_active=True,
-                share_revoked_at__isnull=True,
-            )
-            .order_by('-created_at')
-            .values(
-                'bookwriter_beta_share_link_id',
-                'share_link_token',
-                'beta_permission_code',
-                'created_at',
-            )[:20]
+        .order_by('-created_at')
+        .values(
+            'bookwriter_beta_share_link_id',
+            'share_link_token',
+            'beta_permission_code',
+            'created_at',
+        )[:20]
+    )
+    active_beta_readers_list = list(
+        BetaReader.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
         )
-        active_beta_readers_list = list(
-            BetaReader.objects
-            .filter(
-                link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-                is_active=True,
-            )
-            .order_by('-created_at')
-            .values(
-                'bookwriter_beta_reader_id',
-                'reader_email',
-                'reader_display_name',
-                'reader_avatar_initial',
-                'beta_permission_code',
-                'invited_at',
-                'accepted_at',
-            )[:50]
-        )
-        context.update({
-            'current_book': current_book,
-            'active_chapter_id': active_chapter.bookwriter_chapter_id,
-            'active_chapter_number': active_chapter.chapter_number,
-            'active_chapter_html': active_chapter.chapter_text_html or '',
-            'active_chapter_title': (
-                active_chapter.chapter_title_en
-                or active_chapter.chapter_title_bn
-                or 'Untitled'
-            ),
-            'book_chapters_list': book_chapters_list,
-            'book_plot_cards_list': book_plot_cards_list,
-            'book_bible_categories_list': book_bible_categories_list,
-            'book_bible_entries_list': book_bible_entries_list,
-            'saved_cover_design_state': saved_cover_design_state,
-            'published_chapter_ids_set': published_chapter_ids_set,
-            'active_beta_share_links_list': active_beta_share_links_list,
-            'active_beta_readers_list': active_beta_readers_list,
-            'chapter_status_options_list': list(
-                RefChapterStatus.objects
-                .filter(is_active=True)
-                .order_by('sort_order', 'bookwriter_ref_chapter_status_id')
-                .values('chapter_status_code', 'chapter_status_name_en', 'chapter_status_dot_color_hex')
-            ),
-            'chapter_visibility_options_list': list(
-                RefChapterVisibility.objects
-                .filter(is_active=True)
-                .order_by('sort_order', 'bookwriter_ref_chapter_visibility_id')
-                .values('chapter_visibility_code', 'chapter_visibility_name_en')
-            ),
-            'book_status_options_list': list(
-                RefBookStatus.objects
-                .filter(is_active=True)
-                .order_by('sort_order', 'bookwriter_ref_book_status_id')
-                .values('book_status_code', 'book_status_name_en')
-            ),
-            'today_session_words': today_session_words,
-            'today_session_minutes': today_session_seconds // 60,
-            'current_streak_days': current_streak_days,
-            'last_seven_streak_days': last_seven_streak_days,
-            'daily_word_target': current_book.book_daily_word_target or 500,
-            'daily_goal_progress_percent': (
-                int(round(min(today_session_words / current_book.book_daily_word_target, 1.5) * 100))
-                if current_book.book_daily_word_target else 0
-            ),
-        })
+        .order_by('-created_at')
+        .values(
+            'bookwriter_beta_reader_id',
+            'reader_email',
+            'reader_display_name',
+            'reader_avatar_initial',
+            'beta_permission_code',
+            'invited_at',
+            'accepted_at',
+        )[:50]
+    )
+    context = {
+        'current_book': current_book,
+        'active_chapter_id': active_chapter.bookwriter_chapter_id,
+        'active_chapter_number': active_chapter.chapter_number,
+        'active_chapter_html': active_chapter.chapter_text_html or '',
+        'active_chapter_title': (
+            active_chapter.chapter_title_en
+            or active_chapter.chapter_title_bn
+            or 'Untitled'
+        ),
+        'book_chapters_list': book_chapters_list,
+        'book_plot_cards_list': book_plot_cards_list,
+        'book_bible_categories_list': book_bible_categories_list,
+        'book_bible_entries_list': book_bible_entries_list,
+        'saved_cover_design_state': saved_cover_design_state,
+        'published_chapter_ids_set': published_chapter_ids_set,
+        'active_beta_share_links_list': active_beta_share_links_list,
+        'active_beta_readers_list': active_beta_readers_list,
+        'chapter_status_options_list': list(
+            RefChapterStatus.objects
+            .filter(is_active=True)
+            .order_by('sort_order', 'bookwriter_ref_chapter_status_id')
+            .values('chapter_status_code', 'chapter_status_name_en', 'chapter_status_dot_color_hex')
+        ),
+        'chapter_visibility_options_list': list(
+            RefChapterVisibility.objects
+            .filter(is_active=True)
+            .order_by('sort_order', 'bookwriter_ref_chapter_visibility_id')
+            .values('chapter_visibility_code', 'chapter_visibility_name_en')
+        ),
+        'book_status_options_list': list(
+            RefBookStatus.objects
+            .filter(is_active=True)
+            .order_by('sort_order', 'bookwriter_ref_book_status_id')
+            .values('book_status_code', 'book_status_name_en')
+        ),
+        'today_session_words': today_session_words,
+        'today_session_minutes': today_session_seconds // 60,
+        'current_streak_days': current_streak_days,
+        'last_seven_streak_days': last_seven_streak_days,
+        'daily_word_target': current_book.book_daily_word_target or 500,
+        'daily_goal_progress_percent': (
+            int(round(min(today_session_words / current_book.book_daily_word_target, 1.5) * 100))
+            if current_book.book_daily_word_target else 0
+        ),
+        'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(
+            current_book=current_book,
+            current_mode_label='Editing',
+        ),
+        'bookwriter_close_link_url': reverse('bookwriter:library'),
+        'bookwriter_open_reader_url': reverse(
+            'bookwriter:read', kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        ),
+        'active_sidebar_nav_id': 'bookwriter',
+    }
 
     return render(request, template_name, context)
+
+
+def bookwriter_book_reader(request, book_id):
+    """Owner preview reader — renders the writer's own book inside the
+    3D leather-bound reader so they can see exactly what a public
+    reader will see (cover open animation, page-flip, jump-to-page,
+    paper-tab controls).
+
+    URL: /bookwriter/read/<book_id>/
+
+    Owner-only. Anonymous viewers redirect to library; non-owner book
+    ids 404 (don't leak existence of other users' books). All active
+    chapters are rendered — drafts included — since this is the
+    author's preview, not the public reader (which would only show
+    published serial releases).
+
+    Each chapter's HTML is run through `strip_page_break_overlay_from_html`
+    so legacy DB rows that captured the editor's page-break overlay
+    (.bookwriter-page-break-overlay) don't leak page-number pills + the
+    word "page break" into the rendered book — same protection the PDF
+    export uses."""
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return redirect('bookwriter:library')
+
+    try:
+        current_book = CollBook.objects.get(
+            bookwriter_coll_book_id=book_id,
+            link_owner_user_profile_id=user_profile_id,
+            is_active=True,
+        )
+    except CollBook.DoesNotExist:
+        raise Http404('Book not found')
+
+    raw_chapter_rows = list(
+        Chapter.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+        )
+        .order_by('sort_order', 'chapter_number')
+    )
+
+    # Per-chapter dict (lighter — used by TOC + as input to the
+    # paginator + sheet-packer below). Body HTML is pre-cleaned of any
+    # legacy editor page-break overlay markup so the paginator sees
+    # only real prose blocks.
+    book_chapters_for_reader = [
+        {
+            'chapter_id': chapter_row.bookwriter_chapter_id,
+            'chapter_number': chapter_row.chapter_number,
+            'chapter_title': (
+                chapter_row.chapter_title_en
+                or chapter_row.chapter_title_bn
+                or ('Chapter %s' % chapter_row.chapter_number)
+            ),
+            'chapter_html': strip_page_break_overlay_from_html(
+                chapter_row.chapter_text_html or ''
+            ),
+        }
+        for chapter_row in raw_chapter_rows
+    ]
+
+    # Paginate every chapter into ~A4-sized page-faces, then pack them
+    # onto book sheets (front + back). Each chapter starts a fresh
+    # sheet so the title always lands on a clean page (book convention).
+    # Single source of truth for pagination lives in views_api_helpers
+    # so the same algorithm can drive future renderers (PDF, public
+    # reader) without drift.
+    chapters_with_pages_for_packing = [
+        {
+            'chapter_number': chapter_dict['chapter_number'],
+            'chapter_title': chapter_dict['chapter_title'],
+            'pages_html_list': paginate_chapter_html_into_pages(
+                chapter_dict['chapter_html'],
+            ),
+        }
+        for chapter_dict in book_chapters_for_reader
+    ]
+    book_reader_sheets_list = pack_chapter_pages_into_book_sheets(
+        chapters_with_pages_for_packing,
+    )
+
+    # Augment the TOC chapter dicts with the running page number where
+    # each chapter starts so the table of contents matches the real
+    # paginated layout (book convention — TOC entries point at pages).
+    chapter_first_page_labels_by_chapter_number = {
+        sheet['chapter_number']: sheet['front_page_label']
+        for sheet in book_reader_sheets_list
+        if sheet['is_chapter_start_on_front']
+    }
+    for chapter_dict in book_chapters_for_reader:
+        chapter_dict['toc_page_label'] = (
+            chapter_first_page_labels_by_chapter_number.get(
+                chapter_dict['chapter_number'], '',
+            )
+        )
+
+    book_title_for_display = (
+        current_book.book_title_bn
+        or current_book.book_title_en
+        or 'Untitled Book'
+    )
+    book_subtitle_for_display = (
+        current_book.book_subtitle_bn
+        or current_book.book_subtitle_en
+        or ''
+    )
+    book_author_for_display = (
+        current_book.book_author_display_bn
+        or current_book.book_author_display_en
+        or _resolve_viewer_display_name(user_profile_id)
+        or ''
+    )
+
+    saved_cover_design = (
+        BookCoverDesign.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+        )
+        .first()
+    )
+    cover_palette = resolve_book_cover_palette(current_book, saved_cover_design)
+
+    return render(request, 'bookwriter/pages/book_reader.html', {
+        'current_book': current_book,
+        'book_title_for_display': book_title_for_display,
+        'book_subtitle_for_display': book_subtitle_for_display,
+        'book_author_for_display': book_author_for_display,
+        'book_chapters_for_reader': book_chapters_for_reader,
+        'book_reader_sheets_list': book_reader_sheets_list,
+        'cover_main_hex': cover_palette['main'],
+        'cover_dark_hex': cover_palette['dark'],
+        'cover_gold_hex': cover_palette['gold'],
+        'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(
+            current_book=current_book,
+            current_mode_label='Reading',
+        ),
+        'bookwriter_close_link_url': reverse('bookwriter:library'),
+        'bookwriter_open_editor_url': reverse(
+            'bookwriter:write',
+            kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        ),
+        'active_sidebar_nav_id': 'bookwriter',
+    })
 
 
 def _read_writer_dashboard_stats(user_profile_id, current_book_id):

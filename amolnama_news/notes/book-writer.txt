@@ -177,7 +177,22 @@ also include pdf bookmark with chapter title?
 
 
 --multiple book preview
+you may call it library
 
-we need preview and edit options
+we need preview and edit options 
 of multiple books of same users.
 a user may start writing multiple books
+-- edit options will open the book in bookwriter
+use this \media\app_static\mastermind\books
+
+so from now, the first landing page for bookwriter would be libarary, 
+not the bookwriting optinos how it is at the moment. 
+once a book is clicked 
+then it will give editing option 
+which will open that particular book 
+with the book writer option.
+are you clear?
+
+it should show crumb like, book library
+-->book selection then reading/editing option-->
+reading/book editing>publication->book store

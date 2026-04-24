@@ -1,0 +1,267 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+  কলম / Book Reader — owner preview surface.
+  Renders the writer's own book inside the 3D leather-bound reader so
+  they can see exactly what a public reader will see (cover open
+  animation, page-flip, jump-to-page, paper-tab controls).
+  Owner-only — view enforces 404 for non-owners.
+
+  Loaded data lives in `book_chapters_for_reader` (one dict per active
+  chapter, ordered) plus the cover palette, title/subtitle/author for
+  the frontispiece. The 3D animation + paper-tab controls live in
+  page-book-reader.js.
+
+  Floating buttons: ✎ edit (jump straight into the inkwell editor for
+  this book) + ✕ close (back to library). Mirrored from the close-btn
+  pattern in mastermind/books/book-reader-button change-v02.html.
+{% endcomment %}
+
+{% block title %}Reading: {{ book_title_for_display }} · কলম | আমলনামা নিউজ{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700;800&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700;800&display=swap"></noscript>
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/components/breadcrumb.css' %}?v={{ static_cache_buster }}">
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-book-reader.css' %}?v={{ static_cache_buster }}">
+{% endblock %}
+
+{% block content %}
+<section class="bookwriter-book-reader-page">
+  {% include "bookwriter/partials/_bookwriter_breadcrumb.html" %}
+
+  <div class="bookwriter-book-reader-stage-wrapper">
+    {% comment %}
+      Stage: holds the cover (front, on top) + the pages stack (behind).
+      Inline `style` carries ONLY the dynamic per-book cover hex triplet —
+      visual rules (gradient, leather grain, gold border) live in
+      page-book-reader.css. This is the GATE 4 #2 CSS-var injection
+      pattern; allowed because the data is per-row + design stays in CSS.
+    {% endcomment %}
+    <div class="bookwriter-book-reader-stage"
+         id="bookwriter-book-reader-stage"
+         style="--bookwriter-reader-cover-main: {{ cover_main_hex }}; --bookwriter-reader-cover-dark: {{ cover_dark_hex }}; --bookwriter-reader-cover-gold: {{ cover_gold_hex }};">
+
+      {% comment %}
+        Pages stack — frontispiece sheet first, then one sheet per active
+        chapter, then a closing colophon sheet. Each sheet has a front
+        face and a back face (real-book sheet model). Long chapter
+        bodies scroll vertically inside the front face — true rendered
+        pagination is a future enhancement; this gives an honest
+        preview of typography + layout for now.
+      {% endcomment %}
+      <div class="bookwriter-book-reader-pages" id="bookwriter-book-reader-pages">
+
+        {# Sheet 1 — frontispiece front + table of contents back #}
+        <div class="bookwriter-book-reader-page-sheet">
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
+            <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+            <div class="bookwriter-book-reader-frontispiece">
+              <div class="bookwriter-book-reader-frontispiece-ornament" aria-hidden="true">&#x2042; &nbsp; &#x2042; &nbsp; &#x2042;</div>
+              <div class="bookwriter-book-reader-frontispiece-title">{{ book_title_for_display }}</div>
+              {% if book_subtitle_for_display %}
+                <div class="bookwriter-book-reader-frontispiece-subtitle">{{ book_subtitle_for_display }}</div>
+              {% endif %}
+              {% if book_author_for_display %}
+                <div class="bookwriter-book-reader-frontispiece-author">{{ book_author_for_display }}</div>
+              {% endif %}
+            </div>
+            <div class="bookwriter-book-reader-folio" aria-hidden="true">i</div>
+          </div>
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+            <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
+            <div class="bookwriter-book-reader-toc-title">Contents</div>
+            {% if book_chapters_for_reader %}
+              <ol class="bookwriter-book-reader-toc-list">
+                {% for chapter in book_chapters_for_reader %}
+                  <li class="bookwriter-book-reader-toc-item">
+                    <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
+                    <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
+                    <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
+                  </li>
+                {% endfor %}
+              </ol>
+            {% else %}
+              <p class="bookwriter-book-reader-toc-empty">This book has no chapters yet.</p>
+            {% endif %}
+            <div class="bookwriter-book-reader-folio" aria-hidden="true">ii</div>
+          </div>
+          <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
+        </div>
+
+        {% comment %}
+          Body sheets — one sheet per pair of paginated chapter pages.
+          Source of truth is `book_reader_sheets_list` built by
+          views_api_helpers.pack_chapter_pages_into_book_sheets.
+
+          - is_chapter_start_on_front: render the chapter title only on
+            the first sheet of each chapter (book convention; subsequent
+            sheets show body only)
+          - front_html / back_html: paginated chunks (no scrolling, CSS
+            clips overflow if any)
+          - front_page_label / back_page_label: running arabic page
+            numbers across the whole book
+          - has_back_content: false on the last sheet of an odd-paged
+            chapter; that face renders blank (with paper grain still)
+        {% endcomment %}
+        {% for book_sheet in book_reader_sheets_list %}
+          <div class="bookwriter-book-reader-page-sheet">
+            <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
+              <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+              {% if book_sheet.is_chapter_start_on_front %}
+                <h2 class="bookwriter-book-reader-chapter-title">{{ book_sheet.chapter_title }}</h2>
+              {% endif %}
+              <div class="bookwriter-book-reader-chapter-body">{{ book_sheet.front_html|safe }}</div>
+              <div class="bookwriter-book-reader-folio" aria-hidden="true">{{ book_sheet.front_page_label }}</div>
+            </div>
+            <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+              <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
+              {% if book_sheet.has_back_content %}
+                <div class="bookwriter-book-reader-chapter-body">{{ book_sheet.back_html|safe }}</div>
+                <div class="bookwriter-book-reader-folio" aria-hidden="true">{{ book_sheet.back_page_label }}</div>
+              {% endif %}
+            </div>
+            <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
+          </div>
+        {% endfor %}
+
+        {# Closing colophon sheet #}
+        <div class="bookwriter-book-reader-page-sheet">
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
+            <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+            <div class="bookwriter-book-reader-colophon">
+              <div class="bookwriter-book-reader-colophon-ornament" aria-hidden="true">&#x2042;</div>
+              <p class="bookwriter-book-reader-colophon-text">— end —</p>
+            </div>
+          </div>
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+            <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
+          </div>
+          <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
+        </div>
+
+      </div>
+
+      {# Cover (sits on top of the pages stack until the user opens it) #}
+      <div class="bookwriter-book-reader-cover"
+           id="bookwriter-book-reader-cover"
+           role="button"
+           tabindex="0"
+           aria-label="Open book">
+        <div class="bookwriter-book-reader-cover-face bookwriter-book-reader-cover-front">
+          <div class="bookwriter-book-reader-cover-border" aria-hidden="true"></div>
+          <div class="bookwriter-book-reader-cover-top">
+            <div class="bookwriter-book-reader-cover-ornament" aria-hidden="true">&#x2042; &nbsp; &#x2042; &nbsp; &#x2042;</div>
+            <div class="bookwriter-book-reader-cover-title">{{ book_title_for_display }}</div>
+            {% if book_subtitle_for_display %}
+              <div class="bookwriter-book-reader-cover-subtitle">{{ book_subtitle_for_display }}</div>
+            {% endif %}
+          </div>
+          <div class="bookwriter-book-reader-cover-bottom">
+            {% if book_author_for_display %}
+              <div class="bookwriter-book-reader-cover-author">{{ book_author_for_display }}</div>
+            {% endif %}
+          </div>
+          <div class="bookwriter-book-reader-cover-hint" aria-hidden="true">Click to open</div>
+        </div>
+        <div class="bookwriter-book-reader-cover-face bookwriter-book-reader-cover-back" aria-hidden="true"></div>
+      </div>
+
+    </div>
+
+    {% comment %}
+      Paper-tab controls — page indicator + jump-to-page only.
+      Lives OUTSIDE .bookwriter-book-reader-stage so it is not in
+      the 3D `transform-style: preserve-3d` rendering context (where
+      z-index is unreliable + page sheets at z-index 40-50 paint
+      over flat-Z children). Same fix that was needed for the
+      floating edit / close / arrow buttons. Anchored to the
+      stage-wrapper, sits below the centered book.
+    {% endcomment %}
+    <div class="bookwriter-book-reader-controls" id="bookwriter-book-reader-controls">
+      <div class="bookwriter-book-reader-tab bookwriter-book-reader-tab-middle">
+        <span class="bookwriter-book-reader-page-indicator"
+              id="bookwriter-book-reader-page-indicator"
+              aria-live="polite"></span>
+        <span class="bookwriter-book-reader-tab-divider" aria-hidden="true"></span>
+        <label class="bookwriter-book-reader-jump-label" for="bookwriter-book-reader-jump-input">Page</label>
+        <input type="number"
+               class="bookwriter-book-reader-jump-input"
+               id="bookwriter-book-reader-jump-input"
+               name="bookwriter_book_reader_jump_input"
+               min="1"
+               placeholder="#"
+               aria-label="Jump to page number">
+        <button type="button"
+                class="bookwriter-book-reader-jump-button"
+                id="bookwriter-book-reader-jump-button"
+                name="bookwriter_book_reader_jump_button">Go</button>
+        <span class="bookwriter-book-reader-jump-error"
+              id="bookwriter-book-reader-jump-error"
+              role="alert"></span>
+      </div>
+    </div>
+
+    {% comment %}
+      Lightbox-style page navigation — middle-left / middle-right
+      floating arrow buttons. Outside the 3D stage (same reason as
+      edit/close). Visible only when book is open; disabled at
+      first / last page; click → turn page. Mirrors the standard
+      photo-lightbox affordance every modern reader uses.
+    {% endcomment %}
+    <button type="button"
+            class="bookwriter-book-reader-floating-button bookwriter-book-reader-floating-prev"
+            id="bookwriter-book-reader-prev-button"
+            name="bookwriter_book_reader_prev_button"
+            title="Previous page"
+            aria-label="Previous page"
+            disabled>
+      <span aria-hidden="true">&#x276E;</span>
+    </button>
+    <button type="button"
+            class="bookwriter-book-reader-floating-button bookwriter-book-reader-floating-next"
+            id="bookwriter-book-reader-next-button"
+            name="bookwriter_book_reader_next_button"
+            title="Next page"
+            aria-label="Next page"
+            disabled>
+      <span aria-hidden="true">&#x276F;</span>
+    </button>
+
+    {% comment %}
+      Floating buttons live OUTSIDE .bookwriter-book-reader-stage so
+      they are not part of its `transform-style: preserve-3d`
+      rendering context — inside the 3D context the page sheets
+      (z-index 40-50) paint over a flat-Z child, even with a higher
+      z-index, because child stacking is resolved in 3D space first.
+      Anchored to the stage-wrapper, positioned at the visual corners
+      of the centered book stage via calc().
+    {% endcomment %}
+    <a class="bookwriter-book-reader-floating-button bookwriter-book-reader-floating-edit"
+       href="{{ bookwriter_open_editor_url }}"
+       id="bookwriter-book-reader-floating-edit-link"
+       name="bookwriter_book_reader_floating_edit_link"
+       title="Edit this book"
+       aria-label="Edit this book">
+      <span aria-hidden="true">&#x270e;</span>
+    </a>
+    <a class="bookwriter-book-reader-floating-button bookwriter-book-reader-floating-close"
+       href="{{ bookwriter_close_link_url }}"
+       id="bookwriter-book-reader-floating-close-link"
+       name="bookwriter_book_reader_floating_close_link"
+       title="Close reader — back to library"
+       aria-label="Close reader and return to library">
+      <span aria-hidden="true">&times;</span>
+    </a>
+
+  </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script defer src="{% static 'bookwriter/assets/js/pages/page-book-reader.js' %}?v={{ static_cache_buster }}"></script>
+{% endblock %}

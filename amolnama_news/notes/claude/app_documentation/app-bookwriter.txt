@@ -1,9 +1,244 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-24 (post-empty-chapter-fixes + book-settings drawer)
+  Last refreshed: 2026-04-24 (Owner-preview Book Reader + library card rework)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-24  Owner-preview Book Reader (3D leather-bound) + library
+              card action rework.
+
+              New URL:
+                /bookwriter/read/<book_id>/  → bookwriter:read
+                Owner-only 3D reader (full book in the leather-bound
+                animation: cover-open, page-flip, paper-tab Prev/Page-
+                jump/Next, ← / → / Esc keyboard nav, click-half to
+                page). Same 3D template a public reader will see —
+                gives the writer a real "what does this look like to
+                a reader" preview without leaving their workspace.
+                Returns 404 for non-owner book ids; redirects anon
+                viewers to the library.
+
+              URL routing collision note: the new int-converter route
+                lives ABOVE /read/<slug:public_chapter_slug>/ in
+                urls.py so a numeric path /bookwriter/read/123/ binds
+                to the owner reader view (not the slug pattern, which
+                would also match "123" lexically and route to the
+                public chapter reader).
+
+              Library card action rework (per the v03 prototype the
+              user picked):
+                - PRIMARY: click cover/meta → 3D Reader
+                  (was: click cover → inkwell editor)
+                - SECONDARY: ✎ Edit pencil top-right (hover-revealed
+                  circle, tooltip "Edit", always visible on touch)
+                  → opens inkwell editor
+                - DESTRUCTIVE: ✕ Archive moved from top-RIGHT to
+                  top-LEFT so it doesn't collide with the new edit
+                  pencil. Same two-click confirm machine.
+                - All buttons positioned absolute, hover-revealed via
+                  scale+opacity transition, focus-visible rings,
+                  reduced-motion respected.
+
+              Breadcrumb partial (templates/bookwriter/partials/
+              _bookwriter_breadcrumb.html) now supports an actions
+              wrapper carrying any number of right-side action pills.
+              Today: "👁 Read" (open-reader URL, opt-in via
+              `bookwriter_open_reader_url` context var) + "✕ Close"
+              (already wired). Inkwell view sets both so the writer
+              has one-click access to either flip into the reader or
+              exit to library. CSS classes generalised:
+                .bookwriter-breadcrumb-close-link → renamed
+                .bookwriter-breadcrumb-action-link (one rule, every
+                future action pill plugs in here).
+
+              Files added:
+                site_apps/bookwriter/templates/bookwriter/pages/
+                    book_reader.html
+                site_apps/bookwriter/static/bookwriter/assets/css/pages/
+                    page-book-reader.css
+                site_apps/bookwriter/static/bookwriter/assets/js/pages/
+                    page-book-reader.js
+
+              Files touched:
+                site_apps/bookwriter/views.py
+                    - new view: bookwriter_book_reader(request, book_id)
+                    - bookwriter_inkwell now sets
+                      `bookwriter_open_reader_url` so the breadcrumb
+                      "Read" pill renders alongside Close
+                site_apps/bookwriter/urls.py
+                    - new path: read/<int:book_id>/ (placed above the
+                      slug pattern so int wins for numeric paths)
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _library_book_card.html
+                    - card link now goes to bookwriter:read
+                    - new ✎ edit pencil link to bookwriter:write
+                    - archive button moved top-left
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _bookwriter_breadcrumb.html
+                    - new actions wrapper + opt-in Read action link
+                    - close link renamed under generic action-link class
+                site_apps/bookwriter/static/bookwriter/assets/css/pages/
+                    page-library.css
+                    - moved archive to top-left, added edit pencil
+                      circle styles (hover-reveal + tooltip), updated
+                      mobile + reduced-motion blocks
+                site_apps/bookwriter/static/bookwriter/assets/css/components/
+                    breadcrumb.css
+                    - generalised close-link → action-link class
+                site_apps/seo/views.py
+                    - CACHE_NAME bumped to amolnama-v870
+
+              Visual fidelity sources (gold-standard patterns adopted):
+                - Cover-open animation, hint pulse → Apple Books / iBooks
+                - 3D page-flip + binding shadow → Issuu, FlipHTML5
+                - Frontispiece + TOC + folio numbers → traditional print
+                  book convention
+                - Paper-tab Prev / page-indicator / Next controls →
+                  e-reader convention, user's v02 mastermind template
+                - Floating ✎ edit + ✕ close circles → Substack preview,
+                  Notion eye-toggle, user's v03 mastermind template
+                - Keyboard ← / → / Esc → Kindle Cloud Reader
+                - Owner-only preview separate from public reader →
+                  Substack "Preview as reader", Medium author preview
+
+              Architecture (Option B chosen, see book-writer.txt):
+                Library = author workspace (own books, drafts, edit access)
+                Reader  = preview surface (own preview today; public
+                          bookstore is a future surface — not built)
+                Editor  = inkwell (book-scoped, owner-only)
+                Each surface has clear breadcrumb chain:
+                  Book Library › [Book Title] › <mode>
+                Mode labels: Editing, Reading, Publication (future),
+                Book Store (future).
+
+              No DB schema changes. No SQL script needed.
+
+              Operational caveat (carry-over): the live DB-backed shell
+              happy-path test from the prior My Library work still
+              needs to be run manually (SQL Server unreachable from
+              the build environment). The reader view is added without
+              its own shell test in this round — it can be exercised
+              in the browser by hitting /bookwriter/read/<id>/ as the
+              book owner and verifying cover open / page-flip / Prev /
+              Next / jump-to-page / Esc-close all work, plus the ✎
+              floating button jumps to /bookwriter/write/<id>/edit/
+              and the ✕ floating button returns to /bookwriter/.
+
+  2026-04-24  My Library page is now the bookwriter landing.
+              Replaces the previous behavior where /bookwriter/ opened
+              straight into the inkwell on the user's most-recent
+              (or auto-provisioned) book.
+
+              URL changes (URL name 'landing' renamed to 'library'):
+                /bookwriter/                       → bookwriter:library
+                                                     (My Library grid)
+                /bookwriter/write/<book_id>/edit/  → bookwriter:write
+                                                     (inkwell editor —
+                                                     owner-only, 404
+                                                     otherwise)
+                /bookwriter/api/book/create/       → bookwriter:api_book_create
+                                                     (POST, +New book button)
+                /bookwriter/api/book/<id>/archive/ → bookwriter:api_book_archive
+                                                     (POST, soft-delete)
+              Sidebar nav (`কলম`) now points at bookwriter:library.
+
+              Architectural cleanups:
+                - `_ensure_default_book_for_user` deleted (dead code
+                  after the inkwell became book-scoped). Replaced by
+                  `create_blank_book_for_user(user_profile_id)` —
+                  always creates a new book + 'Chapter One' pair —
+                  called by the +New book API. Inkwell still has a
+                  defensive "if zero active chapters, create one" path
+                  that uses `_create_first_chapter_for_book`.
+                - All library card data flows through one helper:
+                  views_api_helpers.build_book_card_payload(
+                      book, cover_design_or_none, viewer_display_name)
+                  → SSR template AND any future JSON list endpoint
+                  must read from this dict; no parallel mappers.
+                - Cover palette resolution in one place:
+                  views_api_helpers.resolve_book_cover_palette() →
+                  uses BookCoverDesign hex overrides if present, else
+                  falls back to BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES
+                  (8 curated palettes from the v02 prototype) indexed
+                  by `book.id % 8` so the same book always shows the
+                  same fallback cover.
+                - N+1 avoided: prefetch_book_cover_designs(books) bulk
+                  loads all designs in one query.
+
+              Breadcrumb (new, app-wide):
+                Reusable partial templates/bookwriter/partials/
+                _bookwriter_breadcrumb.html + components/breadcrumb.css.
+                Every bookwriter page that wants a breadcrumb sets
+                `bookwriter_breadcrumb_trail` in its render context via
+                `views_api_helpers.build_bookwriter_breadcrumb_trail()`:
+                   no args            → [Book Library (current)]
+                   current_book + mode_label
+                                      → [Book Library, [Title], <mode>]
+                Wired today on:
+                   - Library page (current = "Book Library")
+                   - Inkwell embedded + standalone (current = "Editing")
+                Public + beta reader: deliberately no breadcrumb (the
+                viewer typically isn't the owner; "MY Library" crumb
+                would be misleading).
+
+              Files added:
+                site_apps/bookwriter/templates/bookwriter/pages/library.html
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _library_book_card.html
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _bookwriter_breadcrumb.html
+                site_apps/bookwriter/static/bookwriter/assets/css/pages/
+                    page-library.css
+                site_apps/bookwriter/static/bookwriter/assets/css/components/
+                    breadcrumb.css
+                site_apps/bookwriter/static/bookwriter/assets/js/pages/
+                    page-library.js
+
+              Files touched:
+                site_apps/bookwriter/views.py
+                    - removed _ensure_default_book_for_user
+                    - added bookwriter_library, _resolve_viewer_display_name,
+                      create_blank_book_for_user
+                    - bookwriter_inkwell rewritten — book_id required,
+                      owner check, defensive missing-chapter recovery
+                site_apps/bookwriter/views_api_book.py
+                    - added api_bookwriter_book_create
+                    - added api_bookwriter_book_archive
+                site_apps/bookwriter/views_api_helpers.py
+                    - added BOOKWRITER_LIBRARY_FALLBACK_COVER_PALETTES
+                    - added resolve_book_cover_palette
+                    - added prefetch_book_cover_designs
+                    - added build_book_card_payload
+                    - added build_bookwriter_breadcrumb_trail
+                    - added _format_relative_time,
+                            _estimate_book_pages_from_word_count
+                site_apps/bookwriter/urls.py
+                    - landing → library at ''
+                    - new write/<int:book_id>/edit/ route
+                    - new api/book/create/ + api/book/<id>/archive/ routes
+                site_apps/bookwriter/templates/bookwriter/pages/
+                    inkwell_embedded.html + inkwell.html
+                    - included breadcrumb partial + breadcrumb.css link
+                site_apps/core/templates/core/partials/sidebar-navigation.html
+                    - href {% url 'bookwriter:landing' %} → 'bookwriter:library'
+                site_apps/seo/views.py
+                    - CACHE_NAME bumped to amolnama-v868
+                    - robots.txt: Disallow /bookwriter/ + Allow /bookwriter/read/
+
+              No DB schema changes. Existing CollBook + BookCoverDesign
+              columns cover everything the library card renders. No
+              SQL script needed for this work.
+
+              Known caveat (operational): the live DB-backed shell
+              happy-path test could not run in the build environment
+              (SQL Server unreachable). Static checks all green:
+              `manage.py check` clean, every URL reverses correctly,
+              all new view + helper functions import + are callable.
+              Live shell test should be run manually with the four
+              scenarios documented in the build plan: anon library
+              render, owner library render with 2 books, POST
+              api/book/create/, POST api/book/<id>/archive/.
+
   2026-04-24  PDF export — page-break overlay text leak fix.
               Symptom: exported book PDF showed "page break" labels and
               page-number digits ("1", "2", "3") rendered as visible
