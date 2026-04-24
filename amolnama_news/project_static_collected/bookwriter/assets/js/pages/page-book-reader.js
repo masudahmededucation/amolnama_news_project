@@ -150,6 +150,18 @@
 
   function turnToNextSheet() {
     if (isCurrentlyAnimating) return;
+    // Auto-open the book if user clicked Next before opening the
+    // cover. Without this guard, the page-flip animation runs but
+    // stage-open class never gets added — cover stays in front of
+    // pages and controls never become visible. After the cover-open
+    // animation completes, advance to the first page automatically
+    // so the user gets the "I clicked Next, I'm now reading" outcome
+    // they expected.
+    if (!isBookCurrentlyOpen) {
+      openTheBook();
+      setTimeout(turnToNextSheet, COVER_FLIP_ANIMATION_MS + 60);
+      return;
+    }
     if (sheetsAlreadyTurnedCount >= totalSheetCount - 1) return;
     isCurrentlyAnimating = true;
     var sheetBeingTurned = allPageSheetElements[sheetsAlreadyTurnedCount];
@@ -168,6 +180,12 @@
 
   function turnToPreviousSheet() {
     if (isCurrentlyAnimating) return;
+    // Auto-open if Prev clicked on a closed book — same reason as
+    // turnToNextSheet. Then no-op (no previous page from page 1).
+    if (!isBookCurrentlyOpen) {
+      openTheBook();
+      return;
+    }
     if (sheetsAlreadyTurnedCount === 0) return;
     isCurrentlyAnimating = true;
     sheetsAlreadyTurnedCount--;
@@ -185,11 +203,15 @@
   }
 
   function jumpToPageNumber(targetPageNumber) {
+    if (isCurrentlyAnimating) return;
+    // Auto-open the book if user typed a page number before opening
+    // the cover. Defer the jump until after the cover-flip completes.
     if (!isBookCurrentlyOpen) {
-      showJumpErrorMessage('Open the book first');
+      openTheBook();
+      setTimeout(function () { jumpToPageNumber(targetPageNumber); },
+                 COVER_FLIP_ANIMATION_MS + 60);
       return;
     }
-    if (isCurrentlyAnimating) return;
 
     var isValidPageNumber = (
       typeof targetPageNumber === 'number'

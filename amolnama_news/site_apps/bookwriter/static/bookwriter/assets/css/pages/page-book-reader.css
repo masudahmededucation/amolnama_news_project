@@ -569,7 +569,14 @@
   /* Anchor to where the book actually ends. Wrapper has padding-top
      40px; book has height var(--bookwriter-reader-book-height); pull
      up 8px so the paper tab visually attaches to the bottom edge of
-     the book like a real tab sticking out from a page. */
+     the book like a real tab sticking out from a page.
+
+     Always visible (no opacity:0 + reveal): the previous reveal-on-
+     stage-open logic broke when users clicked the floating Next arrow
+     before clicking the cover — sheets flipped but stage-open never
+     got added, so the jump-tab stayed invisible. JS now auto-opens
+     the book on first nav click, so even with the always-visible
+     controls the user lands in a coherent state on first interaction. */
   top: calc(40px + var(--bookwriter-reader-book-height) - 8px);
   left: 0;
   right: 0;
@@ -578,21 +585,8 @@
   align-items: flex-start;
   z-index: 50;
   padding: 0 30px;
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity .5s ease .4s;
   flex-wrap: wrap;
   gap: 8px;
-}
-
-/* Reveal once the cover is flipped. The .stage-open class sits on
-   the stage; controls are now its prev sibling in the wrapper, so
-   use the general sibling combinator. */
-.bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
-  ~ .bookwriter-book-reader-controls,
-.bookwriter-book-reader-controls.bookwriter-book-reader-controls-visible {
-  opacity: 1;
-  pointer-events: auto;
 }
 
 .bookwriter-book-reader-tab {
