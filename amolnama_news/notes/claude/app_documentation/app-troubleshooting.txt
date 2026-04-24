@@ -18,6 +18,49 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-pdf-export-page-break-overlay-text-leak. Visible "page break" + "1, 2, 3" text inside PDF chapter content
+Date: 2026-04-24
+Was: Book PDF export rendered the visual page-break overlay markup
+     (page-number pills "1, 2, 3" and "page break" labels) as visible
+     text inside the chapter content. The overlay is a JS-injected UI
+     decoration meant to live ONLY in the live editor, never in
+     persisted HTML.
+Root cause: the autosave in pages/page-inkwell.js read prose.innerHTML
+     wholesale, which included the .bookwriter-page-break-overlay div
+     subtree (because the overlay is a direct child of the contenteditable
+     prose — it has to be, for position:absolute to resolve against the
+     prose box). The server sanitize_chapter_prose_html let the divs
+     through (global _SANITIZE_ALLOWED_TAGS includes <div>+class). So
+     chapter_text_html in DB was contaminated with the overlay markup.
+     PDF export read that polluted HTML and rendered it; book_pdf.html
+     has no CSS rule to hide .bookwriter-page-break-overlay (it's a
+     standalone PDF template, not the editor's CSS). Pre-flight check
+     on real data: 8/8 active chapters in book #4 had the pollution.
+Fix (two layers, both additive):
+     A. JS autosave clone-and-strip in pages/page-inkwell.js:
+        getProseInnerHtmlWithoutPageBreakOverlay(proseElement) clones
+        the prose, removes .bookwriter-page-break-overlay from the
+        clone, returns cleaned innerHTML. Live editor view unchanged
+        (clone is throwaway, the original prose still has the overlay
+        for visual page markers).
+     B. Server-side strip in views_api_helpers.py:
+        strip_page_break_overlay_from_html(html_text) uses Python's
+        stdlib html.parser with a depth counter so nested <div>s
+        inside the overlay are correctly stripped. Fast-path return
+        when the marker class is not in the input. Used by
+        api_bookwriter_book_export_pdf when building the chapter
+        render items, so legacy polluted DB rows get cleaned at
+        render time without a DB migration.
+     End-to-end verified via Django shell against book #4: PDF 200 /
+     37,998 bytes / 10 pages / 0 "page break" leaks / 0 overlay
+     class leaks in extracted PDF text.
+Lesson: any UI decoration injected INSIDE a contenteditable element
+     must be clone-stripped before persistence, AND any server-side
+     renderer that consumes the persisted HTML must defensively strip
+     too in case legacy data carries the decoration. Single source of
+     truth lives in views_api_helpers.py — future consumers (public
+     reader, ePub export, etc.) should call the same helper.
+
 ### R-bookwriter-empty-chapter-no-cursor-no-typing. Brand-new chapter showed no cursor; typing produced nothing
 Date: 2026-04-24
 Was: After creating a new chapter (or switching to a chapter whose

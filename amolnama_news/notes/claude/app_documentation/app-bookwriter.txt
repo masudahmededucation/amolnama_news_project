@@ -4,6 +4,50 @@
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-24  PDF export — page-break overlay text leak fix.
+              Symptom: exported book PDF showed "page break" labels and
+              page-number digits ("1", "2", "3") rendered as visible
+              text inside chapter content.
+              Root cause: the visual A4 page-break overlay
+              (.bookwriter-page-break-overlay) — a JS-injected UI
+              decoration that lives INSIDE the contenteditable prose
+              because position:absolute needs prose as containing block —
+              was being persisted to chapter_text_html. Path:
+                1. user types in editor → input event fires
+                2. autosave reads prose.innerHTML wholesale
+                   (includes the overlay div tree)
+                3. server sanitize_chapter_prose_html allows <div> +
+                   class attr (per global _SANITIZE_ALLOWED_TAGS) so
+                   the overlay survives to DB
+                4. PDF export reads chapter_text_html and renders it;
+                   book_pdf.html has no CSS to hide
+                   .bookwriter-page-break-overlay so the page-number
+                   pills + "page break" labels render as visible text
+              Pre-flight on real data: 8/8 active chapters in book #4
+              had polluted chapter_text_html in DB.
+              Two-layer fix (additive, no revert of any prior fix):
+                A. JS autosave (pages/page-inkwell.js) — new helper
+                   getProseInnerHtmlWithoutPageBreakOverlay(prose)
+                   clones the prose, drops .bookwriter-page-break-overlay
+                   from the clone, returns cleaned innerHTML. Live
+                   editor view unchanged (we clone, original stays).
+                   Stops new pollution.
+                B. PDF export view (views_api_book.py) — new helper
+                   strip_page_break_overlay_from_html(html_text) in
+                   views_api_helpers.py uses html.parser (stdlib)
+                   with a depth counter to correctly handle nested
+                   divs. Called when building chapter_render_items.
+                   Cleans LEGACY DB rows on the fly without DB
+                   migration. Fast-path skip when no overlay marker
+                   is in the text.
+              Verified end-to-end via Django shell: PDF export of
+              book #4 (8/8 polluted) → 200 / 37,998 bytes / 10 pages /
+              0 "page break" leaks / 0 overlay class leaks in
+              extracted PDF text.
+              Future consumers (public reader, ePub export) should
+              also call strip_page_break_overlay_from_html on read.
+              Cache v866 -> v867.
+
   2026-04-24  Empty-chapter cursor / typing fix.
               Symptom: brand-new chapter showed no visible cursor,
               typing produced nothing visible, Bangla suggestion

@@ -236,7 +236,7 @@
       return;
     }
 
-    var savedHtmlSnapshot = prose.innerHTML;
+    var savedHtmlSnapshot = getProseInnerHtmlWithoutPageBreakOverlay(prose);
     window.bookwriter.apiPost('/bookwriter/api/chapter/' + encodeURIComponent(chapterId) + '/autosave/', { chapter_text_html: savedHtmlSnapshot })
       .then(function (data) {
         if (saveChip) saveChip.innerHTML = '<span class="bookwriter-pulse"></span>saved · just now';
@@ -469,6 +469,26 @@
     if (initialActiveChapterNumberElement) {
       initialPrimedChapterNum = initialActiveChapterNumberElement.innerText.trim();
     }
+  }
+
+  /* Read prose innerHTML EXCLUDING the page-break overlay.
+     The overlay (.bookwriter-page-break-overlay) is a JS-managed UI
+     decoration that bookwriter-page-breaks.js injects INSIDE the
+     contenteditable prose because position:absolute needs the prose
+     as its containing block. But it MUST NOT be persisted to
+     chapter_text_html — otherwise its child markup ("page break"
+     labels, page-number pills "1, 2, 3") shows up as visible text in
+     PDF export, public reader, and any future consumer that renders
+     the saved HTML. Clone-and-strip: live prose stays intact (editor
+     UI unchanged), the snapshot we send to the server has no overlay. */
+  function getProseInnerHtmlWithoutPageBreakOverlay(proseElement) {
+    if (!proseElement) return '';
+    var proseClone = proseElement.cloneNode(true);
+    var clonedOverlays = proseClone.querySelectorAll('.bookwriter-page-break-overlay');
+    for (var overlayIndex = 0; overlayIndex < clonedOverlays.length; overlayIndex++) {
+      clonedOverlays[overlayIndex].parentNode.removeChild(clonedOverlays[overlayIndex]);
+    }
+    return proseClone.innerHTML;
   }
 
   /* Empty-contenteditable cursor-trap fix.

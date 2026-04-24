@@ -40,6 +40,7 @@ from .views_api_helpers import (
     _refresh_book_caches,
     _resolve_book_for_owner,
     _strip_html_to_plain,
+    strip_page_break_overlay_from_html,
 )
 
 
@@ -562,10 +563,18 @@ def api_bookwriter_book_export_pdf(request, book_id):
             or chapter_row.chapter_title_bn
             or 'Untitled Chapter'
         )
+        # Strip the editor's page-break overlay markup from the saved
+        # HTML before rendering. Live editor JS now strips on autosave,
+        # but legacy chapter_text_html rows from before that fix still
+        # carry the overlay div tree (page-number pills, "page break"
+        # labels) which would otherwise render as visible text in the
+        # exported PDF.
         chapter_render_items.append({
             'chapter_number': chapter_row.chapter_number,
             'chapter_title': resolved_chapter_title,
-            'chapter_text_html': chapter_row.chapter_text_html or '',
+            'chapter_text_html': strip_page_break_overlay_from_html(
+                chapter_row.chapter_text_html or ''
+            ),
             'chapter_word_count': chapter_row.chapter_word_count or 0,
         })
         chapter_titles_for_pdf_outline.append(resolved_chapter_title)

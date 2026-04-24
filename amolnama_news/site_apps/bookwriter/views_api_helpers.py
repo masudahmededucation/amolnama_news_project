@@ -183,6 +183,85 @@ def sanitize_chapter_prose_html(html):
     return sanitize_user_html(html, **CHAPTER_PROSE_SANITIZER_KWARGS)
 
 
+def strip_page_break_overlay_from_html(html_text):
+    """Remove the bookwriter-page-break-overlay div block(s) from HTML.
+
+    The overlay (.bookwriter-page-break-overlay) is a JS-injected UI
+    decoration that lives INSIDE the contenteditable prose at runtime
+    so position:absolute resolves against the prose box. Older
+    chapter_text_html rows persisted that markup because the autosave
+    used to read prose.innerHTML wholesale — its child page-number
+    pills ("1", "2", "3") and "page break" labels then leaked into
+    PDF export, public reader, and any other server-side renderer.
+    Going forward the autosave JS strips it client-side, but legacy
+    rows still carry the markup. Use this helper any time you read
+    chapter_text_html from the DB and pass it to a renderer.
+
+    Uses html.parser (stdlib, no extra dep) — handles nested <div>s
+    correctly with a depth counter, unlike a naive regex."""
+    if not html_text or 'bookwriter-page-break-overlay' not in html_text:
+        return html_text  # fast path — no overlay present
+    from html.parser import HTMLParser
+
+    class _PageBreakOverlayStripper(HTMLParser):
+        def __init__(self):
+            super().__init__(convert_charrefs=False)
+            self.kept_html_parts = []
+            self.skip_div_depth = 0  # 0 = not skipping; >0 = inside overlay subtree
+
+        def handle_starttag(self, tag, attrs):
+            attrs_dict = dict(attrs)
+            class_value = attrs_dict.get('class') or ''
+            if (tag == 'div'
+                    and 'bookwriter-page-break-overlay' in class_value.split()):
+                self.skip_div_depth = 1
+                return
+            if self.skip_div_depth > 0:
+                if tag == 'div':
+                    self.skip_div_depth += 1
+                return
+            attr_string = ''.join(
+                ' %s="%s"' % (attr_name, (attr_value or '').replace('"', '&quot;'))
+                for attr_name, attr_value in attrs
+            )
+            self.kept_html_parts.append('<%s%s>' % (tag, attr_string))
+
+        def handle_endtag(self, tag):
+            if self.skip_div_depth > 0:
+                if tag == 'div':
+                    self.skip_div_depth -= 1
+                return
+            self.kept_html_parts.append('</%s>' % tag)
+
+        def handle_startendtag(self, tag, attrs):
+            if self.skip_div_depth > 0:
+                return
+            attr_string = ''.join(
+                ' %s="%s"' % (attr_name, (attr_value or '').replace('"', '&quot;'))
+                for attr_name, attr_value in attrs
+            )
+            self.kept_html_parts.append('<%s%s/>' % (tag, attr_string))
+
+        def handle_data(self, data):
+            if self.skip_div_depth > 0:
+                return
+            self.kept_html_parts.append(data)
+
+        def handle_entityref(self, name):
+            if self.skip_div_depth > 0:
+                return
+            self.kept_html_parts.append('&%s;' % name)
+
+        def handle_charref(self, name):
+            if self.skip_div_depth > 0:
+                return
+            self.kept_html_parts.append('&#%s;' % name)
+
+    stripper = _PageBreakOverlayStripper()
+    stripper.feed(html_text)
+    return ''.join(stripper.kept_html_parts)
+
+
 def _resolve_chapter_for_owner(chapter_id, user_profile_id):
     """Look up an active chapter and verify the caller owns its book.
 
