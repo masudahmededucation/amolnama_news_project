@@ -56,6 +56,13 @@
   var isCurrentlyAnimating     = false;
   var isBookCurrentlyOpen      = false;
   var pendingJumpErrorTimeout  = null;
+  // Race guard: when a Next/Prev/jump click on a closed book queues
+  // an auto-open + deferred-action via setTimeout, this flag stays
+  // true until the deferred action runs. Subsequent clicks during
+  // that window (cover-flip animation) are ignored — without this
+  // a double-click would queue two deferred flips and turn 2 pages
+  // on first interaction.
+  var isPendingAutoActionAfterOpen = false;
 
   if (jumpInputElement && totalSheetCount > 0) {
     jumpInputElement.max = String(totalSheetCount);
@@ -149,17 +156,23 @@
   }
 
   function turnToNextSheet() {
-    if (isCurrentlyAnimating) return;
+    if (isCurrentlyAnimating || isPendingAutoActionAfterOpen) return;
     // Auto-open the book if user clicked Next before opening the
     // cover. Without this guard, the page-flip animation runs but
     // stage-open class never gets added — cover stays in front of
     // pages and controls never become visible. After the cover-open
     // animation completes, advance to the first page automatically
     // so the user gets the "I clicked Next, I'm now reading" outcome
-    // they expected.
+    // they expected. The isPendingAutoActionAfterOpen flag prevents
+    // a double-click during the 1.4s cover-flip from queuing two
+    // deferred turns (which would then double-flip).
     if (!isBookCurrentlyOpen) {
       openTheBook();
-      setTimeout(turnToNextSheet, COVER_FLIP_ANIMATION_MS + 60);
+      isPendingAutoActionAfterOpen = true;
+      setTimeout(function () {
+        isPendingAutoActionAfterOpen = false;
+        turnToNextSheet();
+      }, COVER_FLIP_ANIMATION_MS + 60);
       return;
     }
     if (sheetsAlreadyTurnedCount >= totalSheetCount - 1) return;
@@ -179,7 +192,7 @@
   }
 
   function turnToPreviousSheet() {
-    if (isCurrentlyAnimating) return;
+    if (isCurrentlyAnimating || isPendingAutoActionAfterOpen) return;
     // Auto-open if Prev clicked on a closed book — same reason as
     // turnToNextSheet. Then no-op (no previous page from page 1).
     if (!isBookCurrentlyOpen) {

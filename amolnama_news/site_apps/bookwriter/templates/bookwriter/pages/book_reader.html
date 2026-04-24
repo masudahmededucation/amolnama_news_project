@@ -113,6 +113,7 @@
             <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
               <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
               {% if book_sheet.is_chapter_start_on_front %}
+                <div class="bookwriter-book-reader-chapter-number-kicker">Chapter {{ book_sheet.chapter_number }}</div>
                 <h2 class="bookwriter-book-reader-chapter-title">{{ book_sheet.chapter_title }}</h2>
               {% endif %}
               <div class="bookwriter-book-reader-chapter-body">{{ book_sheet.front_html|safe }}</div>

@@ -61,7 +61,11 @@
   position: relative;
   width: 100%;
   min-height: var(--bookwriter-reader-book-height);
-  padding: 40px 20px 90px;
+  /* Bottom padding 130px (was 90px) gives the jump-tab pill room to
+     sit fully below the book without being clipped by the wrapper's
+     overflow:hidden + border-radius. Tab is anchored 16px below
+     book bottom + ~55px tall = needs ~70px of clearance. */
+  padding: 40px 20px 130px;
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -311,10 +315,16 @@
 }
 
 .bookwriter-book-reader-page-front {
-  padding: 55px 65px 70px;
+  /* Bottom padding 160px so the last line of body text sits well
+     above the bottom edge of the page (book convention — generous
+     bottom margin gives the page a settled, finished look). The
+     folio (bottom-right at 30px) lives in this padding zone, and
+     the jump-tab below the book has its own clearance via the
+     wrapper-anchored top calc. */
+  padding: 55px 65px 160px;
 }
 .bookwriter-book-reader-page-back {
-  padding: 55px 65px 70px;
+  padding: 55px 65px 160px;
   transform: rotateY(180deg);
 }
 
@@ -386,18 +396,39 @@
 }
 
 /* ============ PAGE CONTENT ============ */
+/* Folio (page number) sits in the BOTTOM-RIGHT corner of each face,
+   tucked under the body text. On the back face the page is rotated
+   180°, which mirrors `right: 30px` to render visually on the LEFT —
+   matching real-book convention (verso = left page = page number on
+   the outer / left edge). One CSS rule, both faces correct. */
 .bookwriter-book-reader-folio {
   position: absolute;
-  bottom: 28px;
-  left: 0;
-  right: 0;
-  text-align: center;
+  bottom: 30px;
+  right: 30px;
+  text-align: right;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: var(--text-sm);
   color: var(--bookwriter-reader-ink-soft);
   letter-spacing: 3px;
   z-index: 3;
+}
+
+/* Small italic caps "CHAPTER N" eyebrow above the chapter title —
+   classic book convention (Penguin / Vintage / Faber).
+   Only rendered on the FIRST page of each chapter (template guards). */
+.bookwriter-book-reader-chapter-number-kicker {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--bookwriter-reader-ink-soft);
+  text-align: center;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  opacity: .8;
+  position: relative;
+  z-index: 2;
 }
 
 .bookwriter-book-reader-chapter-title {
@@ -566,18 +597,11 @@
    the wrapper bottom + book height. */
 .bookwriter-book-reader-controls {
   position: absolute;
-  /* Anchor to where the book actually ends. Wrapper has padding-top
-     40px; book has height var(--bookwriter-reader-book-height); pull
-     up 8px so the paper tab visually attaches to the bottom edge of
-     the book like a real tab sticking out from a page.
-
-     Always visible (no opacity:0 + reveal): the previous reveal-on-
-     stage-open logic broke when users clicked the floating Next arrow
-     before clicking the cover — sheets flipped but stage-open never
-     got added, so the jump-tab stayed invisible. JS now auto-opens
-     the book on first nav click, so even with the always-visible
-     controls the user lands in a coherent state on first interaction. */
-  top: calc(40px + var(--bookwriter-reader-book-height) - 8px);
+  /* Anchor BELOW the book (no overlap). Wrapper padding-top is 40px,
+     book height is var(--bookwriter-reader-book-height). Pull DOWN
+     16px so the paper tab sits entirely below the page edge with a
+     small gap — no chance of body text running under it. */
+  top: calc(40px + var(--bookwriter-reader-book-height) + 16px);
   left: 0;
   right: 0;
   display: flex;
