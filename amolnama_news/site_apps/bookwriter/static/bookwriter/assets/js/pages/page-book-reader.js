@@ -156,23 +156,14 @@
   }
 
   function turnToNextSheet() {
-    if (isCurrentlyAnimating || isPendingAutoActionAfterOpen) return;
-    // Auto-open the book if user clicked Next before opening the
-    // cover. Without this guard, the page-flip animation runs but
-    // stage-open class never gets added — cover stays in front of
-    // pages and controls never become visible. After the cover-open
-    // animation completes, advance to the first page automatically
-    // so the user gets the "I clicked Next, I'm now reading" outcome
-    // they expected. The isPendingAutoActionAfterOpen flag prevents
-    // a double-click during the 1.4s cover-flip from queuing two
-    // deferred turns (which would then double-flip).
+    if (isCurrentlyAnimating) return;
+    // Closed book + Next click = JUST open the cover. No auto-flip.
+    // Real book behaviour — open it first, then turn pages. Auto-
+    // flipping queued a second animation that looked like a "two-
+    // page turn" to the user (cover open + first page flip in
+    // sequence). One animation per click is the right model.
     if (!isBookCurrentlyOpen) {
       openTheBook();
-      isPendingAutoActionAfterOpen = true;
-      setTimeout(function () {
-        isPendingAutoActionAfterOpen = false;
-        turnToNextSheet();
-      }, COVER_FLIP_ANIMATION_MS + 60);
       return;
     }
     if (sheetsAlreadyTurnedCount >= totalSheetCount - 1) return;

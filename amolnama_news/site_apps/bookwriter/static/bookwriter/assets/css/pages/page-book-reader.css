@@ -221,9 +221,16 @@
 }
 
 .bookwriter-book-reader-cover-back {
-  background: radial-gradient(ellipse at 40% 50%,
-    rgba(255, 255, 255, .15) 0%,
-    var(--bookwriter-reader-cover-dark) 80%);
+  /* Cover BACK face is intentionally invisible. Without this, the
+     user sees a dark "page" appear during the second half of the
+     cover-flip (90–180°) which reads as a SECOND page turn — the
+     visible face changes from cover-front (title + leather) to
+     cover-back (dark gradient, no title) mid-rotation. With visibility
+     hidden, after 90° the cover-front is also hidden by
+     backface-visibility, so the viewer just sees the page sheet
+     behind the cover — one smooth visual: cover → page. */
+  background: transparent;
+  visibility: hidden;
   transform: rotateY(180deg);
 }
 
