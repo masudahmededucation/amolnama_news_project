@@ -1,3 +1,5 @@
+--check where appropriate and related
+
 --check all the memory rules
 then follow them if appropriate
 
@@ -59,32 +61,6 @@ as a result to identify group of table for fact check? for all other group of wo
 foreign key id column from other table starts with link_ as prefix
 don't touch other things.
 
-
-don't commit yet, and don't skip or rush anything
-once you finish the above step, then continue this
---modularise everything
-make a rule - any new features - should be modularised.
-make the code scalable
-even used in one place.
-then first thing before implementing a new feature is to check, is this feature already exists?
-if the feature not exists then create a new modularised feature.
-make that rule modularise everything - not just when needed or not.
-everything every time.
-all.
-one source of truth.
-must modularise whenever possible.
-check possibility.
-no lazy tries.
-Write once, reuse everywhere.
-no copy cat, duplicate code.
-it stops bugs and reduces effort.
-dynamic, db based, no static code if appropriate
-don't make file too large which would be harder to manage and modify.
-split larger files into smaller unit and files.
-split files when the feature is atomic and independent.
-don't split inter-related or co-related jobs.
-don't touch other things.
-
 don't commit yet, and don't skip or rush anything
 once you finish the above step, then continue this
 --check styling
@@ -123,22 +99,6 @@ no shortcut dangerous practice.
 don't touch other things.
 
 
-don't commit yet, and don't skip or rush anything
-once you finish the above step, then continue this
---naming conventions
-check name rules.
-seo friendly name.
-check variables name, filename, functions name, features name.
-all files css, js, ajax, html.
-use large, descriptive, easy to read, non-confusing name always.
-do not use partial name or short name.
-update documents.
-update troubleshooting documents.
-don't touch other things.
-
---attribute naming convention
-all attributes should have its id and name.
-
 
 don't commit yet, and don't skip or rush anything
 once you finish the above step, then continue this
@@ -164,6 +124,51 @@ tech debt item.
 don't leave anything broken after change
 --nested tag issues - <main>..<div>..<>p
 don't touch other things.
+
+
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
+--modularise everything
+make a rule - any new features - should be modularised.
+make the code scalable
+even used in one place.
+then first thing before implementing a new feature is to check, is this feature already exists?
+if the feature not exists then create a new modularised feature.
+make that rule modularise everything - not just when needed or not.
+everything every time.
+all.
+one source of truth.
+must modularise whenever possible.
+check possibility.
+no lazy tries.
+Write once, reuse everywhere.
+no copy cat, duplicate code.
+it stops bugs and reduces effort.
+dynamic, db based, no static code if appropriate
+don't make file too large which would be harder to manage and modify.
+split larger files into smaller unit and files.
+split files when the feature is atomic and independent.
+don't split inter-related or co-related jobs.
+don't touch other things.
+
+
+don't commit yet, and don't skip or rush anything
+once you finish the above step, then continue this
+--naming conventions
+check name rules.
+seo friendly name.
+check variables name, filename, functions name, features name.
+all files css, js, ajax, html.
+use large, descriptive, easy to read, non-confusing name always.
+do not use partial name or short name.
+update documents.
+update troubleshooting documents.
+don't touch other things.
+
+--attribute naming convention
+all attributes should have its id and name.
+
+
 
 
 without removing functionality, features, and messing up 

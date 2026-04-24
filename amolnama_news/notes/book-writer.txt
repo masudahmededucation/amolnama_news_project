@@ -142,3 +142,42 @@ tell me how to describe to google,
 to have the book sidebar collapse and expand option?
 
 also tell me how to describe to create a new section on the right?
+
+
+-- on full screen
+
+image options does not work.
+
+also describe me for google 
+- why the left section is getting pushed down from top to some distance down?
+
+discussion - we have option- notes, 
+when i click on it, 
+it nicely appears like opening from right to left transition. 
+can't we have similar things, 
+like when we will click on it,
+it will open similarly.
+but it will host many other less important options
+like which are just statistics.
+
+
+--chapter
+--should have page level option.
+like able to add pages inside chapter.
+at the moment it is adding and stacking on the same page.
+shouldn't we consider A4 page size for page 1,
+when it fills up then create another page 2.
+this way continue
+
+--pdf export
+should include all chapters
+
+also include pdf bookmark with chapter title?
+
+
+
+--multiple book preview
+
+we need preview and edit options
+of multiple books of same users.
+a user may start writing multiple books
