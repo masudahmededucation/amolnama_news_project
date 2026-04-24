@@ -717,15 +717,19 @@ def build_book_card_payload(book, cover_design_or_none, viewer_display_name=''):
 # still fit 1-2 pages naturally.
 DEFAULT_READER_WORDS_PER_PAGE = 110
 
-# Headings, images, and blockquotes count as at least this many
-# words for pagination purposes — they take significant VISUAL space
-# (a 510px-wide image consumes ~half the page height) while their
-# text content alone is small or zero. 100 ≈ "almost a full page on
-# its own" so the next paragraph after an image always pushes to a
-# new page. Without this weight, an image squashed next to a couple
-# of paragraphs lands on a single overcrowded page that looks
-# nothing like the rendered visual reality.
-READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT = 100
+# Per-block-type minimum word weight for pagination. Images take
+# significant visual space (~50% of page height for a 510px-wide
+# image), so they get a heavier weight than headings/blockquotes
+# which are just text with extra spacing.
+#   IMAGE  = 100 → image alone almost fills the page-budget (110)
+#                  so the next paragraph after an image always
+#                  pushes onto a new page.
+#   HEADING / BLOCKQUOTE = 50 → bumps a paragraph or two onto
+#                  the next page when surrounding content is
+#                  long, but doesn't force-split text-only
+#                  chapters with no images.
+READER_IMAGE_MIN_WORD_WEIGHT             = 100
+READER_HEADING_OR_BLOCKQUOTE_MIN_WORD_WEIGHT = 50
 
 
 def _extract_top_level_blocks_from_html(html_text):
@@ -822,8 +826,17 @@ def paginate_chapter_html_into_pages(
     for block_html in extracted_blocks:
         block_plain_text = re.sub(r'<[^>]+>', '', block_html)
         block_word_count = len(re.findall(r'\S+', block_plain_text))
-        if re.search(r'<\s*(h[1-6]|img|blockquote)\b', block_html, re.IGNORECASE):
-            block_word_count = max(block_word_count, READER_HEADING_OR_IMAGE_MIN_WORD_WEIGHT)
+        # Image takes ~half the page visually; heading / blockquote
+        # take extra spacing but are mostly text. Two different
+        # minimum weights so a chapter with an image splits naturally
+        # while a text-only chapter with a blockquote doesn't get
+        # over-split.
+        if re.search(r'<\s*img\b', block_html, re.IGNORECASE):
+            block_word_count = max(block_word_count, READER_IMAGE_MIN_WORD_WEIGHT)
+        elif re.search(r'<\s*(h[1-6]|blockquote)\b', block_html, re.IGNORECASE):
+            block_word_count = max(
+                block_word_count, READER_HEADING_OR_BLOCKQUOTE_MIN_WORD_WEIGHT,
+            )
 
         if (current_page_word_count + block_word_count > target_words_per_page
                 and current_page_block_parts):
