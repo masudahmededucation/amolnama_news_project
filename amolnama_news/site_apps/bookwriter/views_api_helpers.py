@@ -709,27 +709,27 @@ def build_book_card_payload(book, cover_design_or_none, viewer_display_name=''):
 # inside a single page. See bookwriter_book_reader view for usage.
 # =====================================================================
 
-# Target word budget per page-face. 110 words splits a chapter with
-# 1 image + 6 short-to-medium paragraphs (~200 words text + image)
-# into ~3 pages, which matches what the rendered visual reality looks
-# like (image takes ~half a page, text fills the rest, then overflow
-# pushes to a new page). Pure-text chapters with short paragraphs
-# still fit 1-2 pages naturally.
-DEFAULT_READER_WORDS_PER_PAGE = 110
+# Target word budget per page-face. Pure word-count algorithm — no
+# per-block-type magic numbers. A block contributes its actual word
+# count (or 0 if empty/image). Chapters split naturally when the
+# accumulated text exceeds the budget. Images don't push splits
+# because they have no text — that's a visual-rendering concern that
+# only client-side height measurement can solve, not a server-side
+# word-count tuning game.
+DEFAULT_READER_WORDS_PER_PAGE = 130
 
-# Per-block-type minimum word weight for pagination. Images take
-# significant visual space (~50% of page height for a 510px-wide
-# image), so they get a heavier weight than headings/blockquotes
-# which are just text with extra spacing.
-#   IMAGE  = 100 → image alone almost fills the page-budget (110)
-#                  so the next paragraph after an image always
-#                  pushes onto a new page.
-#   HEADING / BLOCKQUOTE = 50 → bumps a paragraph or two onto
-#                  the next page when surrounding content is
-#                  long, but doesn't force-split text-only
-#                  chapters with no images.
-READER_IMAGE_MIN_WORD_WEIGHT             = 100
-READER_HEADING_OR_BLOCKQUOTE_MIN_WORD_WEIGHT = 50
+
+# HTML void elements never have an end tag (`<img>` not `<img></img>`,
+# `<br>` not `<br></br>`). The parser must NOT increment depth for
+# these — without this guard, an `<img>` at depth 0 would push depth
+# to 1 and stay there forever (no `</img>` ever arrives), swallowing
+# every following block into an emit-block-never-fires state. Result
+# pre-fix: image + everything after it disappeared from the rendered
+# chapter.
+_HTML_VOID_ELEMENT_TAGS = frozenset({
+    'area', 'base', 'br', 'col', 'embed', 'hr', 'img', 'input',
+    'link', 'meta', 'param', 'source', 'track', 'wbr',
+})
 
 
 def _extract_top_level_blocks_from_html(html_text):
@@ -756,21 +756,32 @@ def _extract_top_level_blocks_from_html(html_text):
                 for attr_name, attr_value in attrs
             )
 
+        def _emit_current_block_if_any(self):
+            emitted_block = ''.join(self.current_block_parts).strip()
+            if emitted_block:
+                self.collected_blocks.append(emitted_block)
+            self.current_block_parts = []
+
         def handle_starttag(self, tag, attrs):
-            self.current_block_parts.append(
-                '<%s%s>' % (tag, self._format_attrs_string(attrs))
-            )
-            self.current_depth += 1
+            tag_html = '<%s%s>' % (tag, self._format_attrs_string(attrs))
+            is_void = tag.lower() in _HTML_VOID_ELEMENT_TAGS
+            if is_void and self.current_depth == 0:
+                # Top-level void element (img, hr, etc.) → emit as its
+                # own atomic block. Don't open depth (would never close).
+                self.collected_blocks.append(tag_html)
+                return
+            self.current_block_parts.append(tag_html)
+            if not is_void:
+                # Void elements nested in another block (br inside p)
+                # do NOT increment depth — they never have an end tag.
+                self.current_depth += 1
 
         def handle_endtag(self, tag):
             self.current_depth -= 1
             self.current_block_parts.append('</%s>' % tag)
             if self.current_depth <= 0:
                 self.current_depth = 0
-                emitted_block = ''.join(self.current_block_parts).strip()
-                if emitted_block:
-                    self.collected_blocks.append(emitted_block)
-                self.current_block_parts = []
+                self._emit_current_block_if_any()
 
         def handle_startendtag(self, tag, attrs):
             tag_html = '<%s%s/>' % (tag, self._format_attrs_string(attrs))
@@ -797,6 +808,9 @@ def _extract_top_level_blocks_from_html(html_text):
 
     block_extractor = _BlockExtractor()
     block_extractor.feed(html_text)
+    # Defensive flush in case the input ended with unclosed tags —
+    # the trailing content shouldn't be dropped silently.
+    block_extractor._emit_current_block_if_any()
     return block_extractor.collected_blocks
 
 
@@ -826,17 +840,6 @@ def paginate_chapter_html_into_pages(
     for block_html in extracted_blocks:
         block_plain_text = re.sub(r'<[^>]+>', '', block_html)
         block_word_count = len(re.findall(r'\S+', block_plain_text))
-        # Image takes ~half the page visually; heading / blockquote
-        # take extra spacing but are mostly text. Two different
-        # minimum weights so a chapter with an image splits naturally
-        # while a text-only chapter with a blockquote doesn't get
-        # over-split.
-        if re.search(r'<\s*img\b', block_html, re.IGNORECASE):
-            block_word_count = max(block_word_count, READER_IMAGE_MIN_WORD_WEIGHT)
-        elif re.search(r'<\s*(h[1-6]|blockquote)\b', block_html, re.IGNORECASE):
-            block_word_count = max(
-                block_word_count, READER_HEADING_OR_BLOCKQUOTE_MIN_WORD_WEIGHT,
-            )
 
         if (current_page_word_count + block_word_count > target_words_per_page
                 and current_page_block_parts):
