@@ -112,6 +112,8 @@
           <div class="bookwriter-book-reader-page-sheet">
             <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
               <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+              {% comment %}Running header — chapter name + title at top of every page (book convention).{% endcomment %}
+              <div class="bookwriter-book-reader-running-header">Chapter {{ book_sheet.chapter_number }} &middot; {{ book_sheet.chapter_title }}</div>
               {% if book_sheet.is_chapter_start_on_front %}
                 <div class="bookwriter-book-reader-chapter-number-kicker">Chapter {{ book_sheet.chapter_number }}</div>
                 <h2 class="bookwriter-book-reader-chapter-title">{{ book_sheet.chapter_title }}</h2>
@@ -122,6 +124,7 @@
             <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
               <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
               {% if book_sheet.has_back_content %}
+                <div class="bookwriter-book-reader-running-header">Chapter {{ book_sheet.chapter_number }} &middot; {{ book_sheet.chapter_title }}</div>
                 <div class="bookwriter-book-reader-chapter-body">{{ book_sheet.back_html|safe }}</div>
                 <div class="bookwriter-book-reader-folio" aria-hidden="true">{{ book_sheet.back_page_label }}</div>
               {% endif %}

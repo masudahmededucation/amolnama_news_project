@@ -421,6 +421,40 @@
   z-index: 3;
 }
 
+/* Running header — small italic caps at top of every page-face
+   showing "Chapter N · Title" (book convention; lets the reader
+   always know which chapter they're in regardless of where they
+   are within it).
+
+   Front face: visual top via CSS `top`.
+   Back face: rotated 180°, so CSS `top: 20px` would render at the
+   visual bottom. Use `bottom: 20px` on back face so it appears at
+   the visual top after the mirror. Same trick the folio uses. */
+.bookwriter-book-reader-running-header {
+  position: absolute;
+  top: 22px;
+  left: 30px;
+  right: 30px;
+  text-align: center;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-xs);
+  color: var(--bookwriter-reader-ink-soft);
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  opacity: .65;
+  z-index: 3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bookwriter-book-reader-page-back .bookwriter-book-reader-running-header {
+  /* Mirrors back to the visual top after the page-back's rotateY(180). */
+  top: auto;
+  bottom: 22px;
+}
+
 /* Small italic caps "CHAPTER N" eyebrow above the chapter title —
    classic book convention (Penguin / Vintage / Faber).
    Only rendered on the FIRST page of each chapter (template guards). */
