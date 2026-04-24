@@ -654,22 +654,29 @@ body.bookwriter-standalone {
   padding: 0 10px;
 }
 
-/* End-of-chapter marker — same ghost-line pattern as the page-
-   break marker but solid accent line + serif accent label so it
-   reads as a different landmark from the dashed page-break
-   dividers. */
-.bookwriter-end-chapter-marker::before {
-  border-top-style: solid;
-  border-top-color: var(--accent, #8b2a1f);
-  opacity: 0.6;
+/* End-of-chapter marker — inline SVG flourish drawn in code so
+   it scales freely, takes the prose ink colour via currentColor,
+   and ships zero extra bytes. Centered horizontally at the
+   actual content bottom; no line / band / label so it never
+   covers prose text. */
+.bookwriter-end-chapter-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: center;
+  pointer-events: none;
+  /* Pass the prose ink colour into the SVG via currentColor so
+     the ornament matches the surrounding text tone. Slightly
+     muted via the parent's color override below. */
+  color: var(--ink-soft, #3d342a);
+  opacity: 0.55;
 }
-.bookwriter-end-chapter-label {
-  font-family: 'Fraunces', serif;
-  font-size: 12px;
-  font-weight: 500;
-  text-transform: none;
-  letter-spacing: 0.1em;
-  color: var(--accent, #8b2a1f);
+.bookwriter-end-chapter-ornament {
+  display: block;
+  max-width: 360px;
+  width: 70%;
+  height: auto;
 }
 
 /* Page number badge — small round circle with the number inside.

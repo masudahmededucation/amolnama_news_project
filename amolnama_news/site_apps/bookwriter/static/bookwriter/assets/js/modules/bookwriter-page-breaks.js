@@ -116,17 +116,62 @@
   }
 
   function buildEndOfChapterMarker(topPx) {
-    /* End-of-chapter marker — rendered at the actual content
-       bottom (not at scrollHeight, so an empty chapter or
-       padding-only height doesn't show one). Visually distinct
-       from the page-boundary markers via the modifier class. */
+    /* End-of-chapter marker — inline SVG flourish drawn in code
+       (not a PNG embed) so it scales infinitely, takes the prose
+       ink colour via currentColor, and adds zero file weight.
+       Captures the Victorian double-scroll feel of the reference:
+       symmetric vines on each side, a central diamond / tulip,
+       a lower horizontal vine band with small flower-dots. */
     var endMarkerWrapper = document.createElement('div');
-    endMarkerWrapper.className = 'bookwriter-page-break-marker bookwriter-end-chapter-marker';
+    endMarkerWrapper.className = 'bookwriter-end-chapter-marker';
     endMarkerWrapper.style.top = topPx + 'px';
-    var endChapterLabel = document.createElement('span');
-    endChapterLabel.className = 'bookwriter-page-break-label bookwriter-end-chapter-label';
-    endChapterLabel.textContent = '— End of Chapter —';
-    endMarkerWrapper.appendChild(endChapterLabel);
+    var ornamentSvgMarkup =
+      '<svg class="bookwriter-end-chapter-ornament" viewBox="0 0 400 80" ' +
+            'xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false">' +
+        '<g fill="none" stroke="currentColor" stroke-width="1.2" ' +
+           'stroke-linecap="round" stroke-linejoin="round">' +
+          /* TOP ROW — central tulip / diamond */
+          '<path d="M200 6 C 196 12 196 18 200 22 C 204 18 204 12 200 6 Z" fill="currentColor" />' +
+          '<path d="M200 22 C 197 26 197 30 200 32 C 203 30 203 26 200 22 Z" />' +
+          /* TOP ROW — left scrollwork */
+          '<path d="M200 26 C 180 26 168 18 156 18 C 142 18 138 32 124 32 C 110 32 108 18 96 18 C 84 18 82 28 70 28" />' +
+          '<path d="M124 32 C 124 36 122 40 118 42" />' +
+          '<path d="M96 18 C 96 14 94 10 90 8" />' +
+          '<circle cx="70" cy="28" r="1.6" fill="currentColor" />' +
+          '<circle cx="118" cy="42" r="1.4" fill="currentColor" />' +
+          '<circle cx="90" cy="8"  r="1.4" fill="currentColor" />' +
+          /* TOP ROW — right scrollwork (mirror) */
+          '<path d="M200 26 C 220 26 232 18 244 18 C 258 18 262 32 276 32 C 290 32 292 18 304 18 C 316 18 318 28 330 28" />' +
+          '<path d="M276 32 C 276 36 278 40 282 42" />' +
+          '<path d="M304 18 C 304 14 306 10 310 8" />' +
+          '<circle cx="330" cy="28" r="1.6" fill="currentColor" />' +
+          '<circle cx="282" cy="42" r="1.4" fill="currentColor" />' +
+          '<circle cx="310" cy="8"  r="1.4" fill="currentColor" />' +
+          /* BOTTOM ROW — horizontal vine band with flower dots */
+          '<path d="M70 60 C 110 56 150 64 200 60 C 250 56 290 64 330 60" />' +
+          '<g fill="currentColor">' +
+            '<circle cx="100" cy="62" r="1.8" />' +
+            '<circle cx="135" cy="58" r="1.8" />' +
+            '<circle cx="170" cy="62" r="1.8" />' +
+            '<circle cx="200" cy="58" r="2.2" />' +
+            '<circle cx="230" cy="62" r="1.8" />' +
+            '<circle cx="265" cy="58" r="1.8" />' +
+            '<circle cx="300" cy="62" r="1.8" />' +
+          '</g>' +
+          /* BOTTOM ROW — small leaves around each flower dot */
+          '<g fill="none">' +
+            '<path d="M100 62 q -6 -4 -10 0" />' +
+            '<path d="M100 62 q  6 -4  10 0" />' +
+            '<path d="M170 62 q -6 -4 -10 0" />' +
+            '<path d="M170 62 q  6 -4  10 0" />' +
+            '<path d="M230 62 q -6 -4 -10 0" />' +
+            '<path d="M230 62 q  6 -4  10 0" />' +
+            '<path d="M300 62 q -6 -4 -10 0" />' +
+            '<path d="M300 62 q  6 -4  10 0" />' +
+          '</g>' +
+        '</g>' +
+      '</svg>';
+    endMarkerWrapper.innerHTML = ornamentSvgMarkup;
     return endMarkerWrapper;
   }
 
@@ -168,11 +213,17 @@
       proseElement.style.minHeight = fullPageHeightPx + 'px';
     }
     clearOverlayMarkers(overlay);
-    /* Page number badges only — NO horizontal page-break line.
-       Boundaries between pages are signalled by the badge
-       incrementing in the right margin. The line was visually
-       noisy wherever it fell because pixel-fixed boundaries
-       always cross live text. */
+    /* Dashed page-break line between every two consecutive pages
+       (N-1 lines for N pages). Rendered via the ghost-line
+       treatment in CSS: ::before pseudo at z-index -1 + 40%
+       opacity so the line sits BEHIND prose text instead of
+       slicing through letters. The "page break" label stays at
+       z-index 1 above text for readability. */
+    for (var pageBoundary = 1; pageBoundary < totalPageCount; pageBoundary++) {
+      overlay.appendChild(buildPageBoundaryLine(pageBoundary));
+    }
+    /* Page number badge per page — small circled digit in the
+       right margin (outside the prose) so it never covers text. */
     for (var pageIndex = 1; pageIndex <= totalPageCount; pageIndex++) {
       overlay.appendChild(buildPageNumberPill(pageIndex));
     }
