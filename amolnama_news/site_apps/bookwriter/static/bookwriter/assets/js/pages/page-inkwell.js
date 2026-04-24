@@ -461,6 +461,14 @@
     if (prose) {
       prose.dataset.chapterId = String(chapterPayload.id || '');
       prose.innerHTML = chapterPayload.html || '';
+      /* Page-break overlay (visual A4 markers) needs to recompute
+         after the prose innerHTML is replaced wholesale — the
+         per-element ResizeObserver should fire too, but a manual
+         nudge guarantees the markers update in the same paint
+         frame the new content lands in. */
+      if (window.bookwriterPageBreaks && window.bookwriterPageBreaks.refresh) {
+        window.bookwriterPageBreaks.refresh();
+      }
     }
     // Reset the manuscript scroll to the top of the new chapter.
     // Without this, the scrollbar keeps the previous chapter's

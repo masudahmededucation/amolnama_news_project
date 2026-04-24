@@ -591,6 +591,120 @@ body.bookwriter-standalone {
 
 .bookwriter-ornament svg { width: 14px; height: 14px; }
 
+/* Visual A4 page-break markers — purely cosmetic. Rendered by
+   bookwriter-page-breaks.js into an absolute-positioned overlay
+   that's a child of .bookwriter-prose / .bookwriter-focus-text.
+   Markers DO NOT split content across pages — they're a visual
+   guide so the writer has a sense of "page count" while writing.
+   pointer-events: none so they never intercept clicks / typing
+   / image drag-drop. */
+.bookwriter-page-break-overlay {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+/* Breathing-room band — instead of a bare 1px line slammed against
+   prose text above and below, the marker is a 32px-tall band with
+   a paper-coloured background. The dashed line sits in the middle
+   of the band, with ~16px clear paper above and below. The band
+   covers any prose text that falls in that vertical zone (a small
+   trade-off vs the visual mess of a line cutting through letters). */
+/* Ghost-line treatment (B + C combo) — the dashed line is a
+   ::before pseudo-element pushed BEHIND the prose text via
+   z-index: -1, so prose characters sit ON TOP of it (no
+   strike-through feel). Opacity is faded so the line reads as
+   a soft UI guide instead of a hard divider. The label is a
+   real flow child at z-index: 1 — above text — so it stays
+   readable even where it crosses prose. */
+.bookwriter-page-break-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  height: 0;
+  display: flex;
+  justify-content: center;
+}
+.bookwriter-page-break-marker::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 0;
+  border-top: 1px dashed var(--ink-whisper, #b3a692);
+  opacity: 0.4;
+  z-index: -1;
+}
+.bookwriter-page-break-label {
+  /* Translate up by 50% so the label sits CENTERED on the line
+     instead of below it. Paper-coloured background + padding
+     creates a visual break in the dashed line around the label.
+     z-index: 1 keeps the label readable on top of any prose
+     text it happens to overlap. */
+  position: relative;
+  z-index: 1;
+  transform: translateY(-50%);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--ink-fade, #7a6f5e);
+  background: var(--paper, #f4ede0);
+  padding: 0 10px;
+}
+
+/* End-of-chapter marker — same ghost-line pattern as the page-
+   break marker but solid accent line + serif accent label so it
+   reads as a different landmark from the dashed page-break
+   dividers. */
+.bookwriter-end-chapter-marker::before {
+  border-top-style: solid;
+  border-top-color: var(--accent, #8b2a1f);
+  opacity: 0.6;
+}
+.bookwriter-end-chapter-label {
+  font-family: 'Fraunces', serif;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: 0.1em;
+  color: var(--accent, #8b2a1f);
+}
+
+/* Page number badge — small round circle with the number inside.
+   Sits OUTSIDE the prose's right edge in the manuscript margin so
+   it never covers text. Negative `right` pushes it past the
+   prose's right boundary into the surrounding manuscript padding
+   (.bookwriter-manuscript has 64px on each side). */
+.bookwriter-page-number-pill {
+  position: absolute;
+  right: -44px;
+  z-index: 2;
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--ink-fade, #7a6f5e);
+  background: var(--paper, #f4ede0);
+  border: 1px solid var(--line);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+/* Narrow viewports — when the manuscript padding shrinks (mobile,
+   small screens), the badge won't fit outside. Tuck it back inside
+   the prose at the top-right corner. */
+@media (max-width: 720px) {
+  .bookwriter-page-number-pill {
+    right: 8px;
+  }
+}
+
 .bookwriter-prose {
   font-family: 'EB Garamond', Georgia, serif;
   font-size: 17px;
@@ -600,15 +714,28 @@ body.bookwriter-standalone {
   /* flex:1 lets the prose stretch to fill the remaining vertical
      space inside .bookwriter-page (after the focus-ribbon, chapter
      label, title and ornament). Without it, the prose stops at
-     its min-height: 400px and the red focus border looks like a
+     its min-height (one A4 page = 944px) and the red focus border looks like a
      small box floating in a tall manuscript. */
   flex: 1;
-  min-height: 400px;
+  /* Always show at least one full A4 page worth of writing
+     surface — matches the APPROX_A4_PAGE_HEIGHT_PX constant in
+     bookwriter-page-breaks.js. A new chapter with one letter
+     still feels like a real page rather than a tiny strip. */
+  min-height: 944px;
+  /* Top breathing room so the first line of prose isn't tucked
+     against whatever sits above it (chapter title / ornament /
+     focus ribbon). Real-paper top margin feel. */
+  padding-top: 48px;
   /* Prevent the browser's scroll-anchor algorithm from re-aligning
      the viewport when the prose reflows mid-resize — without this,
      dragging an image's resize corner causes the sidebar's apparent
      position to drift because the page scroll auto-adjusts. */
   overflow-anchor: none;
+  /* Anchor the stacking context here so the page-break ::before
+     line (z-index: -1) sits BEHIND prose text but ABOVE the
+     prose's own background. Without isolate, z-index: -1 escapes
+     to the parent stacking context and disappears entirely. */
+  isolation: isolate;
 }
 
 /* Same for the manuscript wrapper so the page-grow during a resize
