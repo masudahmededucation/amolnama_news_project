@@ -52,6 +52,20 @@
   var PAGE_FLIP_ANIMATION_MS     = 1300;
   var JUMP_ERROR_VISIBLE_MS      = 2200;
 
+  /* ====================================================================
+     Toggle: client-side measurement-based pagination ON/OFF.
+     true  → after page load, the bookwriter-reader-client-side-paginator
+             module re-paginates each chapter using actual rendered
+             heights (image-aware, font-aware, accurate). Replaces the
+             server pre-paginated chapter sheets with measurement-based
+             ones. Frontispiece + colophon sheets stay as server-rendered.
+     false → leave the server-pre-paginated sheets exactly as rendered.
+             Word-count algorithm output (faster initial paint, but
+             can squash chapters with images onto a single page).
+     Set to false to fall back if the client paginator misbehaves.
+     ==================================================================== */
+  var ENABLE_CLIENT_SIDE_PAGINATION = true;
+
   var sheetsAlreadyTurnedCount = 0;
   var isCurrentlyAnimating     = false;
   var isBookCurrentlyOpen      = false;
@@ -373,4 +387,103 @@
   });
 
   refreshPageIndicator();
+
+  /* ====================================================================
+     Client-side measurement-based pagination — runs after page load
+     when ENABLE_CLIENT_SIDE_PAGINATION is true. Uses the paginator
+     module to re-paginate each chapter's raw HTML based on actual
+     rendered heights, then replaces the server-pre-paginated chapter
+     sheets in the DOM. Frontispiece + colophon sheets stay as
+     server-rendered (their content never changes).
+
+     Refreshes nav state (page indicator max, jump-input max, button
+     disabled state) after the rebuild because the sheet count may
+     differ from the server's word-count estimate.
+
+     Falls back silently to server-rendered sheets if anything goes
+     wrong (paginator module missing, JSON parse fails, etc.) — never
+     leaves the user with a broken reader.
+     ==================================================================== */
+  function _rebuildChapterSheetsWithClientSidePaginator() {
+    if (!ENABLE_CLIENT_SIDE_PAGINATION) return;
+    if (!pagesContainerElement) return;
+
+    var paginatorModule = window.bookwriterReaderClientSidePaginator;
+    if (!paginatorModule
+        || typeof paginatorModule.paginateAllChaptersAndBuildSheetsHtml !== 'function') {
+      return;
+    }
+
+    var rawDataElement = document.getElementById(
+      'bookwriter-book-reader-chapters-raw-html-data'
+    );
+    if (rawDataElement === null) return;
+
+    var chaptersData;
+    try {
+      chaptersData = JSON.parse(rawDataElement.textContent);
+    } catch (parseError) {
+      console.error('bookwriter reader: parse chapters-raw-html-data', parseError);
+      return;
+    }
+    if (!Array.isArray(chaptersData) || chaptersData.length === 0) return;
+
+    paginatorModule.paginateAllChaptersAndBuildSheetsHtml(chaptersData)
+      .then(function (paginationResult) {
+        if (!paginationResult || !paginationResult.sheetsHtml) return;
+
+        // Locate the colophon sheet — chapter sheets are inserted
+        // BEFORE it. Frontispiece sheet is the first; chapter sheets
+        // are everything between frontispiece and colophon.
+        var frontispieceSheet = pagesContainerElement.querySelector(
+          '[data-bookwriter-sheet-type="frontispiece"]'
+        );
+        var colophonSheet = pagesContainerElement.querySelector(
+          '[data-bookwriter-sheet-type="colophon"]'
+        );
+
+        // Remove every existing chapter sheet (server-pre-paginated).
+        var existingChapterSheets = pagesContainerElement.querySelectorAll(
+          '[data-bookwriter-sheet-type="chapter"]'
+        );
+        for (var existingIndex = 0; existingIndex < existingChapterSheets.length; existingIndex++) {
+          existingChapterSheets[existingIndex].parentNode.removeChild(
+            existingChapterSheets[existingIndex]
+          );
+        }
+
+        // Insert the new client-paginated chapter sheets between
+        // frontispiece and colophon. Use insertAdjacentHTML for speed
+        // (single innerHTML parse rather than per-sheet appendChild).
+        var insertionAnchorNode = colophonSheet || null;
+        if (insertionAnchorNode) {
+          insertionAnchorNode.insertAdjacentHTML(
+            'beforebegin', paginationResult.sheetsHtml,
+          );
+        } else if (frontispieceSheet) {
+          frontispieceSheet.insertAdjacentHTML(
+            'afterend', paginationResult.sheetsHtml,
+          );
+        } else {
+          pagesContainerElement.insertAdjacentHTML(
+            'beforeend', paginationResult.sheetsHtml,
+          );
+        }
+
+        // Re-collect sheet element list + refresh nav state.
+        allPageSheetElements = Array.prototype.slice.call(
+          pagesContainerElement.querySelectorAll('.bookwriter-book-reader-page-sheet')
+        );
+        totalSheetCount = allPageSheetElements.length;
+        if (jumpInputElement && totalSheetCount > 0) {
+          jumpInputElement.max = String(totalSheetCount);
+        }
+        refreshPageIndicator();
+      })
+      .catch(function (paginationError) {
+        console.error('bookwriter reader: client-side paginator failed', paginationError);
+      });
+  }
+
+  _rebuildChapterSheetsWithClientSidePaginator();
 })();

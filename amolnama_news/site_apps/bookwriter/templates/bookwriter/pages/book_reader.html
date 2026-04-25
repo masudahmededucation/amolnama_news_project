@@ -57,7 +57,7 @@
       <div class="bookwriter-book-reader-pages" id="bookwriter-book-reader-pages">
 
         {# Sheet 1 — frontispiece front + table of contents back #}
-        <div class="bookwriter-book-reader-page-sheet">
+        <div class="bookwriter-book-reader-page-sheet" data-bookwriter-sheet-type="frontispiece">
           <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
             <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
             <div class="bookwriter-book-reader-frontispiece">
@@ -109,7 +109,7 @@
             chapter; that face renders blank (with paper grain still)
         {% endcomment %}
         {% for book_sheet in book_reader_sheets_list %}
-          <div class="bookwriter-book-reader-page-sheet">
+          <div class="bookwriter-book-reader-page-sheet" data-bookwriter-sheet-type="chapter">
             <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
               <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
               {% comment %}Running header — chapter name + title at top of every page (book convention).{% endcomment %}
@@ -134,7 +134,7 @@
         {% endfor %}
 
         {# Closing colophon sheet #}
-        <div class="bookwriter-book-reader-page-sheet">
+        <div class="bookwriter-book-reader-page-sheet" data-bookwriter-sheet-type="colophon">
           <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
             <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
             <div class="bookwriter-book-reader-colophon">
@@ -278,5 +278,12 @@
     pagination.
   {% endcomment %}
   {{ book_chapters_raw_html_for_client_pagination|json_script:"bookwriter-book-reader-chapters-raw-html-data" }}
+  {% comment %}
+    Paginator module MUST load before page-book-reader.js — page-book-
+    reader's client-pagination invocation reads
+    `window.bookwriterReaderClientSidePaginator` which this module
+    exposes.
+  {% endcomment %}
+  <script defer src="{% static 'bookwriter/assets/js/modules/bookwriter-reader-client-side-paginator.js' %}?v={{ static_cache_buster }}"></script>
   <script defer src="{% static 'bookwriter/assets/js/pages/page-book-reader.js' %}?v={{ static_cache_buster }}"></script>
 {% endblock %}
