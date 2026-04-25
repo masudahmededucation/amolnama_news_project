@@ -267,5 +267,16 @@
 {% endblock %}
 
 {% block extra_js %}
+  {% comment %}
+    JSON island carrying every chapter's RAW HTML (un-paginated) for
+    the client-side measurement paginator in page-book-reader.js. The
+    server-side pagination above (book_reader_sheets_list) renders the
+    initial sheets so the page works without JS; the JS then optionally
+    re-paginates using actual rendered heights for visually-accurate
+    page splits. Toggle: ENABLE_CLIENT_SIDE_PAGINATION constant at the
+    top of page-book-reader.js — set false to fall back to server-side
+    pagination.
+  {% endcomment %}
+  {{ book_chapters_raw_html_for_client_pagination|json_script:"bookwriter-book-reader-chapters-raw-html-data" }}
   <script defer src="{% static 'bookwriter/assets/js/pages/page-book-reader.js' %}?v={{ static_cache_buster }}"></script>
 {% endblock %}

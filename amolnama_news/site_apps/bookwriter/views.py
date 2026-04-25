@@ -462,6 +462,22 @@ def bookwriter_book_reader(request, book_id):
     )
     cover_palette = resolve_book_cover_palette(current_book, saved_cover_design)
 
+    # Client-side paginator (browser measurement) reads this list to
+    # re-paginate chapters using actual rendered heights — gives more
+    # visually-accurate page splits than the server-side word-count
+    # algorithm for chapters with images / unusual content. Both code
+    # paths are kept; a JS toggle (ENABLE_CLIENT_SIDE_PAGINATION at
+    # the top of page-book-reader.js) switches between them so we can
+    # fall back to server pagination if the client paginator misbehaves.
+    book_chapters_raw_html_for_client_pagination = [
+        {
+            'chapter_number': chapter_dict['chapter_number'],
+            'chapter_title': chapter_dict['chapter_title'],
+            'chapter_html': chapter_dict['chapter_html'],
+        }
+        for chapter_dict in book_chapters_for_reader
+    ]
+
     return render(request, 'bookwriter/pages/book_reader.html', {
         'current_book': current_book,
         'book_title_for_display': book_title_for_display,
@@ -469,6 +485,8 @@ def bookwriter_book_reader(request, book_id):
         'book_author_for_display': book_author_for_display,
         'book_chapters_for_reader': book_chapters_for_reader,
         'book_reader_sheets_list': book_reader_sheets_list,
+        'book_chapters_raw_html_for_client_pagination':
+            book_chapters_raw_html_for_client_pagination,
         'cover_main_hex': cover_palette['main'],
         'cover_dark_hex': cover_palette['dark'],
         'cover_gold_hex': cover_palette['gold'],
