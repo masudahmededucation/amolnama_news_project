@@ -149,13 +149,24 @@ body.bookwriter-standalone {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  /* align-self: start + max-height caps the rail to viewport height
-     (minus the global chrome above it) so the chapters list inside
-     can scroll internally when it overflows. Without these, the rail
-     stretched to the full grid-row height and the inner overflow-y
-     never engaged — chapters list just grew off-screen with no
-     scrollbar. NOT using position: sticky here (caused an empty band
-     at the top in the prior collapse experiment). */
+  /* Sticky-to-viewport — mirrors the working .bookwriter-cover-rail
+     pattern below in this file. The manuscript can grow much taller
+     than the viewport while the writer is editing a long chapter; if
+     the rail is NOT sticky, it scrolls up with the page and the
+     bottom-anchored .bookwriter-book-info block (book title / author
+     / word + chapter counts / "Book settings" trigger) disappears
+     off the top of the viewport. The user reported "BOOK SETTINGS
+     keeps pushing up" — that was the rail riding the page-scroll out
+     of sight. With position: sticky + top set to the real chrome
+     height (page-inkwell.js writes the runtime value into
+     --bookwriter-header-offset), the rail stays pinned to the top of
+     the visible viewport so book-info always sits at the visual
+     bottom-left of the screen, no matter how many chapters exist or
+     how far the user has scrolled. align-self: start + max-height
+     keep the rail capped to viewport height so the inner chapters
+     list scrolls internally rather than stretching the grid row. */
+  position: sticky;
+  top: var(--bookwriter-header-offset, 64px);
   align-self: start;
   max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
   max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
