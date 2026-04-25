@@ -278,6 +278,16 @@
   transform-style: preserve-3d;
   transition: transform 1.3s cubic-bezier(.645, .045, .355, 1);
   border-radius: 2px 4px 4px 2px;
+  /* `will-change: transform` plus `translateZ(0)` keeps each sheet
+     on its own GPU compositor layer permanently. Without this, the
+     browser promotes the sheet to its own layer ONLY at the moment
+     the transform-transition starts — that promotion involves a
+     re-paint of the sheet and the layers below, which presented to
+     the user as a one-frame "snapshot" of the next page right
+     before the flip animation began. With the layer pre-promoted,
+     the transform is GPU-only and starts smoothly with no paint. */
+  will-change: transform;
+  transform: translateZ(0);
 }
 
 /* Stacking order — first sheet on top, later sheets underneath */
