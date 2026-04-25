@@ -169,10 +169,17 @@
     if (sheetsAlreadyTurnedCount >= totalSheetCount - 1) return;
     isCurrentlyAnimating = true;
     var sheetBeingTurned = allPageSheetElements[sheetsAlreadyTurnedCount];
-    sheetBeingTurned.classList.add(SHEET_TURNING_CLASS_NAME);
-    requestAnimationFrame(function () {
-      sheetBeingTurned.classList.add(SHEET_FLIPPED_CLASS_NAME);
-    });
+    // Apply both classes in the SAME synchronous tick so the browser
+    // composites the shade overlay AND the rotation start in the
+    // same paint frame. The old pattern (add `turning`, then RAF →
+    // add `flipped`) gave one paint cycle where the shade overlay
+    // was visible but the rotation hadn't started yet — that's the
+    // "jumpy snapshot" the user saw right before the page actually
+    // turned. The CSS engine batches both class adds into one style
+    // change and starts the transform transition immediately.
+    sheetBeingTurned.classList.add(
+      SHEET_TURNING_CLASS_NAME, SHEET_FLIPPED_CLASS_NAME,
+    );
     setTimeout(function () {
       sheetBeingTurned.classList.remove(SHEET_TURNING_CLASS_NAME);
       isCurrentlyAnimating = false;
@@ -183,9 +190,9 @@
   }
 
   function turnToPreviousSheet() {
-    if (isCurrentlyAnimating || isPendingAutoActionAfterOpen) return;
-    // Auto-open if Prev clicked on a closed book — same reason as
-    // turnToNextSheet. Then no-op (no previous page from page 1).
+    if (isCurrentlyAnimating) return;
+    // Closed book + Prev click = JUST open the cover (same model as
+    // turnToNextSheet — one animation per click).
     if (!isBookCurrentlyOpen) {
       openTheBook();
       return;
@@ -194,10 +201,12 @@
     isCurrentlyAnimating = true;
     sheetsAlreadyTurnedCount--;
     var sheetBeingTurned = allPageSheetElements[sheetsAlreadyTurnedCount];
+    // Same single-frame application as turnToNextSheet — add `turning`
+    // and remove `flipped` in the same paint cycle so we never see
+    // a transient state where the shade is visible but the rotation
+    // back hasn't started.
     sheetBeingTurned.classList.add(SHEET_TURNING_CLASS_NAME);
-    requestAnimationFrame(function () {
-      sheetBeingTurned.classList.remove(SHEET_FLIPPED_CLASS_NAME);
-    });
+    sheetBeingTurned.classList.remove(SHEET_FLIPPED_CLASS_NAME);
     setTimeout(function () {
       sheetBeingTurned.classList.remove(SHEET_TURNING_CLASS_NAME);
       isCurrentlyAnimating = false;
