@@ -1,9 +1,74 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-24 (Owner-preview Book Reader + library card rework)
+  Last refreshed: 2026-04-24 (Reader page-face overflow + paginator bugfixes)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-24  Book reader page-face containment + client paginator fixes.
+
+              Two regressions cleared in the 3D book reader
+              (/bookwriter/read/<id>/):
+
+              1. Chapter prose was visible BELOW the book area, with
+                 the bottom jump-tab pill overlapping it. Root cause
+                 was a stale collected static file: source CSS had
+                 `overflow: hidden` on
+                   .bookwriter-book-reader-page-face
+                 (it had been temporarily removed earlier as part of
+                 a failed Chrome "snapshot before flip" experiment,
+                 then restored), but project_static_collected/ kept
+                 the broken version because no collectstatic was run
+                 after the restore. Browser + service-worker cache
+                 then served the broken file.
+                 Fix: ran collectstatic, verified source/collected
+                 in sync, bumped CACHE_NAME (v895 → v896) so the
+                 service worker re-fetches.
+
+              2. Image inside chapter body could be silently lost or
+                 duplicated by the client-side paginator. Root cause:
+                 the sentence-split branch of
+                   _paginateGhostChildrenIntoPages
+                 in modules/bookwriter-reader-client-side-paginator.js
+                 appended a working clone paragraph alongside the
+                 still-attached original full paragraph in the ghost
+                 measurer. Every measurement immediately overflowed,
+                 the function pushed the full original as one page
+                 AND the same content again as sentence-split pages,
+                 which inflated rendered sheet content and could
+                 collide with the page-face containment bug above.
+                 Fix: explicit
+                   ghostElement.removeChild(nodeBeingMeasured)
+                 before appending the working clone.
+                 Also added Bengali sentence-end punctuation `।`
+                 (U+0964) to the sentence-split regex so Bengali
+                 prose paginates at natural sentence boundaries.
+
+              Defaulted ENABLE_CLIENT_SIDE_PAGINATION to FALSE in
+              pages/page-book-reader.js — server-side word-count
+              pagination is the proven, shipping path; the client
+              measurement-based paginator is kept in tree but
+              disabled until the user opts back in.
+
+              Files touched:
+                site_apps/bookwriter/static/bookwriter/assets/css/pages/
+                    page-book-reader.css   (re-confirmed overflow:hidden
+                                            on .page-face)
+                site_apps/bookwriter/static/bookwriter/assets/js/pages/
+                    page-book-reader.js    (toggle default → false)
+                site_apps/bookwriter/static/bookwriter/assets/js/modules/
+                    bookwriter-reader-client-side-paginator.js
+                                           (remove original before
+                                            sentence-split append;
+                                            Bengali `।` in split regex;
+                                            descriptive variable name
+                                            si → sheetBuildIndex)
+                site_apps/seo/views.py     (CACHE_NAME → amolnama-v896)
+                project_static_collected/  (re-deployed via collectstatic)
+
+              See also notes/claude/app_documentation/app-troubleshooting.txt
+              entry "R-bookwriter-book-reader-content-bleeds-below-page-and-
+              overlaps-jump-tab" for full root-cause analysis and lessons.
+
   2026-04-24  Owner-preview Book Reader (3D leather-bound) + library
               card action rework.
 

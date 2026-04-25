@@ -143,7 +143,7 @@
   position: absolute;
   inset: 30px;
   border: 2px solid var(--bookwriter-reader-cover-gold);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   box-shadow: inset 0 0 0 5px rgba(201, 169, 97, .4);
   pointer-events: none;
   z-index: 1;
@@ -278,14 +278,6 @@
   transform-style: preserve-3d;
   transition: transform 1.3s cubic-bezier(.645, .045, .355, 1);
   border-radius: 2px 4px 4px 2px;
-  /* `will-change: transform` plus `translateZ(0)` keeps each sheet
-     on its own GPU compositor layer permanently. Without this, the
-     browser promotes the sheet to its own layer ONLY at the moment
-     the transform-transition starts — that promotion involves a
-     re-paint of the sheet and the layers below, which presented to
-     the user as a one-frame "snapshot" of the next page right
-     before the flip animation began. With the layer pre-promoted,
-     the transform is GPU-only and starts smoothly with no paint. */
   will-change: transform;
   transform: translateZ(0);
 }
@@ -324,6 +316,12 @@
   inset: 0;
   backface-visibility: hidden;
   border-radius: 2px 4px 4px 2px;
+  /* overflow: hidden RESTORED. Removing it (per a Google research
+     suggestion to fix the snapshot glitch) caused chapter content
+     to spill out the bottom of the face and overlap the jump-tab
+     below the book. Containing content correctly takes priority
+     over the snapshot fix; the snapshot bug needs a different
+     approach (likely server-side or a non-3D animation). */
   overflow: hidden;
   background:
     radial-gradient(ellipse at 30% 20%, var(--bookwriter-reader-paper-bg-1) 0%, transparent 50%),
@@ -334,10 +332,7 @@
 .bookwriter-book-reader-page-front {
   /* Bottom padding 160px so the last line of body text sits well
      above the bottom edge of the page (book convention — generous
-     bottom margin gives the page a settled, finished look). The
-     folio (bottom-right at 30px) lives in this padding zone, and
-     the jump-tab below the book has its own clearance via the
-     wrapper-anchored top calc. */
+     bottom margin gives the page a settled, finished look). */
   padding: 55px 65px 160px;
 }
 .bookwriter-book-reader-page-back {
@@ -766,7 +761,7 @@
               background var(--duration-fast, .2s) ease,
               box-shadow var(--duration-fast, .2s) ease;
   box-shadow: inset 0 1px 2px rgba(26, 20, 16, .15);
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   -moz-appearance: textfield;
   min-height: var(--touch-target);
 }
@@ -798,7 +793,7 @@
   cursor: pointer;
   padding: 6px 12px;
   letter-spacing: .5px;
-  border-radius: 2px;
+  border-radius: var(--radius-xs);
   min-height: var(--touch-target);
   transition: background var(--duration-fast, .2s) ease,
               border-color var(--duration-fast, .2s) ease;
@@ -821,7 +816,7 @@
   background: var(--bookwriter-reader-stage-bg-1);
   color: var(--bookwriter-reader-paper-bg-1);
   padding: 8px 16px;
-  border-radius: 3px;
+  border-radius: var(--radius-xs);
   font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
   font-size: var(--text-sm);
   font-weight: 500;

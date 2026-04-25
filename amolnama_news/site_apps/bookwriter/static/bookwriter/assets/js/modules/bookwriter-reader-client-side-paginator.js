@@ -136,98 +136,118 @@
      whitespace, returning an array of substring chunks. Preserves
      the punctuation. Best-effort: doesn't understand abbreviations
      (Mr., Dr., etc.) but for prose-heavy chapters this is fine.
+     Bengali sentence-end punctuation `।` (U+0964 DEVANAGARI DANDA) is
+     included alongside `.!?` so a Bengali paragraph splits at the
+     same natural sentence boundaries an English paragraph does.
   ---------------------------------------------------------------- */
   function _splitInnerHtmlAtSentenceBoundaries(innerHtmlString) {
     if (!innerHtmlString) return [''];
-    // Split after . ! ? followed by whitespace. Lookbehind keeps the
-    // punctuation attached to the preceding sentence.
-    var sentenceChunks = innerHtmlString.split(/(?<=[.!?])\s+/);
+    // Split after . ! ? । followed by whitespace. Lookbehind keeps
+    // the punctuation attached to the preceding sentence.
+    var sentenceChunks = innerHtmlString.split(/(?<=[.!?।])\s+/);
     if (sentenceChunks.length === 0) return [innerHtmlString];
     return sentenceChunks;
   }
 
   /* ----------------------------------------------------------------
-     Core paginator — given chapter HTML, returns an array of HTML
-     strings, one per page-face that the chapter occupies.
+     Core paginator — walks the ghost's already-loaded child nodes,
+     moving them one-by-one and measuring scrollHeight after each
+     append. Crucially uses the ORIGINAL ghost nodes (not clones from
+     a fresh innerHTML parse) so images that were already loaded by
+     `_waitForFontsAndImagesInGhost` retain their natural dimensions
+     during measurement. Cloning + re-parsing creates new <img>
+     elements whose naturalHeight is 0 until the load event fires,
+     which made scrollHeight measurements wrong and silently dropped
+     content (the parrot-disappearing bug).
   ---------------------------------------------------------------- */
-  function _paginateOneChapterIntoPages(chapterHtml, ghostElement, pageHeightPx) {
-    if (!chapterHtml || !chapterHtml.trim()) return [''];
-
-    // Use a temp container to extract top-level child nodes safely.
-    // Browser parses the HTML — handles <img> and other void elements
-    // natively (no Python-side void-element bug).
-    var tempContainer = document.createElement('div');
-    tempContainer.innerHTML = chapterHtml;
-    var topLevelChildNodes = Array.prototype.slice.call(tempContainer.childNodes);
+  function _paginateGhostChildrenIntoPages(ghostElement, pageHeightPx) {
+    // Snapshot the children, then clear ghost to start measurement
+    // from empty state. The snapshotted nodes still hold their
+    // already-loaded image data (browser keeps the elements alive).
+    var topLevelChildNodes = Array.prototype.slice.call(ghostElement.childNodes);
+    ghostElement.innerHTML = '';
 
     var paginatedPagesHtml = [];
 
-    // Reset ghost
-    ghostElement.innerHTML = '';
-
     for (var nodeIndex = 0; nodeIndex < topLevelChildNodes.length; nodeIndex++) {
       var nodeBeingMeasured = topLevelChildNodes[nodeIndex];
-      // Skip text nodes that are pure whitespace — they contribute
-      // nothing meaningful and would waste a position in the loop.
+      // Skip pure-whitespace text nodes between elements.
       if (nodeBeingMeasured.nodeType === 3
           && !nodeBeingMeasured.nodeValue.replace(/\s+/g, '').length) {
         continue;
       }
 
-      var clonedNode = nodeBeingMeasured.cloneNode(true);
-      ghostElement.appendChild(clonedNode);
+      // MOVE the original node into the ghost (not a clone). Image
+      // dimensions are preserved.
+      ghostElement.appendChild(nodeBeingMeasured);
 
       if (ghostElement.scrollHeight <= pageHeightPx) {
-        // Fits — leave the clone in the ghost and continue to next block.
+        // Fits — leave node in ghost and continue.
         continue;
       }
 
-      // Did not fit. Two sub-cases:
-      // (a) The ghost had OTHER content already (this block is the
-      //     overflow-causer). Flush ghost as a page, start a fresh
-      //     ghost containing just this block.
-      // (b) The ghost was empty before this block (block alone is
-      //     taller than a full page). Try the sentence-split fallback
-      //     to break the block across pages.
-      ghostElement.removeChild(clonedNode);
+      // Did not fit. Two sub-cases.
+      ghostElement.removeChild(nodeBeingMeasured);
 
-      if (ghostElement.children.length > 0 || ghostElement.innerHTML.trim().length > 0) {
-        // sub-case (a)
+      var ghostHasContent = (
+        ghostElement.children.length > 0
+        || ghostElement.innerHTML.trim().length > 0
+      );
+
+      if (ghostHasContent) {
+        // sub-case (a): flush prior content as a page, retry node on
+        // a fresh empty page.
         paginatedPagesHtml.push(ghostElement.innerHTML);
         ghostElement.innerHTML = '';
-        ghostElement.appendChild(clonedNode);
+        ghostElement.appendChild(nodeBeingMeasured);
 
         if (ghostElement.scrollHeight <= pageHeightPx) {
-          // Fits on a fresh page — continue.
+          // Fits on fresh page — continue.
           continue;
         }
-        // Block is bigger than a full empty page → fall through to (b).
+        // Falls through to sub-case (b): node alone exceeds page.
       }
+      // (If ghostHasContent was false, the node is already removed
+      // and ghost is empty — we land here with the node detached.)
 
-      // sub-case (b): block alone exceeds the page. Sentence-split
-      // fallback only makes sense for paragraph-like blocks; for an
-      // image taller than a page (rare — would need to be enormous),
-      // accept the overflow (CSS overflow:hidden clips it).
+      // sub-case (b): the block alone is taller than the page.
       var isParagraphLike = (
-        clonedNode.nodeType === 1
-        && (clonedNode.tagName === 'P' || clonedNode.tagName === 'BLOCKQUOTE')
+        nodeBeingMeasured.nodeType === 1
+        && (nodeBeingMeasured.tagName === 'P' || nodeBeingMeasured.tagName === 'BLOCKQUOTE')
       );
+
       if (!isParagraphLike) {
-        // Non-text block (img, etc.) bigger than a page. Leave as-is
-        // on its own page; CSS will clip the overflow.
-        if (ghostElement.innerHTML.length > 0) {
-          paginatedPagesHtml.push(ghostElement.innerHTML);
-          ghostElement.innerHTML = '';
+        // Non-text block (image, etc.) taller than a page. Put it on
+        // its OWN page (CSS overflow:hidden clips the bottom). Critical:
+        // re-attach the node to the ghost first so it's actually
+        // included in the flushed HTML — the original code dropped the
+        // image here (the parrot-disappearing bug). Then push and reset.
+        if (!ghostElement.contains(nodeBeingMeasured)) {
+          ghostElement.appendChild(nodeBeingMeasured);
         }
+        paginatedPagesHtml.push(ghostElement.innerHTML);
+        ghostElement.innerHTML = '';
         continue;
       }
 
-      // Sentence-split the paragraph
-      var originalInnerHtml = clonedNode.innerHTML;
-      ghostElement.removeChild(clonedNode);
+      // Sentence-split paragraph: build a working <p> sentence-by-
+      // sentence and flush whenever it overflows.
+      // CRITICAL: remove the original full paragraph from the ghost
+      // before appending the working clone. Reaching this branch via
+      // the `ghostHasContent` path above leaves nodeBeingMeasured
+      // attached to ghost (it was re-appended on a fresh page after
+      // the prior-content flush). If we then append workingParagraph
+      // alongside, ghost ends up with BOTH — and the next sentence
+      // measurement immediately overflows, pushing the full original
+      // paragraph as one page AND emitting sentence-split copies after,
+      // duplicating the same prose across multiple pages.
+      if (ghostElement.contains(nodeBeingMeasured)) {
+        ghostElement.removeChild(nodeBeingMeasured);
+      }
+      var originalInnerHtml = nodeBeingMeasured.innerHTML;
       var sentenceChunks = _splitInnerHtmlAtSentenceBoundaries(originalInnerHtml);
 
-      var workingParagraph = clonedNode.cloneNode(false);  // empty <p> with same attrs
+      var workingParagraph = nodeBeingMeasured.cloneNode(false);  // empty clone with same attrs
       workingParagraph.innerHTML = '';
       ghostElement.appendChild(workingParagraph);
 
@@ -241,18 +261,19 @@
         );
 
         if (ghostElement.scrollHeight > pageHeightPx) {
-          // Roll back the last sentence, flush page.
+          // Roll back, flush page, start fresh paragraph with the
+          // overflowing sentence.
           workingParagraph.innerHTML = contentBeforeSentence;
           paginatedPagesHtml.push(ghostElement.innerHTML);
           ghostElement.innerHTML = '';
-          workingParagraph = clonedNode.cloneNode(false);
+          workingParagraph = nodeBeingMeasured.cloneNode(false);
           workingParagraph.innerHTML = sentenceText;
           ghostElement.appendChild(workingParagraph);
         }
       }
     }
 
-    // Flush any remaining content on the ghost as the last page.
+    // Flush any remaining content as the last page.
     if (ghostElement.innerHTML.trim().length > 0) {
       paginatedPagesHtml.push(ghostElement.innerHTML);
     }
@@ -328,14 +349,20 @@
     var frontFaceParts = [
       '<div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">',
         '<div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>',
-        '<div class="bookwriter-book-reader-running-header">', runningHeaderText, '</div>',
     ];
     if (sheetData.is_chapter_start_on_front) {
+      // Chapter opening page: kicker on line 1, title on line 2.
+      // No running header here — would duplicate the same info.
       frontFaceParts.push(
         '<div class="bookwriter-book-reader-chapter-number-kicker">Chapter ',
           sheetData.chapter_number,
         '</div>',
         '<h2 class="bookwriter-book-reader-chapter-title">', chapterTitleHtmlSafe, '</h2>',
+      );
+    } else {
+      // Continuation page: running header at top, body below.
+      frontFaceParts.push(
+        '<div class="bookwriter-book-reader-running-header">', runningHeaderText, '</div>',
       );
     }
     frontFaceParts.push(
@@ -392,35 +419,39 @@
       lineHeight:     lineHeight,
     });
 
-    // First load every chapter's HTML into the ghost so we can wait
-    // for fonts + images of all chapters at once. Then re-paginate.
-    var combinedHtmlForAssetWarmup = '';
-    for (var ci = 0; ci < chaptersData.length; ci++) {
-      combinedHtmlForAssetWarmup += chaptersData[ci].chapter_html || '';
-    }
-    ghostElement.innerHTML = combinedHtmlForAssetWarmup;
+    // Per-chapter sequential pagination: load THIS chapter's HTML
+    // into the ghost, await its fonts+images, paginate using the
+    // already-loaded ghost children. Done sequentially via a Promise
+    // chain so each chapter's images are guaranteed loaded (with
+    // their natural dimensions known) before measurement.
+    var chaptersWithPaginatedPages = [];
 
-    return _waitForFontsAndImagesInGhost(ghostElement).then(function () {
-      var chaptersWithPaginatedPages = [];
-      for (var chapterIndex = 0; chapterIndex < chaptersData.length; chapterIndex++) {
-        var chapter = chaptersData[chapterIndex];
-        var paginatedPages = _paginateOneChapterIntoPages(
-          chapter.chapter_html, ghostElement, pageFaceContentHeightPx,
+    function _paginateOneChapterSequentially(chapterIndex) {
+      if (chapterIndex >= chaptersData.length) {
+        return Promise.resolve();
+      }
+      var chapter = chaptersData[chapterIndex];
+      ghostElement.innerHTML = chapter.chapter_html || '';
+      return _waitForFontsAndImagesInGhost(ghostElement).then(function () {
+        var paginatedPages = _paginateGhostChildrenIntoPages(
+          ghostElement, pageFaceContentHeightPx,
         );
         chaptersWithPaginatedPages.push({
           chapterNumber: chapter.chapter_number,
           chapterTitle:  chapter.chapter_title,
           pagesHtmlList: paginatedPages,
         });
-      }
+        return _paginateOneChapterSequentially(chapterIndex + 1);
+      });
+    }
 
+    return _paginateOneChapterSequentially(0).then(function () {
       var packedSheetsData = _packChapterPagesIntoSheetData(chaptersWithPaginatedPages);
       var concatenatedSheetsHtml = '';
-      for (var si = 0; si < packedSheetsData.length; si++) {
-        concatenatedSheetsHtml += buildSheetHtmlString(packedSheetsData[si]);
+      for (var sheetBuildIndex = 0; sheetBuildIndex < packedSheetsData.length; sheetBuildIndex++) {
+        concatenatedSheetsHtml += buildSheetHtmlString(packedSheetsData[sheetBuildIndex]);
       }
 
-      // Tear down the ghost
       if (ghostElement.parentNode) {
         ghostElement.parentNode.removeChild(ghostElement);
       }

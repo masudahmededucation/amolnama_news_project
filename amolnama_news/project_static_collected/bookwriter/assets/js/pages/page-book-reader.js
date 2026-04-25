@@ -62,9 +62,17 @@
      false → leave the server-pre-paginated sheets exactly as rendered.
              Word-count algorithm output (faster initial paint, but
              can squash chapters with images onto a single page).
-     Set to false to fall back if the client paginator misbehaves.
+
+     DEFAULT IS FALSE — the server-side word-count pagination is the
+     proven path that has been shipping. The client-side measurement
+     paginator ships disabled by default so a fresh page load always
+     renders predictable sheets; flip this to `true` to opt into the
+     experimental measurement-based path (gives more visually accurate
+     page splits when chapters contain images, but the path is newer
+     and less battle-tested). Both code paths are kept in tree so the
+     toggle is the only switch — no code change needed to compare.
      ==================================================================== */
-  var ENABLE_CLIENT_SIDE_PAGINATION = true;
+  var ENABLE_CLIENT_SIDE_PAGINATION = false;
 
   var sheetsAlreadyTurnedCount = 0;
   var isCurrentlyAnimating     = false;
@@ -183,14 +191,11 @@
     if (sheetsAlreadyTurnedCount >= totalSheetCount - 1) return;
     isCurrentlyAnimating = true;
     var sheetBeingTurned = allPageSheetElements[sheetsAlreadyTurnedCount];
-    // Apply both classes in the SAME synchronous tick so the browser
-    // composites the shade overlay AND the rotation start in the
-    // same paint frame. The old pattern (add `turning`, then RAF →
-    // add `flipped`) gave one paint cycle where the shade overlay
-    // was visible but the rotation hadn't started yet — that's the
-    // "jumpy snapshot" the user saw right before the page actually
-    // turned. The CSS engine batches both class adds into one style
-    // change and starts the transform transition immediately.
+    // Plain synchronous classList add — back to baseline. The various
+    // RAF / setTimeout / force-reflow / Z-stagger / contain / opacity
+    // experiments to fix the Chrome jumpy snapshot DID NOT WORK and
+    // some made the visual worse. Until a real fix is identified, we
+    // revert to the simplest path so we don't pile on artifacts.
     sheetBeingTurned.classList.add(
       SHEET_TURNING_CLASS_NAME, SHEET_FLIPPED_CLASS_NAME,
     );
@@ -215,10 +220,7 @@
     isCurrentlyAnimating = true;
     sheetsAlreadyTurnedCount--;
     var sheetBeingTurned = allPageSheetElements[sheetsAlreadyTurnedCount];
-    // Same single-frame application as turnToNextSheet — add `turning`
-    // and remove `flipped` in the same paint cycle so we never see
-    // a transient state where the shade is visible but the rotation
-    // back hasn't started.
+    // Plain synchronous class manipulation — reverted to baseline.
     sheetBeingTurned.classList.add(SHEET_TURNING_CLASS_NAME);
     sheetBeingTurned.classList.remove(SHEET_FLIPPED_CLASS_NAME);
     setTimeout(function () {

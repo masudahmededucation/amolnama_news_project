@@ -225,3 +225,14 @@ is that better options for seo?
 home wall posts with ids is fine, right?
 but specially all the blog posts and news article should be in bengali,
 right? better for seo right?
+
+
+
+--describe problems for google
+describe me the objectives, 
+issues you are having, 
+the thing you have tried 
+- chapter with multiple page 
+or larger text splitting logic 
+- for google. 
+include any the issues you are having

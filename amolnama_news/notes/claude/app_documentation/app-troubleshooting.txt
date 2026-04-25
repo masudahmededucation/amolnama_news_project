@@ -18,6 +18,76 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-book-reader-content-bleeds-below-page-and-overlaps-jump-tab. Chapter prose visible BELOW the book, with the jump-tab pill overlapping it
+Date: 2026-04-24
+Was: In the 3D book reader (/bookwriter/read/<id>/), once the user
+     was a few sheets in, prose from a different chapter was visible
+     in the strip BELOW the book area, and the bottom jump-tab
+     ("N / M  Page #  Go") was painted over that bleed-through
+     content. The jump-tab itself sat ~16px below the book bottom,
+     correctly positioned via
+       top: calc(40px + var(--bookwriter-reader-book-height) + 16px);
+     so the tab wasn't moving — content was escaping the page
+     downward and showing past the book's bottom edge.
+Root cause: TWO independent things stacked.
+     A. CSS: `.bookwriter-book-reader-page-face` had `overflow: hidden`
+        REMOVED earlier in the session as a (failed) attempt to fix
+        the Chrome "jumpy snapshot before flip" glitch by avoiding the
+        3D-grouping flatten pass. The chapter body inside still had
+        overflow:hidden, but the FACE itself no longer clipped — so
+        any padding overshoot or 3D rendering quirk could let inner
+        content paint outside the face's box. The source CSS was
+        later restored to include `overflow: hidden;` on .page-face,
+        BUT collectstatic was not re-run, so project_static_collected/
+        kept serving the broken (no-overflow-hidden) version. Browser
+        + service-worker cache then served the broken file.
+     B. JS paginator (when ENABLE_CLIENT_SIDE_PAGINATION=true):
+        in modules/bookwriter-reader-client-side-paginator.js the
+        sentence-split branch of `_paginateGhostChildrenIntoPages`
+        appended a working clone paragraph alongside the original
+        (still-attached) full paragraph in the ghost. The ghost
+        therefore contained BOTH, every measurement immediately
+        overflowed, and the function pushed the full original
+        paragraph as its own page AND the same content again as
+        sentence-split pages — producing duplicated prose that
+        increased the per-sheet content size and exacerbated any
+        clipping miss.
+Fix (three-layer):
+     1. CSS: re-confirmed `overflow: hidden;` on
+        `.bookwriter-book-reader-page-face` in pages/page-book-reader.css
+        (it had already been restored in source — the missing piece
+        was deployment).
+     2. Deployment: ran `python ../manage.py collectstatic --noinput`
+        from the amolnama_news/ dir; verified
+          diff -q site_apps/.../page-book-reader.css
+                  project_static_collected/.../page-book-reader.css
+        returned no output (in sync).
+     3. JS paginator: removed the original full-paragraph node from
+        the ghost BEFORE appending the working sentence-split clone:
+          if (ghostElement.contains(nodeBeingMeasured)) {
+            ghostElement.removeChild(nodeBeingMeasured);
+          }
+     Also bumped CACHE_NAME in seo/views.py (v895 → v896) so the
+     browser + service worker re-fetch the corrected static files
+     instead of serving cached copies.
+     Also defaulted ENABLE_CLIENT_SIDE_PAGINATION to FALSE in
+     pages/page-book-reader.js — the server-side word-count
+     pagination is the proven path; the client measurement paginator
+     is kept in tree but ships disabled until field-tested.
+Lesson:
+     - Whenever an animation tweak removes a containment property
+       (overflow, clip-path, contain), the FIRST regression to check
+       is whether content can now escape its box. Snapshot/flicker
+       fixes that touch containment must verify content still clips.
+     - CSS source/collected drift is a recurring pollution source.
+       After ANY CSS edit, run collectstatic in the same edit pass
+       and grep-verify the change appears in project_static_collected/
+       BEFORE bumping the cache version. CACHE_NAME bump alone does
+       not deploy — collectstatic does.
+     - Sentence-split pagination must always strip the original
+       block before appending the working clone, otherwise content
+       is measured twice and emitted twice.
+
 ### R-bookwriter-pdf-export-page-break-overlay-text-leak. Visible "page break" + "1, 2, 3" text inside PDF chapter content
 Date: 2026-04-24
 Was: Book PDF export rendered the visual page-break overlay markup
