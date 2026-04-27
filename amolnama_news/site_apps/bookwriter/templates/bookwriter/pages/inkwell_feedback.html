@@ -1,0 +1,151 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+  কলম / Reader Feedback admin sub-page.
+  Owner-only review surface for every beta comment + suggestion left
+  on the book. Lists comments most-recent-first, grouped visually by
+  chapter, with All / Open / Resolved / By-reader filter chips and a
+  one-click resolve toggle per row.
+
+  Resolve toggle calls the already-shipped endpoint:
+    POST /bookwriter/api/beta-comment/<id>/resolve/  body: {is_resolved}
+{% endcomment %}
+
+{% block title %}Reader feedback &middot; {{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }} | কলম{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap"></noscript>
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/components/breadcrumb.css' %}?v={{ static_cache_buster }}">
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-inkwell-feedback.css' %}?v={{ static_cache_buster }}">
+{% endblock %}
+
+{% block content %}
+<section class="bookwriter-feedback-page">
+  {% include "bookwriter/partials/_bookwriter_breadcrumb.html" %}
+
+  <header class="bookwriter-feedback-header">
+    <div class="bookwriter-feedback-title-block">
+      <h1 class="bookwriter-feedback-title">Reader feedback</h1>
+      <div class="bookwriter-feedback-subtitle">{{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }} &middot; {{ total_comment_count }} {{ total_comment_count|pluralize:"comment,comments" }}</div>
+    </div>
+    <div class="bookwriter-feedback-header-actions">
+      <a class="bookwriter-feedback-open-editor-link"
+         href="{{ bookwriter_open_editor_url }}"
+         id="bookwriter-feedback-open-editor-link"
+         name="bookwriter_feedback_open_editor_link">&larr; Back to editor</a>
+    </div>
+  </header>
+
+  <nav class="bookwriter-feedback-filter-bar"
+       id="bookwriter-feedback-filter-bar"
+       aria-label="Filter beta comments">
+    <button type="button"
+            class="bookwriter-feedback-filter-chip bookwriter-feedback-filter-chip-is-active"
+            id="bookwriter-feedback-filter-chip-all"
+            name="bookwriter_feedback_filter_chip_all"
+            data-bookwriter-feedback-filter-kind="all"
+            data-bookwriter-feedback-filter-value="">All <span class="bookwriter-feedback-filter-chip-count">{{ total_comment_count }}</span></button>
+    <button type="button"
+            class="bookwriter-feedback-filter-chip"
+            id="bookwriter-feedback-filter-chip-open"
+            name="bookwriter_feedback_filter_chip_open"
+            data-bookwriter-feedback-filter-kind="status"
+            data-bookwriter-feedback-filter-value="open">Open <span class="bookwriter-feedback-filter-chip-count">{{ open_comment_count }}</span></button>
+    <button type="button"
+            class="bookwriter-feedback-filter-chip"
+            id="bookwriter-feedback-filter-chip-resolved"
+            name="bookwriter_feedback_filter_chip_resolved"
+            data-bookwriter-feedback-filter-kind="status"
+            data-bookwriter-feedback-filter-value="resolved">Resolved <span class="bookwriter-feedback-filter-chip-count">{{ resolved_comment_count }}</span></button>
+    {% for reader in beta_readers_filter_list %}
+      <button type="button"
+              class="bookwriter-feedback-filter-chip bookwriter-feedback-filter-chip-reader"
+              id="bookwriter-feedback-filter-chip-reader-{{ reader.bookwriter_beta_reader_id }}"
+              name="bookwriter_feedback_filter_chip_reader_{{ reader.bookwriter_beta_reader_id }}"
+              data-bookwriter-feedback-filter-kind="reader"
+              data-bookwriter-feedback-filter-value="{{ reader.bookwriter_beta_reader_id }}">
+        <span class="bookwriter-feedback-filter-chip-reader-avatar"
+              style="--bookwriter-feedback-reader-avatar-bg: {{ reader.reader_avatar_color_hex|default:'#7a6f5e' }};">{{ reader.reader_avatar_initial|default:"?" }}</span>
+        {{ reader.reader_display_name|default:reader.reader_email|default:"Beta reader" }}
+      </button>
+    {% endfor %}
+  </nav>
+
+  {% if beta_comment_rows_list %}
+    <div class="bookwriter-feedback-comment-list"
+         id="bookwriter-feedback-comment-list">
+      {% for comment in beta_comment_rows_list %}
+        <article class="bookwriter-feedback-comment-row{% if comment.is_resolved %} bookwriter-feedback-comment-row-is-resolved{% endif %}"
+                 id="bookwriter-feedback-comment-row-{{ comment.beta_comment_id }}"
+                 data-bookwriter-beta-comment-id="{{ comment.beta_comment_id }}"
+                 data-bookwriter-beta-reader-id="{{ comment.beta_reader_id }}"
+                 data-bookwriter-comment-status="{% if comment.is_resolved %}resolved{% else %}open{% endif %}"
+                 data-bookwriter-comment-kind="{{ comment.comment_kind_code }}">
+          <header class="bookwriter-feedback-comment-row-header">
+            <div class="bookwriter-feedback-comment-row-reader">
+              <span class="bookwriter-feedback-comment-row-reader-avatar"
+                    style="--bookwriter-feedback-reader-avatar-bg: {{ comment.reader_avatar_color_hex }};"
+                    aria-hidden="true">{{ comment.reader_avatar_initial }}</span>
+              <span class="bookwriter-feedback-comment-row-reader-name">{{ comment.reader_display_name }}</span>
+              <span class="bookwriter-feedback-comment-row-reader-permission">{{ comment.beta_permission_code }}</span>
+            </div>
+            <div class="bookwriter-feedback-comment-row-meta">
+              <span class="bookwriter-feedback-comment-row-chapter">Chapter {{ comment.chapter_number }} &middot; {{ comment.chapter_display_title }}</span>
+              {% if comment.comment_kind_code == 'suggestion' %}
+                <span class="bookwriter-feedback-comment-row-kind-badge">suggestion</span>
+              {% endif %}
+            </div>
+          </header>
+
+          {% if comment.comment_anchor_text %}
+            <blockquote class="bookwriter-feedback-comment-row-anchor">{{ comment.comment_anchor_text }}</blockquote>
+          {% endif %}
+
+          <div class="bookwriter-feedback-comment-row-body">{{ comment.comment_text }}</div>
+
+          {% if comment.suggestion_replacement_text %}
+            <div class="bookwriter-feedback-comment-row-suggestion">
+              <div class="bookwriter-feedback-comment-row-suggestion-label">Suggested replacement</div>
+              <div class="bookwriter-feedback-comment-row-suggestion-text">{{ comment.suggestion_replacement_text }}</div>
+            </div>
+          {% endif %}
+
+          <footer class="bookwriter-feedback-comment-row-footer">
+            <button type="button"
+                    class="bookwriter-feedback-comment-row-resolve-button{% if comment.is_resolved %} bookwriter-feedback-comment-row-resolve-button-is-resolved{% endif %}"
+                    id="bookwriter-feedback-comment-row-resolve-button-{{ comment.beta_comment_id }}"
+                    name="bookwriter_feedback_comment_row_resolve_button_{{ comment.beta_comment_id }}"
+                    data-bookwriter-current-resolved-state="{% if comment.is_resolved %}true{% else %}false{% endif %}"
+                    aria-label="{% if comment.is_resolved %}Reopen comment{% else %}Mark resolved{% endif %}">{% if comment.is_resolved %}Reopen{% else %}Mark resolved{% endif %}</button>
+            <span class="bookwriter-feedback-comment-row-message"
+                  id="bookwriter-feedback-comment-row-message-{{ comment.beta_comment_id }}"
+                  role="status"
+                  aria-live="polite"></span>
+          </footer>
+        </article>
+      {% endfor %}
+    </div>
+    <div class="bookwriter-feedback-empty bookwriter-feedback-empty-no-match"
+         id="bookwriter-feedback-empty-no-match"
+         hidden>
+      <p class="bookwriter-feedback-empty-text">No comments match this filter.</p>
+    </div>
+  {% else %}
+    <div class="bookwriter-feedback-empty">
+      <p class="bookwriter-feedback-empty-text">
+        No reader feedback yet. Invite a beta reader from the share drawer in the editor and they'll be able to leave comments here.
+      </p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script defer src="{% static 'bookwriter/assets/js/modules/bookwriter-namespace.js' %}?v={{ static_cache_buster }}"></script>
+  <script defer src="{% static 'bookwriter/assets/js/pages/page-inkwell-feedback.js' %}?v={{ static_cache_buster }}"></script>
+{% endblock %}

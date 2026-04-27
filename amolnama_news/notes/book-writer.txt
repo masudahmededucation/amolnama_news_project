@@ -196,3 +196,43 @@ are you clear?
 it should show crumb like, book library
 -->book selection then reading/editing option-->
 reading/book editing>publication->book store
+
+
+
+you are putting all the pages for one chapter in one page - and putting scrolling - this is not a proper reading experience - no scrolling and chapter needs to break into multiple pages - use a4 page as standard page size - maybe smaller than a4. use your intelligence to show all text within our content without make the user scrolling. what do you think?
+
+
+--publish book
+do we have a process to publish a book?
+published and shared publicly book should be available to everyone.
+
+
+--market place
+it should be similar style like library
+only difference is all published book is available.
+publicly published book will be available here.
+people can come, search and read a book but not edit at all.
+no edit even for the owner in here.
+owner has to go to book
+writer pager to make the edit. 
+
+
+--promo card 
+create a promo card for books.
+keep the book library style.
+it should be one book at a time
+randomly selecting book, only if they are publicly published.
+
+
+--share book and admin panel
+book owner should be able to share with some specific users 
+then those users should be able to read.
+this will help review.
+so the bookwriter need an admin panel, right?
+
+
+--double mouse issues
+on next previous page click
+we had this issue before in somewhere else
+check troubleshooting with less words to check
+

@@ -27,6 +27,7 @@ def robots_txt(request):
         "# Bookwriter: per-user library + private editor surfaces",
         "Disallow: /bookwriter/",
         "Allow: /bookwriter/read/",
+        "Allow: /bookwriter/marketplace/",
         "",
         "# Disallow API endpoints within apps",
         "Disallow: /evaluation_vote/api/",
@@ -90,6 +91,7 @@ The platform operates in both Bengali (বাংলা) and English.
 - [শিল্পকলা (Art & Craft)]({host}art-and-craft/) — Bengali traditional and contemporary art gallery, tutorials, community uploads
 - [গল্পের ঝুলি (Stories for Kids)]({host}stories-for-kids/) — Bengali children's stories — ঠাকুরমার ঝুলি, রূপকথা, নীতিকথা, ঘুমপাড়ানি গল্প
 - [বিতর্ক (Debate)]({host}debate/) — Structured debate platform with blue/red sides, fact-checking, audience voting
+- [কলম Marketplace]({host}bookwriter/marketplace/) — Every book published through কলম: free public reading of fiction, non-fiction, poetry, and serialised works by Bangladeshi writers
 
 ## শিল্পকলা (Art & Craft)
 
@@ -203,7 +205,7 @@ def service_worker_js(request):
     concrete color values and cannot reference CSS variables.
     """
     sw_code = """\
-var CACHE_NAME = 'amolnama-v898';
+var CACHE_NAME = 'amolnama-v908';
 var OFFLINE_URL = '/';
 
 // Assets to pre-cache on install

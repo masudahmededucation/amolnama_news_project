@@ -33,6 +33,8 @@ from .views_api_helpers import (
     _refresh_book_caches,
     _resolve_book_for_owner,
     _resolve_chapter_for_owner,
+    build_book_reader_canonical_path,
+    publish_one_chapter_into_serial_release,
     _strip_html_to_plain,
     sanitize_chapter_prose_html,
 )
@@ -607,61 +609,10 @@ def api_bookwriter_chapter_publish(request, chapter_id):
         return error_response
     chapter, owning_book = resolved
 
-    candidate_title = chapter.chapter_title_en or chapter.chapter_title_bn or ''
-    public_slug = _bangla_slugify_or_fallback(candidate_title, chapter.bookwriter_chapter_id)
-
-    # Reject collisions on slug across the whole table — the index is
-    # UNIQUE so writing duplicates would fail at the DB layer anyway.
-    collision_query = (
-        SerialRelease.objects
-        .filter(public_chapter_slug=public_slug)
-        .exclude(link_bookwriter_chapter_id=chapter_id)
-    )
-    if collision_query.exists():
-        public_slug = public_slug + '-' + str(chapter.bookwriter_chapter_id)
-
-    excerpt_text = (chapter.chapter_text_plain or '').strip()[:MAX_CHAPTER_EXCERPT_LENGTH]
-    now = timezone.now()
-    release_row = (
-        SerialRelease.objects
-        .filter(link_bookwriter_chapter_id=chapter_id)
-        .first()
-    )
-    if release_row is None:
-        release_row = SerialRelease.objects.create(
-            link_bookwriter_chapter_id=chapter_id,
-            link_bookwriter_coll_book_id=chapter.link_bookwriter_coll_book_id,
-            serial_release_status_code='published',
-            scheduled_at=None,
-            published_at=now,
-            unpublished_at=None,
-            public_chapter_slug=public_slug,
-            chapter_excerpt=excerpt_text or None,
-            read_count_cached=0,
-            unique_reader_count_cached=0,
-            reaction_count_cached=0,
-            comment_count_cached=0,
-            preview_view_count_cached=0,
-            is_active=True,
-            created_at=now,
-        )
-    else:
-        release_row.serial_release_status_code = 'published'
-        release_row.published_at = now
-        release_row.unpublished_at = None
-        release_row.public_chapter_slug = public_slug
-        release_row.chapter_excerpt = excerpt_text or None
-        release_row.is_active = True
-        release_row.updated_at = now
-        release_row.save(update_fields=[
-            'serial_release_status_code',
-            'published_at',
-            'unpublished_at',
-            'public_chapter_slug',
-            'chapter_excerpt',
-            'is_active',
-            'updated_at',
-        ])
+    # Single source of truth: chapter→SerialRelease upsert lives in
+    # views_api_helpers.publish_one_chapter_into_serial_release so the
+    # bulk publish-all endpoint below shares the exact same lifecycle.
+    release_row = publish_one_chapter_into_serial_release(chapter, timezone.now())
 
     return JsonResponse({
         'ok': True,
@@ -669,11 +620,104 @@ def api_bookwriter_chapter_publish(request, chapter_id):
             'id': release_row.bookwriter_serial_release_id,
             'status_code': release_row.serial_release_status_code,
             'public_chapter_slug': release_row.public_chapter_slug,
+            # Public URL = the 3D book reader of the parent book — the
+            # single canonical reading surface. Every chapter of a book
+            # shares the same URL; the writer copies this from the row
+            # and shares it.
             'public_url': request.build_absolute_uri(
-                '/bookwriter/read/' + release_row.public_chapter_slug + '/'
+                build_book_reader_canonical_path(owning_book)
             ),
             'published_at': release_row.published_at.isoformat() if release_row.published_at else None,
         },
+    })
+
+
+@login_required
+@require_POST
+def api_bookwriter_book_publish_all(request, book_id):
+    """Bulk-publish every active chapter of a book in one click.
+
+    Calls publish_one_chapter_into_serial_release per chapter so the
+    publish lifecycle is identical to the per-chapter endpoint — no
+    forked logic. Empty chapters (zero word count) are skipped so the
+    public reader doesn't get a blank page; the response reports the
+    skip count so the writer knows exactly what happened.
+
+    Returns counts:
+      newly_published_count    — chapters that flipped to live this call
+      already_live_count       — chapters that were already live
+      skipped_empty_count      — chapters skipped (zero word count)
+      total_chapters_count     — total active chapters on the book
+      published_chapters_list  — id + slug + url for every chapter now live
+    """
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return HttpResponseForbidden('No user profile')
+
+    owning_book, error_response = _resolve_book_for_owner(book_id, user_profile_id)
+    if error_response is not None:
+        return error_response
+
+    chapters_for_book = list(
+        Chapter.objects
+        .filter(
+            link_bookwriter_coll_book_id=owning_book.bookwriter_coll_book_id,
+            is_active=True,
+        )
+        .order_by('sort_order', 'chapter_number')
+    )
+    pre_call_published_chapter_ids_set = set(
+        SerialRelease.objects
+        .filter(
+            link_bookwriter_coll_book_id=owning_book.bookwriter_coll_book_id,
+            serial_release_status_code='published',
+            is_active=True,
+        )
+        .values_list('link_bookwriter_chapter_id', flat=True)
+    )
+
+    now = timezone.now()
+    newly_published_count = 0
+    already_live_count = 0
+    skipped_empty_count = 0
+    published_chapters_response_list = []
+    # Public URL is the 3D reader of the parent book — same address
+    # for every chapter (single canonical reading surface). Built once
+    # and reused for each row in the response.
+    book_public_reader_url = request.build_absolute_uri(
+        build_book_reader_canonical_path(owning_book)
+    )
+
+    for chapter_row in chapters_for_book:
+        if not chapter_row.chapter_word_count or chapter_row.chapter_word_count <= 0:
+            # Skip empty chapter — publishing a 0-word chapter would
+            # surface a blank page in the public reader. Writer can
+            # always publish it later by adding content + clicking
+            # the per-chapter Publish button.
+            skipped_empty_count += 1
+            continue
+
+        was_already_live = (chapter_row.bookwriter_chapter_id in pre_call_published_chapter_ids_set)
+        release_row = publish_one_chapter_into_serial_release(chapter_row, now)
+        if was_already_live:
+            already_live_count += 1
+        else:
+            newly_published_count += 1
+        published_chapters_response_list.append({
+            'chapter_id':           chapter_row.bookwriter_chapter_id,
+            'chapter_number':       chapter_row.chapter_number,
+            'public_chapter_slug':  release_row.public_chapter_slug,
+            'public_url':           book_public_reader_url,
+        })
+
+    return JsonResponse({
+        'ok': True,
+        'newly_published_count':    newly_published_count,
+        'already_live_count':       already_live_count,
+        'skipped_empty_count':      skipped_empty_count,
+        'total_chapters_count':     len(chapters_for_book),
+        'public_book_url':          book_public_reader_url,
+        'published_chapters_list':  published_chapters_response_list,
     })
 
 

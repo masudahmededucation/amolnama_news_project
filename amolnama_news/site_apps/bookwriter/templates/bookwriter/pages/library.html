@@ -39,10 +39,23 @@
                autocomplete="off"
                aria-label="Search your books">
         <div class="bookwriter-library-count" id="bookwriter-library-count" aria-live="polite"></div>
+        <a class="bookwriter-library-marketplace-link"
+           href="{% url 'bookwriter:marketplace' %}"
+           id="bookwriter-library-marketplace-link"
+           name="bookwriter_library_marketplace_link"
+           title="Browse every publicly published book on কলম">Marketplace</a>
         <button type="button"
                 class="bookwriter-library-create-button"
                 id="bookwriter-library-create-button"
                 name="bookwriter_library_create_button">+ New book</button>
+      </div>
+    {% else %}
+      <div class="bookwriter-library-header-actions">
+        <a class="bookwriter-library-marketplace-link"
+           href="{% url 'bookwriter:marketplace' %}"
+           id="bookwriter-library-marketplace-link-anon"
+           name="bookwriter_library_marketplace_link_anon"
+           title="Browse every publicly published book on কলম">Marketplace</a>
       </div>
     {% endif %}
   </header>

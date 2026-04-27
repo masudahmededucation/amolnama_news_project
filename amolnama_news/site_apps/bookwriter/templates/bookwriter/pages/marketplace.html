@@ -1,0 +1,89 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% comment %}
+  কলম / Marketplace — public discovery page.
+  Grid of every book that has at least one published chapter. Anyone
+  can browse — no auth required. Card click opens the public reader
+  (first published chapter). Read-only — no edit/archive controls,
+  even for the owner (owner edits via /bookwriter/write/<id>/edit/).
+
+  Style contract: extends the My Library palette so the marketplace
+  reads as part of the same product, not a different app. Reuses the
+  .bookwriter-library-card visual via _marketplace_book_card.html
+  (no copy-paste — same CSS classes, slim variant partial).
+{% endcomment %}
+
+{% block title %}Marketplace &middot; কলম | আমলনামা নিউজ{% endblock %}
+
+{% block extra_head %}
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Noto+Serif+Bengali:wght@400;500;600;700&display=swap"></noscript>
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/components/breadcrumb.css' %}?v={{ static_cache_buster }}">
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-library.css' %}?v={{ static_cache_buster }}">
+  <link rel="stylesheet" href="{% static 'bookwriter/assets/css/pages/page-marketplace.css' %}?v={{ static_cache_buster }}">
+{% endblock %}
+
+{% block content %}
+<section class="bookwriter-library-page bookwriter-marketplace-page">
+  {% include "bookwriter/partials/_bookwriter_breadcrumb.html" %}
+
+  <header class="bookwriter-library-header">
+    <div class="bookwriter-library-title-block">
+      <h1 class="bookwriter-library-title">Marketplace</h1>
+      <div class="bookwriter-library-subtitle">Every book published through কলম &mdash; free to read</div>
+    </div>
+    <div class="bookwriter-library-header-actions">
+      <input type="search"
+             class="bookwriter-library-search-input bookwriter-marketplace-search-input"
+             id="bookwriter-marketplace-search-input"
+             name="bookwriter_marketplace_search_input"
+             placeholder="Search title, author&hellip;"
+             autocomplete="off"
+             aria-label="Search published books">
+      <label class="bookwriter-marketplace-sort-label"
+             for="bookwriter-marketplace-sort-select">
+        Sort
+      </label>
+      <select class="bookwriter-marketplace-sort-select"
+              id="bookwriter-marketplace-sort-select"
+              name="bookwriter_marketplace_sort_select"
+              aria-label="Sort published books">
+        <option value="recent" selected>Recently updated</option>
+        <option value="title">Title (A &rarr; Z)</option>
+        <option value="author">Author (A &rarr; Z)</option>
+        <option value="pages-desc">Longest first</option>
+        <option value="pages-asc">Shortest first</option>
+      </select>
+      <div class="bookwriter-library-count" id="bookwriter-marketplace-count" aria-live="polite">{{ marketplace_total_book_count }} {{ marketplace_total_book_count|pluralize:"book,books" }}</div>
+    </div>
+  </header>
+
+  {% if marketplace_books_list %}
+    <div class="bookwriter-library-grid bookwriter-marketplace-grid"
+         id="bookwriter-marketplace-grid">
+      {% for book in marketplace_books_list %}
+        {% include "bookwriter/partials/_marketplace_book_card.html" with book=book %}
+      {% endfor %}
+    </div>
+    <div class="bookwriter-library-empty bookwriter-library-empty-no-match"
+         id="bookwriter-marketplace-empty-no-match"
+         hidden>
+      <div class="bookwriter-library-empty-ornament" aria-hidden="true">&#x2042;</div>
+      <p class="bookwriter-library-empty-text">No books match your search.</p>
+    </div>
+  {% else %}
+    <div class="bookwriter-library-empty">
+      <div class="bookwriter-library-empty-ornament" aria-hidden="true">&#x2042;</div>
+      <p class="bookwriter-library-empty-text">No books have been published yet. Check back soon.</p>
+    </div>
+  {% endif %}
+</section>
+{% endblock %}
+
+{% block extra_js %}
+  <script defer src="{% static 'bookwriter/assets/js/pages/page-marketplace.js' %}?v={{ static_cache_buster }}"></script>
+{% endblock %}

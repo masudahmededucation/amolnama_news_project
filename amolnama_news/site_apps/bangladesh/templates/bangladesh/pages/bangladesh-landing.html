@@ -5,7 +5,7 @@
 {% block meta_description %}{{ seo.description }}{% endblock %}
 
 {% block extra_css %}
-<link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/bangladesh-landing.css' %}">
+<link rel="stylesheet" href="{% static 'bangladesh/assets/css/pages/bangladesh-landing.css' %}?v={{ static_cache_buster }}">
 {% endblock %}
 
 {% block content %}
@@ -32,7 +32,7 @@
   {# ── Travel Hub ── #}
   <a href="{% url 'bangladesh:travel_hub' %}" class="bangladesh-hub-card bd-hub-card--travel">
     <span class="bangladesh-hub-card-arrow">→</span>
-    <div class="bangladesh-hub-card-icon"><img src="{{ MEDIA_URL }}bangladesh/travel-hub-logo.png" alt="ভ্রমণ কেন্দ্র" class="bangladesh-hub-card-logo" loading="lazy"></div>
+    <div class="bangladesh-hub-card-icon"><img src="{{ MEDIA_URL }}app_static/blogs/bangladesh/travel-hub-logo.png" alt="ভ্রমণ কেন্দ্র" class="bangladesh-hub-card-logo" loading="lazy"></div>
     <h3>ভ্রমণ কেন্দ্র (Travel Hub)</h3>
     <p>বাংলাদেশের দর্শনীয় স্থান, ভ্রমণ গাইড, হোটেল, পরিবহন ও ভ্রমণ পরিকল্পনা — Destinations, guides, hotels, transport & trip planning.</p>
     <div class="bangladesh-hub-card-stats">
@@ -67,7 +67,7 @@
   {# ── Beauty of Bangladesh ── #}
   <a href="{% url 'bangladesh:beauty_hub' %}" class="bangladesh-hub-card bd-hub-card--beauty">
     <span class="bangladesh-hub-card-arrow">→</span>
-    <div class="bangladesh-hub-card-icon"><img src="{{ MEDIA_URL }}bangladesh/beauty-of-bangladesh-logo.png" alt="বাংলার রূপ" class="bangladesh-hub-card-logo" loading="lazy"></div>
+    <div class="bangladesh-hub-card-icon"><img src="{{ MEDIA_URL }}app_static/blogs/bangladesh/beauty-of-bangladesh-logo.png" alt="বাংলার রূপ" class="bangladesh-hub-card-logo" loading="lazy"></div>
     <h3>বাংলার রূপ (Beauty of Bangladesh)</h3>
     <p>বাংলাদেশের প্রাকৃতিক সৌন্দর্য, ঐতিহাসিক স্থান, সংস্কৃতি ও ঐতিহ্য — Natural beauty, heritage sites, culture & traditions.</p>
     <div class="bangladesh-hub-card-stats">

@@ -128,6 +128,24 @@ impossible because the resolver returns exactly one nav_id per request.
       <span class="sidebar-navigation-item-label">গল্পের ঝুলি</span>
     </a>
 
+    {% comment %}
+      কলম — Bookwriter. Public marketplace + 3D book reader are open
+      to anonymous viewers; logged-in users land on their own library.
+      Sits in the creative-content cluster (Poetry → Art → Stories →
+      কলম) so a reader who's enjoying poems / stories sees "create
+      your own" as the natural next step.
+
+      When settings.BOOKWRITER_LAYOUT_MODE == 'embedded' (default),
+      Inkwell renders inside core/base.html so we use normal SPA-
+      friendly navigation. If you switch to 'standalone' mode, add
+      `target="writing_session" rel="noopener noreferrer"` to open
+      in a separate browser window instead.
+    {% endcomment %}
+    <a href="{% url 'bookwriter:library' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'bookwriter' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookwriter" name="sidebar_navigation_item_bookwriter" title="কলম — Read & write books">
+      <span class="sidebar-navigation-item-icon">✒️</span>
+      <span class="sidebar-navigation-item-label">কলম</span>
+    </a>
+
     <a href="{% url 'bangladesh:bangladesh_landing' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'bangladesh' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bangladesh" name="sidebar_navigation_item_bangladesh" title="বাংলাদেশ (Bangladesh)">
       <span class="sidebar-navigation-item-icon">🇧🇩</span>
       <span class="sidebar-navigation-item-label">বাংলাদেশ প্রকৃতি</span>
@@ -194,17 +212,6 @@ impossible because the resolver returns exactly one nav_id per request.
       <span class="sidebar-navigation-item-label">Quiz Panel</span>
     </a>
 
-    {% comment %}
-      কলম link — when settings.BOOKWRITER_LAYOUT_MODE == 'embedded'
-      (default), Inkwell renders inside core/base.html so we use
-      normal SPA-friendly navigation. If you switch to 'standalone'
-      mode, add `target="writing_session" rel="noopener noreferrer"`
-      to open in a separate browser window instead.
-    {% endcomment %}
-    <a href="{% url 'bookwriter:library' %}" class="sidebar-navigation-item sidebar-navigation-item-content-section{% if active_sidebar_nav_id == 'bookwriter' %} sidebar-navigation-item-active{% endif %}" id="sidebar-navigation-item-bookwriter" name="sidebar_navigation_item_bookwriter" title="কলম">
-      <span class="sidebar-navigation-item-icon">✒️</span>
-      <span class="sidebar-navigation-item-label">কলম</span>
-    </a>
     {% endif %}
   </div>
 </nav>

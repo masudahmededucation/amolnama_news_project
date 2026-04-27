@@ -1,0 +1,262 @@
+/* ====================================================================
+   কলম / Random book promo card (sidebar / widget surface)
+   --------------------------------------------------------------------
+   Compact library-style card for embedding ANY page (home wall,
+   blog sidebar, etc.). Single source of truth — every consumer page
+   includes the same template + same CSS, so a future palette tweak
+   propagates to every embed without finding-and-fixing N copies.
+
+   Class prefix: .bookwriter-random-book-promo-* — fully scoped so it
+   never collides with .bookwriter-library-* or any other surface.
+
+   Reads cover hex via three CSS vars injected on the cover element:
+     --bookwriter-random-promo-cover-main
+     --bookwriter-random-promo-cover-dark
+     --bookwriter-random-promo-cover-gold
+   ==================================================================== */
+
+.bookwriter-random-book-promo {
+  /* Self-contained warm-paper palette (does NOT lean on the inkwell
+     scope vars — this card embeds anywhere, including pages that
+     don't load the inkwell stylesheet). */
+  --bookwriter-random-promo-paper-bg-1: #f5ead0;
+  --bookwriter-random-promo-paper-bg-2: #ead9b4;
+  --bookwriter-random-promo-paper-edge: rgba(184, 164, 119, .6);
+  --bookwriter-random-promo-ink:        #1a1410;
+  --bookwriter-random-promo-ink-soft:   rgba(26, 20, 16, .7);
+  --bookwriter-random-promo-ink-fade:   rgba(26, 20, 16, .5);
+  --bookwriter-random-promo-accent:     #8b2a1f;
+
+  /* Per-book cover hex defaults (gracefully overridden by the inline
+     style on .bookwriter-random-book-promo-cover). */
+  --bookwriter-random-promo-cover-main: #6b1e14;
+  --bookwriter-random-promo-cover-dark: #3d0f08;
+  --bookwriter-random-promo-cover-gold: #c9a961;
+
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 18px;
+  border-radius: var(--radius-sm);
+  background:
+    radial-gradient(ellipse at 30% 20%, var(--bookwriter-random-promo-paper-bg-1) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bookwriter-random-promo-paper-bg-1) 0%, var(--bookwriter-random-promo-paper-bg-2) 100%);
+  border: 1px solid var(--bookwriter-random-promo-paper-edge);
+  box-shadow: var(--elevation-2, 0 4px 12px rgba(0, 0, 0, .12));
+  isolation: isolate;
+  font-family: 'Cormorant Garamond', 'EB Garamond', serif;
+}
+
+.bookwriter-random-book-promo-eyebrow {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--bookwriter-random-promo-ink-fade);
+  margin: 0;
+}
+
+/* ============ Card link ============ */
+.bookwriter-random-book-promo-link {
+  display: grid;
+  grid-template-columns: 96px 1fr;
+  gap: 14px;
+  text-decoration: none;
+  color: inherit;
+  border-radius: var(--radius-xs);
+  transition:
+    transform var(--duration-fast, .15s) ease,
+    box-shadow var(--duration-fast, .15s) ease;
+  min-height: var(--touch-target);
+}
+.bookwriter-random-book-promo-link:hover {
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+.bookwriter-random-book-promo-link:focus-visible {
+  outline: 2px solid var(--bookwriter-random-promo-accent);
+  outline-offset: 4px;
+}
+
+/* ============ Cover ============ */
+.bookwriter-random-book-promo-cover-frame {
+  position: relative;
+  width: 96px;
+  aspect-ratio: 2 / 3;
+  border-radius: var(--radius-xs);
+  overflow: hidden;
+  box-shadow:
+    0 1px 3px rgba(0, 0, 0, .25),
+    0 6px 14px rgba(0, 0, 0, .25);
+}
+
+.bookwriter-random-book-promo-cover {
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, .12) 0%, transparent 55%),
+    linear-gradient(135deg,
+      var(--bookwriter-random-promo-cover-main) 0%,
+      var(--bookwriter-random-promo-cover-dark) 100%);
+  padding: 14px 12px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.bookwriter-random-book-promo-cover-spine {
+  position: absolute;
+  top: 0; left: 0; bottom: 0;
+  width: 6px;
+  background:
+    linear-gradient(90deg,
+      rgba(0, 0, 0, .4) 0%,
+      rgba(0, 0, 0, .15) 50%,
+      rgba(0, 0, 0, 0) 100%);
+  pointer-events: none;
+}
+
+.bookwriter-random-book-promo-cover-border {
+  position: absolute;
+  inset: 6px;
+  border: 1px solid var(--bookwriter-random-promo-cover-gold);
+  border-radius: var(--radius-xs);
+  opacity: .6;
+  pointer-events: none;
+}
+
+.bookwriter-random-book-promo-cover-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  text-align: center;
+}
+
+.bookwriter-random-book-promo-cover-ornament {
+  font-family: 'Cormorant Garamond', serif;
+  color: var(--bookwriter-random-promo-cover-gold);
+  font-size: var(--text-sm);
+  letter-spacing: 4px;
+  opacity: .8;
+}
+
+.bookwriter-random-book-promo-cover-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: var(--text-sm);
+  letter-spacing: 1px;
+  color: var(--bookwriter-random-promo-cover-gold);
+  line-height: 1.2;
+  text-shadow: 0 1px 0 rgba(0, 0, 0, .35);
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bookwriter-random-book-promo-cover-author {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  color: var(--bookwriter-random-promo-cover-gold);
+  font-size: var(--text-xs);
+  letter-spacing: 1px;
+  opacity: .85;
+}
+
+/* ============ Meta column ============ */
+.bookwriter-random-book-promo-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.bookwriter-random-book-promo-meta-title {
+  font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
+  font-weight: 700;
+  font-size: var(--text-lg);
+  color: var(--bookwriter-random-promo-ink);
+  line-height: 1.25;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.bookwriter-random-book-promo-meta-author {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--bookwriter-random-promo-ink-soft);
+}
+
+.bookwriter-random-book-promo-meta-detail {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--bookwriter-random-promo-ink-fade);
+  margin-top: 2px;
+}
+
+.bookwriter-random-book-promo-cta {
+  margin-top: 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
+  color: var(--bookwriter-random-promo-accent);
+  font-weight: 600;
+}
+
+/* ============ Marketplace link ============ */
+.bookwriter-random-book-promo-marketplace-link {
+  align-self: flex-end;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: var(--text-xs);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bookwriter-random-promo-ink-fade);
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: var(--radius-xs);
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: color var(--duration-fast, .15s) ease,
+              background var(--duration-fast, .15s) ease;
+}
+.bookwriter-random-book-promo-marketplace-link:hover {
+  color: var(--bookwriter-random-promo-accent);
+  background: rgba(139, 42, 31, .06);
+  text-decoration: none;
+}
+.bookwriter-random-book-promo-marketplace-link:focus-visible {
+  outline: 2px solid var(--bookwriter-random-promo-accent);
+  outline-offset: 2px;
+}
+
+/* ============ Mobile breakpoint ============ */
+@media (max-width: 700px) {
+  .bookwriter-random-book-promo-link {
+    grid-template-columns: 80px 1fr;
+    gap: 12px;
+  }
+  .bookwriter-random-book-promo-cover-frame {
+    width: 80px;
+  }
+}
+
+/* ============ Reduced motion ============ */
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-random-book-promo-link,
+  .bookwriter-random-book-promo-marketplace-link {
+    transition: none;
+  }
+  .bookwriter-random-book-promo-link:hover {
+    transform: none;
+  }
+}

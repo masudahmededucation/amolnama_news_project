@@ -1001,161 +1001,185 @@
   {% endif %}
 
 
-  {# ========================== GALLERY VIEW (Public publishing) ========================== #}
+  {% comment %}
+    ========================== GALLERY VIEW (Public publishing) ==========================
+    100% DB-backed surface — every field is read from `book_publish_dashboard`
+    and `book_chapters_publish_status_list`, every button calls a real
+    endpoint. No mockup data, no decorative-only buttons.
+
+    Per-chapter publish/unpublish + copy-URL share the same JS module
+    (bookwriter-publish-controls.js) the inkwell already loads — the
+    module attaches event delegation to any `.bookwriter-publish-
+    controls-section`, so wrapping `.bookwriter-serial-list` with the
+    section class wires it up with zero extra JS.
+  {% endcomment %}
+  {% if current_book %}
   <div class="bookwriter-gallery-view">
     <aside class="bookwriter-rail bookwriter-gallery-rail-fill">
       <div class="bookwriter-brand">
         <div class="bookwriter-brand-mark">কলম</div>
-        <div class="bookwriter-brand-tag">public library</div>
+        <div class="bookwriter-brand-tag">publish</div>
       </div>
       <div class="bookwriter-rail-head">
         <h3>Reader Activity</h3>
       </div>
 
       <div class="bookwriter-gallery-stat-block">
-        <div class="bookwriter-stat-row"><span>Subscribers</span><strong>1,247</strong></div>
-        <div class="bookwriter-stat-row"><span>Chapter reads</span><strong>18,402</strong></div>
-        <div class="bookwriter-stat-row"><span>Reactions</span><strong>2,156</strong></div>
-        <div class="bookwriter-stat-row"><span>Comments</span><strong>341</strong></div>
+        <div class="bookwriter-stat-row"><span>Subscribers</span><strong>{{ book_publish_dashboard.subscribers_count|default:0 }}</strong></div>
+        <div class="bookwriter-stat-row"><span>Chapter reads</span><strong>{{ book_publish_dashboard.total_read_count|default:0 }}</strong></div>
+        <div class="bookwriter-stat-row"><span>Reactions</span><strong>{{ book_publish_dashboard.total_reaction_count|default:0 }}</strong></div>
+        <div class="bookwriter-stat-row"><span>Comments</span><strong>{{ book_publish_dashboard.total_comment_count|default:0 }}</strong></div>
       </div>
 
       <div class="bookwriter-book-info">
-        <div class="bookwriter-book-title">The Saltwater Almanac</div>
-        <div class="bookwriter-book-author">serial · 2 chapters live</div>
-        <div class="bookwriter-book-stats">
-          <div><strong>7 days</strong>until next chapter drop</div>
-        </div>
+        <div class="bookwriter-book-title">{{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }}</div>
+        <div class="bookwriter-book-author">{{ book_publish_dashboard.live_chapter_count }} of {{ book_publish_dashboard.total_chapter_count }} chapter{{ book_publish_dashboard.total_chapter_count|pluralize }} live</div>
       </div>
     </aside>
 
     <section class="bookwriter-gallery-content-pane bookwriter-gallery-content-pane-fill">
       <div class="bookwriter-gallery-header">
-        <div class="bookwriter-gallery-mark">কলম · Public Gallery</div>
-        <h1>The Saltwater Almanac</h1>
-        <p>Release your book chapter by chapter. Readers subscribe and follow along. You control the schedule, the price (if any), and the conversation.</p>
-        <div class="bookwriter-gallery-mode-switch">
-          <button type="button" class="bookwriter-gmode bookwriter-gmode-button-is-active"
-                  id="bookwriter-gallery-mode-serial-button"   name="bookwriter_gallery_mode_serial_button">Serial</button>
-          <button type="button" class="bookwriter-gmode"
-                  id="bookwriter-gallery-mode-complete-button" name="bookwriter_gallery_mode_complete_button">Complete Book</button>
-          <button type="button" class="bookwriter-gmode"
-                  id="bookwriter-gallery-mode-draft-button"    name="bookwriter_gallery_mode_draft_button">Draft</button>
+        <div class="bookwriter-gallery-mark">কলম · Publish</div>
+        <h1>{{ current_book.book_title_en|default:current_book.book_title_bn|default:"Untitled Book" }}</h1>
+        <p>Publish chapters to the public reader. The book also appears in the public Marketplace as soon as one chapter goes live.</p>
+
+        <div class="bookwriter-gallery-primary-actions">
+          <button type="button"
+                  class="bookwriter-gallery-publish-all-button"
+                  id="bookwriter-gallery-publish-all-button"
+                  name="bookwriter_gallery_publish_all_button"
+                  data-bookwriter-publish-all-endpoint="{{ book_publish_dashboard.publish_all_endpoint_url }}"
+                  data-bookwriter-book-id="{{ current_book.bookwriter_coll_book_id }}"
+                  {% if book_publish_dashboard.publishable_draft_chapter_count == 0 %}disabled aria-disabled="true" title="No draft chapters with content to publish"{% else %}aria-label="Publish all {{ book_publish_dashboard.publishable_draft_chapter_count }} draft chapters at once"{% endif %}>
+            <span class="bookwriter-gallery-publish-all-icon" aria-hidden="true">&#x1F4E2;</span>
+            <span class="bookwriter-gallery-publish-all-label">Publish all chapters</span>
+            {% if book_publish_dashboard.publishable_draft_chapter_count > 0 %}
+              <span class="bookwriter-gallery-publish-all-count">({{ book_publish_dashboard.publishable_draft_chapter_count }} ready)</span>
+            {% endif %}
+          </button>
+
+          {% if book_publish_dashboard.first_public_chapter_url %}
+            <a class="bookwriter-gallery-action-link"
+               href="{{ book_publish_dashboard.first_public_chapter_url }}"
+               id="bookwriter-gallery-open-public-reader-link"
+               name="bookwriter_gallery_open_public_reader_link"
+               target="_blank"
+               rel="noopener">View as reader &rarr;</a>
+          {% endif %}
+          <a class="bookwriter-gallery-action-link"
+             href="{{ book_publish_dashboard.public_marketplace_url }}"
+             id="bookwriter-gallery-open-marketplace-link"
+             name="bookwriter_gallery_open_marketplace_link"
+             target="_blank"
+             rel="noopener">Open Marketplace &rarr;</a>
+          <span class="bookwriter-gallery-publish-all-message"
+                id="bookwriter-gallery-publish-all-message"
+                role="status"
+                aria-live="polite"></span>
         </div>
       </div>
 
       <div class="bookwriter-gallery-body">
-        <div class="bookwriter-serial-list">
-          <h3>Published &amp; Scheduled Chapters</h3>
+        <div class="bookwriter-serial-list bookwriter-publish-controls-section"
+             id="bookwriter-gallery-publish-controls-section">
+          <h3>Chapters</h3>
 
-          <div class="bookwriter-serial">
-            <div class="bookwriter-serial-num">I.</div>
-            <div class="bookwriter-serial-body">
-              <h4>The Cartographer's Daughter</h4>
-              <div class="bookwriter-serial-excerpt">The letter arrived on a Thursday, folded twice against itself, the ink bled blue through the paper as if the words themselves had been caught out in the rain…</div>
-              <div class="bookwriter-serial-meta">
-                <span>✓ published 12 days ago</span>
-                <span>👁 8,402 reads</span>
-                <span>❤ 1,024</span>
-                <span>💬 186 comments</span>
-              </div>
-            </div>
-            <div class="bookwriter-serial-status">
-              <div class="bookwriter-status-chip bookwriter-live">● Live</div>
-              <button type="button" class="bookwriter-status-action"
-                      id="bookwriter-publish-status-manage-chapter-1-button"
-                      name="bookwriter_publish_status_manage_chapter_1_button">manage</button>
-            </div>
-          </div>
+          {% if book_chapters_publish_status_list %}
+            {% for ch in book_chapters_publish_status_list %}
+              <article class="bookwriter-serial bookwriter-publish-controls-row"
+                       id="bookwriter-publish-controls-row-{{ ch.chapter_id }}"
+                       data-bookwriter-chapter-id="{{ ch.chapter_id }}">
+                <div class="bookwriter-serial-num">{{ ch.chapter_number }}.</div>
+                <div class="bookwriter-serial-body">
+                  <h4>{{ ch.chapter_display_title }}</h4>
+                  {% if ch.chapter_excerpt_text %}
+                    <div class="bookwriter-serial-excerpt">{{ ch.chapter_excerpt_text|truncatewords:30 }}</div>
+                  {% elif ch.is_chapter_empty %}
+                    <div class="bookwriter-serial-excerpt">No content yet — open the Write tab to add chapter text.</div>
+                  {% else %}
+                    <div class="bookwriter-serial-excerpt">{{ ch.chapter_word_count }} word{{ ch.chapter_word_count|pluralize }} written.</div>
+                  {% endif %}
+                  <div class="bookwriter-serial-meta">
+                    {% if ch.is_chapter_published %}
+                      <span>&#x1F441; {{ ch.chapter_read_count }} read{{ ch.chapter_read_count|pluralize }}</span>
+                      <span>&#x2764; {{ ch.chapter_reaction_count }}</span>
+                      <span>&#x1F4AC; {{ ch.chapter_comment_count }} comment{{ ch.chapter_comment_count|pluralize }}</span>
+                    {% else %}
+                      {% if ch.is_chapter_empty %}
+                        <span>&#x25CB; not yet written</span>
+                      {% else %}
+                        <span>{{ ch.chapter_word_count }} word{{ ch.chapter_word_count|pluralize }} &middot; ready to publish</span>
+                      {% endif %}
+                    {% endif %}
+                  </div>
 
-          <div class="bookwriter-serial">
-            <div class="bookwriter-serial-num">II.</div>
-            <div class="bookwriter-serial-body">
-              <h4>A House of Small Windows</h4>
-              <div class="bookwriter-serial-excerpt">Outside, the snow was doing what snow does: falling without apology, without hurry, the way only the old snows fall in that part of the country…</div>
-              <div class="bookwriter-serial-meta">
-                <span>✓ published 5 days ago</span>
-                <span>👁 6,188 reads</span>
-                <span>❤ 814</span>
-                <span>💬 98 comments</span>
-              </div>
-            </div>
-            <div class="bookwriter-serial-status">
-              <div class="bookwriter-status-chip bookwriter-live">● Live</div>
-              <button type="button" class="bookwriter-status-action"
-                      id="bookwriter-publish-status-manage-chapter-2-button"
-                      name="bookwriter_publish_status_manage_chapter_2_button">manage</button>
-            </div>
-          </div>
+                  <div class="bookwriter-publish-controls-row-public-url-block"{% if not ch.public_chapter_url %} hidden{% endif %}>
+                    <input type="text"
+                           class="bookwriter-publish-controls-row-public-url-input"
+                           id="bookwriter-publish-controls-row-public-url-input-{{ ch.chapter_id }}"
+                           name="bookwriter_publish_controls_row_public_url_input_{{ ch.chapter_id }}"
+                           value="{{ ch.public_chapter_url }}"
+                           readonly
+                           aria-label="Public reader URL for chapter {{ ch.chapter_number }}">
+                    <button type="button"
+                            class="bookwriter-publish-controls-row-public-url-copy-button"
+                            id="bookwriter-publish-controls-row-public-url-copy-button-{{ ch.chapter_id }}"
+                            name="bookwriter_publish_controls_row_public_url_copy_button_{{ ch.chapter_id }}"
+                            aria-label="Copy public reader URL for chapter {{ ch.chapter_number }}">Copy</button>
+                  </div>
 
-          <div class="bookwriter-serial">
-            <div class="bookwriter-serial-num">III.</div>
-            <div class="bookwriter-serial-body">
-              <h4>The Letter that Arrived in Winter</h4>
-              <div class="bookwriter-serial-excerpt">She read the first line. She read it again. Then she set the letter flat on the kitchen table and pressed her palms against it…</div>
-              <div class="bookwriter-serial-meta">
-                <span>⏰ scheduled for April 25, 09:00</span>
-                <span>👁 preview: 142 views</span>
-              </div>
+                  <div class="bookwriter-publish-controls-row-message"
+                       id="bookwriter-publish-controls-row-message-{{ ch.chapter_id }}"
+                       role="status"
+                       aria-live="polite"></div>
+                </div>
+                <div class="bookwriter-serial-status">
+                  <div class="bookwriter-status-chip bookwriter-publish-controls-row-status{% if ch.is_chapter_published %} bookwriter-live bookwriter-publish-controls-row-status-is-published{% else %} bookwriter-status-chip-status-draft{% endif %}">{% if ch.is_chapter_published %}Live{% else %}Draft{% endif %}</div>
+                  <button type="button"
+                          class="bookwriter-status-action bookwriter-publish-controls-row-toggle-button{% if ch.is_chapter_published %} bookwriter-publish-controls-row-toggle-button-is-published{% endif %}"
+                          id="bookwriter-publish-controls-row-toggle-button-{{ ch.chapter_id }}"
+                          name="bookwriter_publish_controls_row_toggle_button_{{ ch.chapter_id }}"
+                          data-bookwriter-publish-action="{% if ch.is_chapter_published %}unpublish{% else %}publish{% endif %}"
+                          {% if ch.is_chapter_empty and not ch.is_chapter_published %}disabled aria-disabled="true" title="Add chapter content before publishing"{% endif %}
+                          aria-label="{% if ch.is_chapter_published %}Unpublish chapter {{ ch.chapter_number }}{% else %}Publish chapter {{ ch.chapter_number }}{% endif %}">{% if ch.is_chapter_published %}Unpublish{% else %}Publish{% endif %}</button>
+                </div>
+              </article>
+            {% endfor %}
+          {% else %}
+            <div class="bookwriter-publish-controls-empty">
+              No chapters yet. Open the Write tab to add your first chapter — then come back here to publish it.
             </div>
-            <div class="bookwriter-serial-status">
-              <div class="bookwriter-status-chip bookwriter-scheduled">◷ Scheduled</div>
-              <button type="button" class="bookwriter-status-action"
-                      id="bookwriter-publish-status-reschedule-chapter-3-button"
-                      name="bookwriter_publish_status_reschedule_chapter_3_button">reschedule</button>
-            </div>
-          </div>
-
-          <div class="bookwriter-serial">
-            <div class="bookwriter-serial-num">IV.</div>
-            <div class="bookwriter-serial-body">
-              <h4>What the River Knew</h4>
-              <div class="bookwriter-serial-excerpt">Outline complete · 0 words written · ready for drafting next session.</div>
-              <div class="bookwriter-serial-meta">
-                <span>○ not yet written</span>
-              </div>
-            </div>
-            <div class="bookwriter-serial-status">
-              <div class="bookwriter-status-chip bookwriter-status-chip-status-draft">Draft</div>
-              <button type="button" class="bookwriter-status-action"
-                      id="bookwriter-publish-status-open-chapter-4-button"
-                      name="bookwriter_publish_status_open_chapter_4_button">open</button>
-            </div>
-          </div>
+          {% endif %}
         </div>
 
         <aside class="bookwriter-gallery-sidebar">
           <div class="bookwriter-gal-card">
-            <h4>Release Schedule</h4>
-            <div class="bookwriter-stat-row"><span>Cadence</span><strong>Weekly, Fri</strong></div>
-            <div class="bookwriter-stat-row"><span>Next drop</span><strong>Apr 25</strong></div>
-            <div class="bookwriter-stat-row"><span>Queue</span><strong>1 ready</strong></div>
-            <button type="button" class="bookwriter-publish-next bookwriter-publish-next-spaced"
-                    id="bookwriter-gallery-schedule-next-chapter-button"
-                    name="bookwriter_gallery_schedule_next_chapter_button">Schedule next chapter</button>
+            <h4>Status</h4>
+            <div class="bookwriter-stat-row"><span>Live chapters</span><strong>{{ book_publish_dashboard.live_chapter_count }}</strong></div>
+            <div class="bookwriter-stat-row"><span>Drafts</span><strong>{{ book_publish_dashboard.draft_chapter_count }}</strong></div>
+            <div class="bookwriter-stat-row"><span>Empty (skipped)</span><strong>{{ book_publish_dashboard.empty_chapter_count }}</strong></div>
+            <div class="bookwriter-stat-row"><span>Total chapters</span><strong>{{ book_publish_dashboard.total_chapter_count }}</strong></div>
           </div>
 
           <div class="bookwriter-gal-card">
-            <h4>Visibility</h4>
-            <div class="bookwriter-stat-row"><span>Public gallery</span><strong class="bookwriter-stat-status-on">On</strong></div>
-            <div class="bookwriter-stat-row"><span>Allow comments</span><strong class="bookwriter-stat-status-on">On</strong></div>
-            <div class="bookwriter-stat-row"><span>Paid subscribers</span><strong class="bookwriter-stat-status-off">Off</strong></div>
-            <div class="bookwriter-stat-row"><span>RSS feed</span><strong class="bookwriter-stat-status-on">On</strong></div>
-          </div>
-
-          <div class="bookwriter-gal-card">
-            <h4>Public URL</h4>
-            <div class="bookwriter-share-link bookwriter-share-link-flush">
-              <input id="bookwriterGalleryPublicUrl" name="bookwriterGalleryPublicUrl" type="text" value="kalom.amolnama.news/eliza/saltwater" readonly autocomplete="off">
-              <button type="button"
-                      id="bookwriter-gallery-copy-public-url-button"
-                      name="bookwriter_gallery_copy_public_url_button"
-                      onclick="copyToClipboard(this)">copy</button>
-            </div>
+            <h4>Marketplace listing</h4>
+            {% if book_publish_dashboard.live_chapter_count > 0 %}
+              <p class="bookwriter-gal-card-note">Your book is live on the public Marketplace.</p>
+              <a class="bookwriter-publish-next bookwriter-publish-next-spaced"
+                 href="{{ book_publish_dashboard.public_marketplace_url }}"
+                 id="bookwriter-gallery-marketplace-card-link"
+                 name="bookwriter_gallery_marketplace_card_link"
+                 target="_blank"
+                 rel="noopener">View Marketplace</a>
+            {% else %}
+              <p class="bookwriter-gal-card-note">Publish at least one chapter and your book will appear on the public Marketplace.</p>
+            {% endif %}
           </div>
         </aside>
       </div>
     </section>
   </div>
+  {% endif %}
 
 
   {# ========================== FOCUS MODE OVERLAY ========================== #}
@@ -1322,9 +1346,18 @@
                   data-target-book-id="{{ current_book.bookwriter_coll_book_id }}"
                   data-target-field="book_synopsis">{{ current_book.book_synopsis|default_if_none:'' }}</textarea>
       </div>
+
     </div>
   </aside>
   {% endif %}
+
+  {% comment %}
+    Publish surface lives in the Gallery view above (Publish mode tab) —
+    single canonical surface. The temporary slide-from-right
+    .bookwriter-publish-panel drawer that briefly shipped this session
+    was removed once the Gallery view became the real publish surface,
+    to avoid two places showing the same publish controls.
+  {% endcomment %}
 
 
   {# ========================== SPRINT TIMER ========================== #}

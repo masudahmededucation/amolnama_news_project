@@ -133,10 +133,27 @@
   line-height: 1;
 }
 
+/* Button variant — same .bookwriter-breadcrumb-action-link visual,
+   but applied to a real <button> (which has its own default browser
+   styles). Resets font + line-height + appearance so the button
+   renders pixel-identical to the <a> variant. */
+button.bookwriter-breadcrumb-action-link,
+.bookwriter-breadcrumb-action-button {
+  appearance: none;
+  font-family: inherit;
+  line-height: 1.2;
+  text-align: center;
+}
+
+/* (Earlier session shipped a breadcrumb publish button + drawer; both
+   removed once the Gallery view (Publish mode tab) became the single
+   canonical publish surface.) */
+
 /* Honour viewer's reduced-motion preference — no transitions. */
 @media (prefers-reduced-motion: reduce) {
   .bookwriter-breadcrumb-link,
-  .bookwriter-breadcrumb-action-link {
+  .bookwriter-breadcrumb-action-link,
+  button.bookwriter-breadcrumb-action-link {
     transition: none;
   }
 }

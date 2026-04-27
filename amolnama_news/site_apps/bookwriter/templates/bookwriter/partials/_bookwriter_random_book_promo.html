@@ -1,0 +1,48 @@
+{% load static %}
+{% comment %}
+  কলম random-book promo card. Rendered by the template tag
+  {% bookwriter_random_book_promo %} in templatetags/bookwriter_tags.py.
+  Pure markup — visual rules live in components/random-book-promo.css,
+  which any consumer page can include independently. The card click
+  opens the book's first published chapter in the public reader.
+
+  Reuses the per-book cover-hex CSS-var injection pattern (per
+  CLAUDE.md GATE 4 #2 — design rules in CSS, only data inline).
+{% endcomment %}
+<aside class="bookwriter-random-book-promo"
+       aria-labelledby="bookwriter-random-book-promo-eyebrow">
+  <div class="bookwriter-random-book-promo-eyebrow"
+       id="bookwriter-random-book-promo-eyebrow">From কলম</div>
+  <a class="bookwriter-random-book-promo-link"
+     href="{{ book.public_chapter_url }}"
+     id="bookwriter-random-book-promo-link"
+     name="bookwriter_random_book_promo_link"
+     aria-label="Read {{ book.book_title }}">
+    <div class="bookwriter-random-book-promo-cover-frame">
+      <div class="bookwriter-random-book-promo-cover"
+           style="--bookwriter-random-promo-cover-main: {{ book.cover_main_hex }}; --bookwriter-random-promo-cover-dark: {{ book.cover_dark_hex }}; --bookwriter-random-promo-cover-gold: {{ book.cover_gold_hex }};">
+        <div class="bookwriter-random-book-promo-cover-spine" aria-hidden="true"></div>
+        <div class="bookwriter-random-book-promo-cover-border" aria-hidden="true"></div>
+        <div class="bookwriter-random-book-promo-cover-content">
+          <div class="bookwriter-random-book-promo-cover-ornament" aria-hidden="true">&#x2042; &nbsp; &#x2042;</div>
+          <div class="bookwriter-random-book-promo-cover-title">{{ book.book_title }}</div>
+          {% if book.book_author %}
+            <div class="bookwriter-random-book-promo-cover-author">{{ book.book_author }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="bookwriter-random-book-promo-meta">
+      <div class="bookwriter-random-book-promo-meta-title">{{ book.book_title }}</div>
+      {% if book.book_author %}
+        <div class="bookwriter-random-book-promo-meta-author">by {{ book.book_author }}</div>
+      {% endif %}
+      <div class="bookwriter-random-book-promo-meta-detail">{{ book.book_estimated_pages }} pages &middot; published</div>
+      <div class="bookwriter-random-book-promo-cta">Read now &rarr;</div>
+    </div>
+  </a>
+  <a class="bookwriter-random-book-promo-marketplace-link"
+     href="{{ book.marketplace_url }}"
+     id="bookwriter-random-book-promo-marketplace-link"
+     name="bookwriter_random_book_promo_marketplace_link">Browse the marketplace</a>
+</aside>

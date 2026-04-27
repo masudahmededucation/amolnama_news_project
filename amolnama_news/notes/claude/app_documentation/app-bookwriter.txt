@@ -1,9 +1,323 @@
 ============================================================
   bookwriter (কলম) — Inkwell Writing Sanctuary
-  Last refreshed: 2026-04-24 (Reader page-face overflow + paginator bugfixes)
+  Last refreshed: 2026-04-27 (3D reader = canonical public surface; per-chapter URL redirects)
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-27  Single canonical public reading surface — the 3D
+              leather-bound book reader. Per-chapter public reader
+              URL becomes a redirect.
+
+              **Why**
+              Previously two reading experiences for the same content:
+                * /bookwriter/read/<id>/         — owner-only 3D reader
+                * /bookwriter/read/<slug>/       — public per-chapter reader
+              Two surfaces = two implementations = drift over time.
+              Consolidated to ONE: the 3D reader is now public-facing,
+              SEO-indexed, and the only entry-point every other page
+              links to.
+
+              **URL contract**
+                * /bookwriter/read/<int:book_id>/<slug:book_name_slug>/
+                  — canonical, primary, public, anonymous-friendly.
+                * /bookwriter/read/<int:book_id>/  — bare-id route
+                  resolved by the same view, which 301-redirects to
+                  the slugged URL (one canonical address per book).
+                * /bookwriter/read/<slug:public_chapter_slug>/  —
+                  legacy per-chapter URL still resolves so previously-
+                  shared chapter links don't 404; view 301-redirects
+                  to the parent book's 3D reader URL.
+
+              **Anonymous-friendly**
+              bookwriter_book_reader no longer redirects anon → library
+              and no longer 404s non-owner book ids. Owner-only UI
+              (Edit pencil; Close-to-library) is gated behind
+              `is_viewer_owner`; non-owners get Close-to-marketplace.
+
+              **Single source of truth (helpers)**
+              Added in views_api_helpers.py:
+                build_book_reader_canonical_slug(book) → slug
+                build_book_reader_canonical_path(book) → path
+              build_book_card_payload now emits
+              `book_reader_canonical_url` so every card consumer
+              (library, marketplace, promo) renders the same href.
+
+              **SEO**
+              The 3D reader page now passes a real `seo` context dict:
+                * title:        '<book title> · কলম | আমলনামা নিউজ'
+                * description:  'Read <book> by <author> on কলম.'
+                * canonical:    request.build_absolute_uri()
+                * og_type:      'book'
+                * json_ld:      schema.org/Book payload
+                                (name, author, numberOfPages,
+                                 inLanguage, url)
+                * noindex:      True only when the book has zero
+                                published chapters (don't index
+                                draft-only books).
+
+              **Files touched**
+                site_apps/bookwriter/urls.py
+                  — added read/<id>/<slug>/  and read/<id>/  routes
+                  — kept legacy /read/<slug>/ for redirect compat
+                site_apps/bookwriter/views.py
+                  — bookwriter_book_reader public + slug + canonical
+                    redirect + JSON-LD + is_viewer_owner gating
+                  — bookwriter_public_chapter_reader → 301 redirect
+                  — inkwell view, marketplace view: every reader URL
+                    now built from build_book_reader_canonical_path
+                site_apps/bookwriter/views_api_helpers.py
+                  — new helpers: build_book_reader_canonical_slug,
+                    build_book_reader_canonical_path
+                  — build_book_card_payload now emits
+                    `book_reader_canonical_url`
+                site_apps/bookwriter/views_api_chapter.py
+                  — publish + bulk-publish API responses now return
+                    the 3D reader URL (one URL per book) instead of
+                    per-chapter slug paths
+                site_apps/bookwriter/templatetags/bookwriter_tags.py
+                  — random promo card uses the canonical URL
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _library_book_card.html
+                  — href now reads book.book_reader_canonical_url
+                site_apps/seo/views.py
+                  — CACHE_NAME → amolnama-v906
+
+              **Engagement parked for follow-up**
+              The legacy per-chapter public reader had subscribe /
+              react / comment UI wired to the EngagementSerial* tables.
+              The 3D reader doesn't surface those yet — add them back
+              as opt-in buttons on the 3D reader in a follow-up
+              session. The DB tables + API endpoints are unchanged
+              and ready to be re-wired into new UI.
+
+
+  2026-04-27  Publish tab (Gallery view) — replaced 100% of the
+              mockup with real DB-backed UI; every button now calls
+              a real endpoint; single canonical publish surface.
+
+              **What changed**
+              The Publish mode tab inside the inkwell editor used to
+              render a hardcoded "The Saltwater Almanac / Eliza
+              Whitmore / 1,247 subscribers / Serial-Complete-Draft
+              switcher / I-IV chapter mockup / fake Apr 25 schedule
+              / kalom.amolnama.news/eliza/saltwater" prototype. Every
+              field is now read from the DB and every action wires
+              to a real endpoint:
+                * Book title / author      → current_book + UserProfile
+                * Subscribers count        → EngagementSerialSubscriber
+                * Chapter reads / reactions/ → SerialRelease cached
+                  comments                   counts summed per book
+                * Per-chapter row          → book_chapters_publish_status_list
+                  (id / title / excerpt / word count / live status /
+                  read+reaction+comment counts / public URL)
+                * Per-chapter Publish/Unpublish + Copy URL → existing
+                  bookwriter-publish-controls.js module (event-
+                  delegated on .bookwriter-publish-controls-section
+                  which now wraps the gallery serial-list).
+                * 📢 Publish all chapters  → NEW endpoint
+                  POST /bookwriter/api/book/<id>/publish-all/
+                  → views_api_chapter.api_bookwriter_book_publish_all
+                  → loops chapters, calls the shared helper
+                    publish_one_chapter_into_serial_release in
+                    views_api_helpers.py, returns counts (newly
+                    published / already live / skipped empty).
+                  The per-chapter publish endpoint was refactored to
+                  call the same helper, so bulk + per-chapter share
+                  one source of truth.
+                * View as reader / Open Marketplace links →
+                  built from book_publish_dashboard.first_public_chapter_url
+                  + book_publish_dashboard.public_marketplace_url.
+
+              **Removed (every removal driven by user direction
+              "put the publish in the publish section")**
+                * Hardcoded I-IV chapter list with manage/reschedule
+                  buttons (none of those buttons did anything)
+                * Serial / Complete Book / Draft mode switcher
+                  (no JS wiring; confusing)
+                * Release Schedule sidebar (no schedule schema in DB)
+                * Visibility toggles sidebar (no Boolean schema for
+                  Public gallery / Allow comments / Paid subscribers
+                  / RSS feed; would have been more mockup)
+                * Fake "kalom.amolnama.news/eliza/saltwater" public
+                  URL — replaced with per-chapter real URLs in each
+                  chapter row.
+                * Brief slide-from-right .bookwriter-publish-panel
+                  drawer (added earlier this session, removed once
+                  the Gallery view became the canonical surface —
+                  no two-places-doing-the-same-thing).
+                * Breadcrumb "📢 Publish" action pill (same reason).
+                * Toolbar "📢 publish" tool button (same reason).
+
+              **Files added**
+                site_apps/bookwriter/views_api_helpers.py
+                  publish_one_chapter_into_serial_release(chapter,
+                    current_timestamp) → SerialRelease
+                  MAX_CHAPTER_EXCERPT_LENGTH (moved here from
+                    views_api_chapter — both endpoints need it)
+
+              **Files touched**
+                site_apps/bookwriter/views_api_chapter.py
+                  api_bookwriter_chapter_publish refactored to call
+                    publish_one_chapter_into_serial_release.
+                  NEW: api_bookwriter_book_publish_all(request, book_id)
+                    bulk endpoint. Skips empty (zero-word) chapters.
+                site_apps/bookwriter/urls.py
+                  NEW path: api/book/<int:book_id>/publish-all/
+                    name=api_book_publish_all
+                site_apps/bookwriter/views.py
+                  bookwriter_inkwell now also builds:
+                    book_chapters_publish_status_list (extended fields)
+                    book_publish_dashboard (per-book counts +
+                      publish_all endpoint URL +
+                      first_public_chapter_url +
+                      public_marketplace_url)
+                  EngagementSerialSubscriber.count() for real subscribers.
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _inkwell_body.html
+                  Gallery view body fully replaced (lines ~1004-1158).
+                  Removed: drawer, mode switcher, hardcoded chapters,
+                    Release Schedule + Visibility sidebar cards.
+                site_apps/bookwriter/templates/bookwriter/partials/
+                    _bookwriter_breadcrumb.html
+                  Removed: Publish action pill (no longer needed).
+                site_apps/bookwriter/static/bookwriter/assets/css/
+                    components/publish-controls.css
+                  Removed: .bookwriter-publish-panel drawer rules,
+                    .bookwriter-tool-btn-publish toolbar rule.
+                  Added: gallery primary-actions row CSS
+                    (.bookwriter-gallery-publish-all-button,
+                     .bookwriter-gallery-action-link,
+                     .bookwriter-gallery-publish-all-message,
+                     .bookwriter-gal-card-note).
+                site_apps/bookwriter/static/bookwriter/assets/css/
+                    components/breadcrumb.css
+                  Removed: .bookwriter-breadcrumb-publish-button rules.
+                site_apps/bookwriter/static/bookwriter/assets/js/
+                    modules/bookwriter-publish-controls.js
+                  NEW: _wirePublishAllButton + _setPublishAllMessage
+                    (POSTs to /api/book/<id>/publish-all/, reloads
+                    on success so dashboard counters refresh in one
+                    consistent server-rendered pass).
+                  Removed: window.togglePublishPanel (drawer gone).
+                site_apps/seo/views.py
+                  CACHE_NAME → amolnama-v904.
+
+              **NO new DB tables.** All four publish features
+              (publish, unpublish, bulk publish, marketplace listing)
+              ride on existing SerialRelease + EngagementSerial*
+              schemas.
+
+
+  2026-04-27  Four new surfaces shipped end-to-end:
+
+              1. INKWELL PUBLISH UI — per-chapter publish/unpublish
+                 toggle inside the BOOK SETTINGS slide-out drawer of
+                 the inkwell editor. Talks to the already-shipped
+                 endpoints POST /bookwriter/api/chapter/<id>/publish/
+                 and /unpublish/ — no new API code. Each chapter row
+                 shows status (Live/Draft), one-click toggle, and the
+                 public reader URL with a copy-to-clipboard button.
+                 Added context var `book_chapters_publish_status_list`
+                 to the inkwell view.
+                 Files added:
+                   site_apps/bookwriter/static/bookwriter/assets/css/
+                       components/publish-controls.css
+                   site_apps/bookwriter/static/bookwriter/assets/js/
+                       modules/bookwriter-publish-controls.js
+                 Files touched:
+                   site_apps/bookwriter/views.py
+                       (added book_chapters_publish_status_list build)
+                   site_apps/bookwriter/templates/bookwriter/
+                       partials/_inkwell_body.html
+                       (added publish-controls section in BOOK SETTINGS)
+                   site_apps/bookwriter/templates/bookwriter/pages/
+                       inkwell.html  +  inkwell_embedded.html
+                       (link CSS + script in both shells)
+
+              2. MARKETPLACE PAGE — /bookwriter/marketplace/, public
+                 (no auth). Lists every book that has at least one
+                 published chapter. Reuses the My Library card visual
+                 (.bookwriter-library-card-* classes) via a slim
+                 marketplace partial — same look, no owner action
+                 buttons (read-only). Card click → public reader
+                 (first published chapter). Client-side search
+                 (data-search-haystack) + sort dropdown (recent /
+                 title / author / pages). Full SEO context with
+                 JSON-LD CollectionPage + CreativeWork list. Allowed
+                 in robots.txt and added to llms.txt.
+                 Files added:
+                   site_apps/bookwriter/templates/bookwriter/pages/
+                       marketplace.html
+                   site_apps/bookwriter/templates/bookwriter/partials/
+                       _marketplace_book_card.html
+                   site_apps/bookwriter/static/bookwriter/assets/css/
+                       pages/page-marketplace.css
+                   site_apps/bookwriter/static/bookwriter/assets/js/
+                       pages/page-marketplace.js
+                 Files touched:
+                   site_apps/bookwriter/views.py
+                       (new view bookwriter_marketplace)
+                   site_apps/bookwriter/urls.py
+                       (new path 'marketplace/' above the slug catch)
+                   site_apps/seo/views.py
+                       (Allow /bookwriter/marketplace/ in robots.txt;
+                        marketplace listed in llms.txt)
+
+              3. PROMO CARD MODULE — single library-card-style card
+                 for one randomly-chosen publicly-published book.
+                 Embeddable in any template via:
+                     {% load bookwriter_tags %}
+                     {% bookwriter_random_book_promo %}
+                 Cached for 5 minutes (Django default cache) so the
+                 random pick rotates without per-request DB load.
+                 Self-contained palette so it embeds outside the
+                 inkwell scope cleanly. Returns empty string when no
+                 books are published — caller's template stays clean.
+                 Files added:
+                   site_apps/bookwriter/templatetags/__init__.py
+                   site_apps/bookwriter/templatetags/bookwriter_tags.py
+                   site_apps/bookwriter/templates/bookwriter/partials/
+                       _bookwriter_random_book_promo.html
+                   site_apps/bookwriter/static/bookwriter/assets/css/
+                       components/random-book-promo.css
+
+              4. READER-FEEDBACK ADMIN SUB-PAGE — owner-only review
+                 surface for every BetaComment row attached to a book.
+                 URL /bookwriter/write/<book_id>/feedback/. Lists
+                 comments most-recent-first with All / Open / Resolved
+                 / By-reader filter chips and one-click resolve toggle
+                 (calls existing api_bookwriter_beta_comment_resolve).
+                 Files added:
+                   site_apps/bookwriter/templates/bookwriter/pages/
+                       inkwell_feedback.html
+                   site_apps/bookwriter/static/bookwriter/assets/css/
+                       pages/page-inkwell-feedback.css
+                   site_apps/bookwriter/static/bookwriter/assets/js/
+                       pages/page-inkwell-feedback.js
+                 Files touched:
+                   site_apps/bookwriter/views.py
+                       (new view bookwriter_inkwell_feedback +
+                        bookwriter_open_feedback_url passed from the
+                        inkwell view for the breadcrumb pill)
+                   site_apps/bookwriter/urls.py
+                       (new path write/<int:book_id>/feedback/)
+                   site_apps/bookwriter/templates/bookwriter/partials/
+                       _bookwriter_breadcrumb.html
+                       (new "Feedback" action pill, opt-in via
+                        bookwriter_open_feedback_url context var)
+
+              ZERO new DB tables required — all four features ride on
+              existing schemas (SerialRelease, BetaReader, BetaShareLink,
+              BetaComment). All four wire to already-shipped API
+              endpoints — no new POST/GET handlers added.
+
+              Cache bumped to amolnama-v899 + collectstatic deployed
+              7 new static files. Django check clean. SQL Server was
+              offline locally so live RequestFactory render of DB-
+              touching paths was not exercised — template parse +
+              URL reverse + import chain all verified clean.
+
+
   2026-04-24  Book reader page-face containment + client paginator fixes.
 
               Two regressions cleared in the 3D book reader

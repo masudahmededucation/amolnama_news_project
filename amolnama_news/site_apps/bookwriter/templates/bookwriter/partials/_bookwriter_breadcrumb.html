@@ -32,8 +32,19 @@
         </ol>
       </nav>
     {% endif %}
-    {% if bookwriter_open_reader_url or bookwriter_close_link_url %}
+    {% if bookwriter_open_marketplace_url or bookwriter_open_reader_url or bookwriter_open_feedback_url or bookwriter_close_link_url %}
       <div class="bookwriter-breadcrumb-actions">
+        {% if bookwriter_open_marketplace_url %}
+          <a class="bookwriter-breadcrumb-action-link bookwriter-breadcrumb-open-marketplace-link"
+             href="{{ bookwriter_open_marketplace_url }}"
+             id="bookwriter-breadcrumb-open-marketplace-link"
+             name="bookwriter_breadcrumb_open_marketplace_link"
+             title="Marketplace — every publicly published book"
+             aria-label="Open the public marketplace">
+            <span class="bookwriter-breadcrumb-action-icon" aria-hidden="true">&#x2042;</span>
+            <span class="bookwriter-breadcrumb-action-label">Marketplace</span>
+          </a>
+        {% endif %}
         {% if bookwriter_open_reader_url %}
           <a class="bookwriter-breadcrumb-action-link bookwriter-breadcrumb-open-reader-link"
              href="{{ bookwriter_open_reader_url }}"
@@ -43,6 +54,17 @@
              aria-label="Open reader to preview this book">
             <span class="bookwriter-breadcrumb-action-icon" aria-hidden="true">&#x1F441;</span>
             <span class="bookwriter-breadcrumb-action-label">Read</span>
+          </a>
+        {% endif %}
+        {% if bookwriter_open_feedback_url %}
+          <a class="bookwriter-breadcrumb-action-link bookwriter-breadcrumb-open-feedback-link"
+             href="{{ bookwriter_open_feedback_url }}"
+             id="bookwriter-breadcrumb-open-feedback-link"
+             name="bookwriter_breadcrumb_open_feedback_link"
+             title="Reader feedback — review beta comments"
+             aria-label="Open reader-feedback admin page">
+            <span class="bookwriter-breadcrumb-action-icon" aria-hidden="true">&#x270D;</span>
+            <span class="bookwriter-breadcrumb-action-label">Feedback</span>
           </a>
         {% endif %}
         {% if bookwriter_close_link_url %}

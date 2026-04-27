@@ -567,6 +567,130 @@ def _resolve_published_release(release_id):
         return None
 
 
+# Excerpt cap for the public reader card snippet stored on
+# SerialRelease.chapter_excerpt — kept here (not in views_api_chapter)
+# because both the per-chapter publish endpoint AND the bulk publish-all
+# endpoint feed through `publish_one_chapter_into_serial_release` below
+# and need the same cap.
+MAX_CHAPTER_EXCERPT_LENGTH = 600
+
+
+def build_book_reader_canonical_slug(current_book):
+    """Build the SEO slug used in the 3D reader URL for a book.
+
+    Falls back to 'book-<id>' so books with empty / symbol-only titles
+    still get a non-empty path component. Used by every callsite that
+    builds a book-reader URL — views, template tags, API responses —
+    so the slug stays consistent across the project.
+    """
+    candidate_title = (
+        current_book.book_title_en
+        or current_book.book_title_bn
+        or ''
+    )
+    try:
+        from amolnama_news.site_apps.core.utils import bangla_slugify
+        candidate_slug = bangla_slugify(candidate_title) or ''
+    except Exception:  # noqa: BLE001 — slug helper failure must not 500 the reader
+        candidate_slug = ''
+    if not candidate_slug:
+        candidate_slug = 'book-' + str(current_book.bookwriter_coll_book_id)
+    return candidate_slug[:200]
+
+
+def build_book_reader_canonical_path(current_book):
+    """Return the canonical relative URL path of the 3D book reader for
+    a book — the single source of truth every callsite must use.
+
+    Returned path looks like:
+        /bookwriter/read/<book_id>/<book-name-slug>/
+    Caller wraps with request.build_absolute_uri() if an absolute URL
+    is needed. Keeping the helper RELATIVE means it's safe to embed in
+    DB rows, template-tag payloads, etc., without smuggling a host name
+    that might not match the request domain.
+    """
+    from django.urls import reverse  # local import — URL conf isn't loaded at import time
+    return reverse(
+        'bookwriter:read',
+        kwargs={
+            'book_id':         current_book.bookwriter_coll_book_id,
+            'book_name_slug':  build_book_reader_canonical_slug(current_book),
+        },
+    )
+
+
+def publish_one_chapter_into_serial_release(chapter, current_timestamp):
+    """SINGLE source of truth for the chapter→SerialRelease upsert.
+
+    Called by the per-chapter publish endpoint AND the bulk publish-all
+    endpoint so the publish lifecycle stays identical regardless of
+    surface. Caller passes a Chapter row + a timestamp (so a bulk loop
+    can use the same `now` across all rows).
+
+    Generates a public_chapter_slug from the chapter title (or
+    'chapter-N' if untitled). Resolves slug collisions by suffixing
+    the chapter id. Caches a 600-char text excerpt on the row for
+    the public-reader card. Returns the SerialRelease row (created or
+    updated) so the caller can serialise it into the JSON response.
+    """
+    candidate_title = chapter.chapter_title_en or chapter.chapter_title_bn or ''
+    public_slug = _bangla_slugify_or_fallback(
+        candidate_title, chapter.bookwriter_chapter_id,
+    )
+
+    collision_query = (
+        SerialRelease.objects
+        .filter(public_chapter_slug=public_slug)
+        .exclude(link_bookwriter_chapter_id=chapter.bookwriter_chapter_id)
+    )
+    if collision_query.exists():
+        public_slug = public_slug + '-' + str(chapter.bookwriter_chapter_id)
+
+    excerpt_text = (chapter.chapter_text_plain or '').strip()[:MAX_CHAPTER_EXCERPT_LENGTH]
+
+    release_row = (
+        SerialRelease.objects
+        .filter(link_bookwriter_chapter_id=chapter.bookwriter_chapter_id)
+        .first()
+    )
+    if release_row is None:
+        release_row = SerialRelease.objects.create(
+            link_bookwriter_chapter_id=chapter.bookwriter_chapter_id,
+            link_bookwriter_coll_book_id=chapter.link_bookwriter_coll_book_id,
+            serial_release_status_code='published',
+            scheduled_at=None,
+            published_at=current_timestamp,
+            unpublished_at=None,
+            public_chapter_slug=public_slug,
+            chapter_excerpt=excerpt_text or None,
+            read_count_cached=0,
+            unique_reader_count_cached=0,
+            reaction_count_cached=0,
+            comment_count_cached=0,
+            preview_view_count_cached=0,
+            is_active=True,
+            created_at=current_timestamp,
+        )
+    else:
+        release_row.serial_release_status_code = 'published'
+        release_row.published_at = current_timestamp
+        release_row.unpublished_at = None
+        release_row.public_chapter_slug = public_slug
+        release_row.chapter_excerpt = excerpt_text or None
+        release_row.is_active = True
+        release_row.updated_at = current_timestamp
+        release_row.save(update_fields=[
+            'serial_release_status_code',
+            'published_at',
+            'unpublished_at',
+            'public_chapter_slug',
+            'chapter_excerpt',
+            'is_active',
+            'updated_at',
+        ])
+    return release_row
+
+
 # =====================================================================
 # LIBRARY PAGE HELPERS — single source of truth for the My Library grid.
 # =====================================================================
@@ -700,6 +824,10 @@ def build_book_card_payload(book, cover_design_or_none, viewer_display_name=''):
         'cover_main_hex': cover_palette['main'],
         'cover_dark_hex': cover_palette['dark'],
         'cover_gold_hex': cover_palette['gold'],
+        # Single source of truth for the canonical 3D reader URL —
+        # every card (library, marketplace, promo) renders this href so
+        # all reader-entry-points stay in lockstep.
+        'book_reader_canonical_url': build_book_reader_canonical_path(book),
     }
 
 

@@ -1,0 +1,60 @@
+{% comment %}
+  Single book card for the public Marketplace grid. Receives one
+  `book` dict pre-built by views.bookwriter_marketplace (which calls
+  build_book_card_payload AND adds public_chapter_url).
+
+  Style contract: REUSES the .bookwriter-library-card-* class set so
+  the marketplace card looks identical to the My Library card — same
+  cover gradient, leather grain, gold border, meta block. The only
+  marketplace-specific class is `.bookwriter-marketplace-card` on the
+  outer <article>, used by page-marketplace.css to add small
+  marketplace-only touches (e.g. a subtle "READ" pill on hover) and by
+  page-marketplace.js to scope its search/sort to marketplace cards
+  only.
+
+  No owner action buttons (edit / archive). Marketplace is read-only —
+  the owner edits via /bookwriter/write/<id>/edit/ from My Library.
+
+  CSS-var injection (per CLAUDE.md GATE 4 #2): inline `style` carries
+  ONLY the per-book palette hexes — visual rules live in CSS files.
+{% endcomment %}
+<article class="bookwriter-library-card bookwriter-marketplace-card"
+         data-book-id="{{ book.book_id }}"
+         data-search-haystack="{{ book.book_title|lower }} {{ book.book_subtitle|lower }} {{ book.book_author|lower }}"
+         data-sort-title="{{ book.book_title|lower }}"
+         data-sort-author="{{ book.book_author|lower }}"
+         data-sort-pages="{{ book.book_estimated_pages|default:0 }}">
+  <a class="bookwriter-library-card-link"
+     href="{{ book.public_chapter_url }}"
+     id="bookwriter-marketplace-card-link-{{ book.book_id }}"
+     name="bookwriter_marketplace_card_link_{{ book.book_id }}"
+     aria-label="Read {{ book.book_title }}">
+    <div class="bookwriter-library-card-visual">
+      <div class="bookwriter-library-card-pages" aria-hidden="true"></div>
+      <div class="bookwriter-library-card-cover"
+           style="--bookwriter-library-cover-main: {{ book.cover_main_hex }}; --bookwriter-library-cover-dark: {{ book.cover_dark_hex }}; --bookwriter-library-cover-gold: {{ book.cover_gold_hex }};">
+        <div class="bookwriter-library-card-spine" aria-hidden="true"></div>
+        <div class="bookwriter-library-card-cover-border" aria-hidden="true"></div>
+        <div class="bookwriter-library-card-cover-content">
+          <div class="bookwriter-library-card-ornament" aria-hidden="true">&#x2042; &nbsp; &#x2042; &nbsp; &#x2042;</div>
+          <div class="bookwriter-library-card-cover-main">
+            <div class="bookwriter-library-card-cover-title">{{ book.book_title }}</div>
+            {% if book.book_subtitle %}
+              <div class="bookwriter-library-card-cover-subtitle">{{ book.book_subtitle }}</div>
+            {% endif %}
+          </div>
+          {% if book.book_author %}
+            <div class="bookwriter-library-card-cover-author">{{ book.book_author }}</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+    <div class="bookwriter-library-card-meta">
+      <div class="bookwriter-library-card-meta-title">{{ book.book_title }}</div>
+      {% if book.book_author %}
+        <div class="bookwriter-library-card-meta-author">{{ book.book_author }}</div>
+      {% endif %}
+      <div class="bookwriter-library-card-meta-detail">{{ book.book_estimated_pages }} pages &middot; {{ book.book_relative_updated_label }}</div>
+    </div>
+  </a>
+</article>

@@ -172,6 +172,42 @@
   box-shadow: var(--elevation-1);
 }
 
+/* Marketplace link (header pill) — sits next to "+ New book" so the
+   writer can jump to the public marketplace from the library, AND
+   anonymous viewers see it as their primary call-to-action. Outline
+   variant of the create button so the colour hierarchy stays right
+   (primary = "+ New book", secondary = "Marketplace"). */
+.bookwriter-library-marketplace-link {
+  background: transparent;
+  color: var(--bookwriter-library-accent);
+  font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
+  font-size: var(--text-base);
+  font-weight: 600;
+  letter-spacing: 1px;
+  border: 1px solid var(--bookwriter-library-accent);
+  padding: 9px 18px;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+  min-height: var(--touch-target);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  touch-action: manipulation;
+  transition: background var(--duration-fast, .2s) ease,
+              color var(--duration-fast, .2s) ease,
+              transform var(--duration-fast, .2s) ease;
+}
+.bookwriter-library-marketplace-link:hover {
+  background: var(--bookwriter-library-accent);
+  color: #fff8e8;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+.bookwriter-library-marketplace-link:focus-visible {
+  outline: 2px solid var(--bookwriter-library-accent);
+  outline-offset: 3px;
+}
+
 /* ============ GRID ============ */
 .bookwriter-library-grid {
   max-width: 1280px;

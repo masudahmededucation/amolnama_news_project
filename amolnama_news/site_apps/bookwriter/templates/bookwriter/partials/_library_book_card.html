@@ -6,7 +6,9 @@
 
   Action layout (per the v03 prototype the user picked):
     - Click cover/meta  → READ this book in the 3D reader
-                          (/bookwriter/read/<book_id>/)
+                          (book.book_reader_canonical_url — built by
+                           views_api_helpers.build_book_reader_canonical_path
+                           and shared with marketplace + promo cards)
     - ✎ Edit pencil top-right (hover-revealed circle, tooltip "Edit")
                           → opens the inkwell editor for this book
     - ✕ Archive top-LEFT (hover-revealed circle, two-click confirm)
@@ -25,7 +27,7 @@
 
   {# Primary action: clicking the cover/meta opens the 3D reader. #}
   <a class="bookwriter-library-card-link"
-     href="{% url 'bookwriter:read' book_id=book.book_id %}"
+     href="{{ book.book_reader_canonical_url }}"
      id="bookwriter-library-card-link-{{ book.book_id }}"
      name="bookwriter_library_card_link_{{ book.book_id }}"
      aria-label="Read {{ book.book_title }}">

@@ -20,6 +20,16 @@ urlpatterns = [
     # Inkwell editor for ONE specific book. Owner-only (404 otherwise).
     path("write/<int:book_id>/edit/", views.bookwriter_inkwell, name="write"),
 
+    # Reader-feedback admin sub-page — owner-only review surface for
+    # every beta comment + suggestion attached to the book. Sits in the
+    # /write/<id>/... namespace because it's an editor-side surface
+    # (the writer reviewing reader feedback), not a public reader page.
+    path(
+        "write/<int:book_id>/feedback/",
+        views.bookwriter_inkwell_feedback,
+        name="feedback",
+    ),
+
     # Library "+ New book" → POST → creates blank book + Chapter One,
     # responds with redirect_url so the JS can navigate into the editor.
     path(
@@ -33,6 +43,15 @@ urlpatterns = [
         "api/book/<int:book_id>/archive/",
         views_api_book.api_bookwriter_book_archive,
         name="api_book_archive",
+    ),
+
+    # Bulk publish — flips every word-bearing chapter of a book to
+    # 'published' in one DB pass. Reuses the per-chapter publish
+    # helper so the lifecycle is identical (no parallel logic).
+    path(
+        "api/book/<int:book_id>/publish-all/",
+        views_api_chapter.api_bookwriter_book_publish_all,
+        name="api_book_publish_all",
     ),
 
     # Phase 1B Step 1 — chapter body autosave (debounced ~800ms by JS).
@@ -316,17 +335,45 @@ urlpatterns = [
         name="api_ref_list",
     ),
 
-    # Owner preview reader — full book in the 3D leather-bound reader.
-    # Lives ABOVE the public-chapter slug pattern so a numeric path like
-    # /bookwriter/read/123/ binds to this view (int converter), not the
-    # slug converter below (which would also match "123" lexically).
+    # Public marketplace — every book with at least one published
+    # chapter. Anonymous-friendly, no auth required. Card style + URL
+    # contract mirrors My Library (writers see a familiar surface,
+    # readers see a coherent product). Sits above the /read/<slug>/
+    # pattern so the literal "marketplace" path doesn't collide with
+    # any chapter that happens to slug to "marketplace".
     path(
-        "read/<int:book_id>/",
+        "marketplace/",
+        views.bookwriter_marketplace,
+        name="marketplace",
+    ),
+
+    # 3D leather-bound book reader — the canonical reading surface.
+    # Anonymous-friendly. Owner sees Edit pencil + Close-to-library;
+    # public viewer sees Close-to-marketplace, no edit pencil.
+    #
+    # Two routes resolve to the same view:
+    #   read/<int:book_id>/<slug:book_name_slug>/  — canonical, primary
+    #   read/<int:book_id>/                        — bare-id (old links;
+    #                                                view 301-redirects
+    #                                                to the slugged URL)
+    # Both sit ABOVE the legacy /read/<slug>/ per-chapter route below
+    # so a numeric path like /read/123/ binds to the int converter.
+    path(
+        "read/<int:book_id>/<slug:book_name_slug>/",
         views.bookwriter_book_reader,
         name="read",
     ),
+    path(
+        "read/<int:book_id>/",
+        views.bookwriter_book_reader,
+        name="read_no_slug",
+    ),
 
-    # Public reader pages (no auth required).
+    # Legacy per-chapter public reader URL (/read/<slug>/) still
+    # resolves so previously-shared chapter links don't 404 — but
+    # the view now 301-redirects to the new 3D reader URL of the
+    # parent book. Engagement features (subscribe / reactions /
+    # comments) get added back to the 3D reader as a follow-up.
     path(
         "read/<slug:public_chapter_slug>/",
         views.bookwriter_public_chapter_reader,

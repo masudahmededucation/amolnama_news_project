@@ -36,6 +36,8 @@ from .models import (
 )
 from .views_api_helpers import (
     build_book_card_payload,
+    build_book_reader_canonical_path,
+    build_book_reader_canonical_slug,
     build_bookwriter_breadcrumb_trail,
     pack_chapter_pages_into_book_sheets,
     paginate_chapter_html_into_pages,
@@ -239,15 +241,39 @@ def bookwriter_inkwell(request, book_id):
     saved_cover_design_state = _read_book_cover_design_state(
         current_book.bookwriter_coll_book_id
     )
-    published_chapter_ids_set = set(
+    # Map chapter_id → SerialRelease snapshot for the BOOK SETTINGS
+    # publish-controls section (per-chapter publish/unpublish toggle +
+    # public URL with copy-to-clipboard). One DB roundtrip; the
+    # template iterates `book_chapters_list` and looks each chapter up
+    # in `chapter_publish_status_by_chapter_id` so the publish UI uses
+    # the same chapter ordering / filtering the rest of the inkwell
+    # already does.
+    serial_release_rows_for_book = list(
         SerialRelease.objects
         .filter(
             link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
-            serial_release_status_code='published',
             is_active=True,
         )
-        .values_list('link_bookwriter_chapter_id', flat=True)
+        .values(
+            'link_bookwriter_chapter_id',
+            'serial_release_status_code',
+            'public_chapter_slug',
+            'chapter_excerpt',
+            'published_at',
+            'read_count_cached',
+            'reaction_count_cached',
+            'comment_count_cached',
+        )
     )
+    chapter_publish_status_by_chapter_id = {
+        release_row['link_bookwriter_chapter_id']: release_row
+        for release_row in serial_release_rows_for_book
+    }
+    published_chapter_ids_set = {
+        chapter_id_value
+        for chapter_id_value, release_row in chapter_publish_status_by_chapter_id.items()
+        if release_row['serial_release_status_code'] == 'published'
+    }
     active_beta_share_links_list = list(
         BetaShareLink.objects
         .filter(
@@ -280,6 +306,115 @@ def bookwriter_inkwell(request, book_id):
             'accepted_at',
         )[:50]
     )
+    # Per-chapter publish-dashboard rows — one entry per active chapter,
+    # carrying everything the Publish-tab template needs to render a
+    # row WITHOUT going back to the DB. Single source of truth: the
+    # template iterates this list, never reads model fields directly.
+    book_chapters_publish_status_list = []
+    chapters_with_words_publishable_count = 0
+    chapters_empty_count = 0
+    chapters_currently_live_count = 0
+    chapters_currently_draft_count = 0
+    book_total_read_count = 0
+    book_total_reaction_count = 0
+    book_total_comment_count = 0
+    # Canonical 3D reader URL for THIS book — same URL regardless of
+    # which chapter the public viewer arrived from. Single read
+    # surface, one shareable URL per book.
+    book_3d_reader_canonical_url = request.build_absolute_uri(
+        build_book_reader_canonical_path(current_book)
+    )
+    has_at_least_one_published_chapter = False
+    for chapter_row in book_chapters_list:
+        release_snapshot = chapter_publish_status_by_chapter_id.get(
+            chapter_row.bookwriter_chapter_id
+        )
+        is_chapter_published = bool(
+            release_snapshot
+            and release_snapshot['serial_release_status_code'] == 'published'
+        )
+        # Per-chapter "public URL" is the SAME 3D reader URL for every
+        # row — there's a single reading surface for the whole book.
+        # The per-chapter slug stored on SerialRelease is the legacy
+        # path; the redirect view sends those URLs to the same place.
+        public_chapter_url = book_3d_reader_canonical_url if is_chapter_published else ''
+        if is_chapter_published:
+            has_at_least_one_published_chapter = True
+
+        chapter_word_count = chapter_row.chapter_word_count or 0
+        chapter_is_empty   = (chapter_word_count <= 0)
+        if chapter_is_empty:
+            chapters_empty_count += 1
+        else:
+            chapters_with_words_publishable_count += 1
+
+        if is_chapter_published:
+            chapters_currently_live_count += 1
+        else:
+            chapters_currently_draft_count += 1
+
+        chapter_read_count     = (release_snapshot or {}).get('read_count_cached')     or 0
+        chapter_reaction_count = (release_snapshot or {}).get('reaction_count_cached') or 0
+        chapter_comment_count  = (release_snapshot or {}).get('comment_count_cached')  or 0
+        book_total_read_count     += chapter_read_count
+        book_total_reaction_count += chapter_reaction_count
+        book_total_comment_count  += chapter_comment_count
+
+        chapter_published_at = (release_snapshot or {}).get('published_at')
+        chapter_excerpt_text = ((release_snapshot or {}).get('chapter_excerpt') or '').strip()
+
+        book_chapters_publish_status_list.append({
+            'chapter_id':              chapter_row.bookwriter_chapter_id,
+            'chapter_number':          chapter_row.chapter_number,
+            'chapter_display_title':   (
+                chapter_row.chapter_title_en
+                or chapter_row.chapter_title_bn
+                or ('Chapter %s' % chapter_row.chapter_number)
+            ),
+            'chapter_word_count':      chapter_word_count,
+            'chapter_excerpt_text':    chapter_excerpt_text,
+            'is_chapter_published':    is_chapter_published,
+            'is_chapter_empty':        chapter_is_empty,
+            'public_chapter_url':      public_chapter_url,
+            'chapter_published_at_iso': chapter_published_at.isoformat() if chapter_published_at else '',
+            'chapter_read_count':      chapter_read_count,
+            'chapter_reaction_count':  chapter_reaction_count,
+            'chapter_comment_count':   chapter_comment_count,
+        })
+
+    # Book-level subscriber count — real DB query against the active
+    # subscriber table. No mockup numbers ever; if zero subscribers,
+    # the template renders "0".
+    book_subscribers_count = (
+        EngagementSerialSubscriber.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+            unsubscribed_at__isnull=True,
+        )
+        .count()
+    )
+
+    # Single dict the Publish-tab template reads — keeps the template
+    # presentation-only and gives a stable contract for the section.
+    book_publish_dashboard = {
+        'total_chapter_count':            len(book_chapters_list),
+        'live_chapter_count':             chapters_currently_live_count,
+        'draft_chapter_count':            chapters_currently_draft_count,
+        'empty_chapter_count':            chapters_empty_count,
+        'publishable_draft_chapter_count': max(0, chapters_with_words_publishable_count - chapters_currently_live_count),
+        'subscribers_count':              book_subscribers_count,
+        'total_read_count':               book_total_read_count,
+        'total_reaction_count':           book_total_reaction_count,
+        'total_comment_count':            book_total_comment_count,
+        'first_public_chapter_url':       book_3d_reader_canonical_url if has_at_least_one_published_chapter else '',
+        'public_marketplace_url':         reverse('bookwriter:marketplace'),
+        'publish_all_endpoint_url':       reverse(
+            'bookwriter:api_book_publish_all',
+            kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        ),
+    }
+
     context = {
         'current_book': current_book,
         'active_chapter_id': active_chapter.bookwriter_chapter_id,
@@ -296,6 +431,8 @@ def bookwriter_inkwell(request, book_id):
         'book_bible_entries_list': book_bible_entries_list,
         'saved_cover_design_state': saved_cover_design_state,
         'published_chapter_ids_set': published_chapter_ids_set,
+        'book_chapters_publish_status_list': book_chapters_publish_status_list,
+        'book_publish_dashboard': book_publish_dashboard,
         'active_beta_share_links_list': active_beta_share_links_list,
         'active_beta_readers_list': active_beta_readers_list,
         'chapter_status_options_list': list(
@@ -330,8 +467,10 @@ def bookwriter_inkwell(request, book_id):
             current_mode_label='Editing',
         ),
         'bookwriter_close_link_url': reverse('bookwriter:library'),
-        'bookwriter_open_reader_url': reverse(
-            'bookwriter:read', kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        'bookwriter_open_marketplace_url': reverse('bookwriter:marketplace'),
+        'bookwriter_open_reader_url': build_book_reader_canonical_path(current_book),
+        'bookwriter_open_feedback_url': reverse(
+            'bookwriter:feedback', kwargs={'book_id': current_book.bookwriter_coll_book_id},
         ),
         'active_sidebar_nav_id': 'bookwriter',
     }
@@ -339,19 +478,26 @@ def bookwriter_inkwell(request, book_id):
     return render(request, template_name, context)
 
 
-def bookwriter_book_reader(request, book_id):
-    """Owner preview reader — renders the writer's own book inside the
-    3D leather-bound reader so they can see exactly what a public
-    reader will see (cover open animation, page-flip, jump-to-page,
-    paper-tab controls).
+def bookwriter_book_reader(request, book_id, book_name_slug=None):
+    """3D leather-bound book reader — the canonical reading surface
+    for both writers (preview their own draft) and public readers
+    (anyone who knows the book id / slug).
 
-    URL: /bookwriter/read/<book_id>/
+    URL: /bookwriter/read/<book_id>/<book_name_slug>/
 
-    Owner-only. Anonymous viewers redirect to library; non-owner book
-    ids 404 (don't leak existence of other users' books). All active
-    chapters are rendered — drafts included — since this is the
-    author's preview, not the public reader (which would only show
-    published serial releases).
+    Anonymous-friendly. Owner sees an Edit pencil + a Close-to-library
+    link; non-owners see Close-to-marketplace, no edit pencil. All
+    active chapters are rendered (drafts included) for the OWNER; for
+    public viewers we still render every active chapter — same UX as
+    a published novel — because the per-chapter publish flag gates
+    Marketplace listing, not in-book reading. (If a writer wants a
+    chapter strictly hidden, mark the chapter is_active=False or
+    chapter_visibility_code='private' — that path is a future polish.)
+
+    The book id alone makes the URL canonical; the slug is purely
+    for SEO + shareability. If the URL hits this view WITHOUT a slug
+    or with the wrong slug we 301-redirect to the canonical URL so
+    search engines see one address per book.
 
     Each chapter's HTML is run through `strip_page_break_overlay_from_html`
     so legacy DB rows that captured the editor's page-break overlay
@@ -359,17 +505,35 @@ def bookwriter_book_reader(request, book_id):
     word "page break" into the rendered book — same protection the PDF
     export uses."""
     user_profile_id = get_user_profile_id(request)
-    if user_profile_id is None:
-        return redirect('bookwriter:library')
 
     try:
         current_book = CollBook.objects.get(
             bookwriter_coll_book_id=book_id,
-            link_owner_user_profile_id=user_profile_id,
             is_active=True,
         )
     except CollBook.DoesNotExist:
         raise Http404('Book not found')
+
+    is_viewer_owner = (
+        user_profile_id is not None
+        and current_book.link_owner_user_profile_id == user_profile_id
+    )
+
+    # Canonical SEO redirect. If the URL is missing the slug or has the
+    # wrong slug, send a permanent 301 to the canonical URL so search
+    # engines + shared links converge on one address.
+    canonical_book_slug = build_book_reader_canonical_slug(current_book)
+    if book_name_slug != canonical_book_slug:
+        return redirect(
+            reverse(
+                'bookwriter:read',
+                kwargs={
+                    'book_id': current_book.bookwriter_coll_book_id,
+                    'book_name_slug': canonical_book_slug,
+                },
+            ),
+            permanent=True,
+        )
 
     raw_chapter_rows = list(
         Chapter.objects
@@ -445,10 +609,14 @@ def bookwriter_book_reader(request, book_id):
         or current_book.book_subtitle_en
         or ''
     )
+    # Author display: book's own author field first; for the owner's
+    # own preview we fall back to their UserProfile display_name; for
+    # anonymous + non-owner viewers we look up the BOOK OWNER's
+    # display_name so the public reader always shows the right author.
     book_author_for_display = (
         current_book.book_author_display_bn
         or current_book.book_author_display_en
-        or _resolve_viewer_display_name(user_profile_id)
+        or _resolve_viewer_display_name(current_book.link_owner_user_profile_id)
         or ''
     )
 
@@ -478,6 +646,24 @@ def bookwriter_book_reader(request, book_id):
         for chapter_dict in book_chapters_for_reader
     ]
 
+    # SEO + JSON-LD Book schema. Indexed for both anonymous + owner
+    # views (the owner reader is the same surface — there's no
+    # write-only data exposed). Tagged noindex when the book has
+    # zero published chapters so the public-only consumer (Google /
+    # Bing) doesn't surface a draft-only book to readers.
+    json_ld_book_schema_payload = {
+        '@context': 'https://schema.org',
+        '@type': 'Book',
+        'name':   book_title_for_display,
+        'author': {
+            '@type': 'Person',
+            'name': book_author_for_display,
+        } if book_author_for_display else None,
+        'numberOfPages': len(book_reader_sheets_list) or None,
+        'inLanguage': current_book.book_language_code or 'bn',
+        'url': request.build_absolute_uri(),
+    }
+
     return render(request, 'bookwriter/pages/book_reader.html', {
         'current_book': current_book,
         'book_title_for_display': book_title_for_display,
@@ -490,16 +676,41 @@ def bookwriter_book_reader(request, book_id):
         'cover_main_hex': cover_palette['main'],
         'cover_dark_hex': cover_palette['dark'],
         'cover_gold_hex': cover_palette['gold'],
+        'is_viewer_owner': is_viewer_owner,
         'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(
-            current_book=current_book,
+            current_book=current_book if is_viewer_owner else None,
             current_mode_label='Reading',
         ),
-        'bookwriter_close_link_url': reverse('bookwriter:library'),
-        'bookwriter_open_editor_url': reverse(
-            'bookwriter:write',
-            kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        # Owner: close goes to their library. Public viewer: close goes
+        # back to the marketplace — never leaks the existence of an
+        # owner-only library URL.
+        'bookwriter_close_link_url': (
+            reverse('bookwriter:library') if is_viewer_owner
+            else reverse('bookwriter:marketplace')
+        ),
+        # Edit pencil only for the owner — non-owners can't edit.
+        'bookwriter_open_editor_url': (
+            reverse(
+                'bookwriter:write',
+                kwargs={'book_id': current_book.bookwriter_coll_book_id},
+            ) if is_viewer_owner else ''
         ),
         'active_sidebar_nav_id': 'bookwriter',
+        'seo': {
+            'title': '%s &middot; কলম | আমলনামা নিউজ' % book_title_for_display,
+            'description': (
+                'Read %s by %s on কলম.' % (
+                    book_title_for_display, book_author_for_display,
+                )
+                if book_author_for_display
+                else 'Read %s on কলম.' % book_title_for_display
+            ),
+            'canonical': request.build_absolute_uri(),
+            'og_type': 'book',
+            'json_ld': json_ld_book_schema_payload,
+            # Do not index draft-only books (no chapters published).
+            'noindex': len(book_reader_sheets_list) == 0,
+        },
     })
 
 
@@ -793,38 +1004,49 @@ def _render_chapter_reader_page(request, chapter, owning_book, release_row, read
 
 
 def bookwriter_public_chapter_reader(request, public_chapter_slug):
-    """Public reader for a published chapter. Anonymous-friendly.
+    """Legacy per-chapter public reader URL — now 301-redirects to the
+    canonical 3D book reader of the parent book so we have ONE
+    reading experience and shared chapter URLs don't 404.
 
     URL: /bookwriter/read/<slug>/
+
+    Engagement features (subscribe / reactions / comments) that the
+    old per-chapter reader carried get added back to the 3D reader
+    as a follow-up — see notes/claude/app_documentation/app-bookwriter
+    .txt for the migration plan.
     """
     try:
-        release_row = SerialRelease.objects.get(
-            public_chapter_slug=public_chapter_slug,
-            serial_release_status_code='published',
-            is_active=True,
+        release_row = (
+            SerialRelease.objects
+            .filter(
+                public_chapter_slug=public_chapter_slug,
+                is_active=True,
+            )
+            .values('link_bookwriter_coll_book_id')
+            .first()
         )
-    except SerialRelease.DoesNotExist:
+    except Exception:  # noqa: BLE001 — never 500 a redirect path
+        release_row = None
+    if release_row is None:
         raise Http404('Chapter not found')
 
     try:
-        chapter = Chapter.objects.get(
-            bookwriter_chapter_id=release_row.link_bookwriter_chapter_id,
-            is_active=True,
-        )
         owning_book = CollBook.objects.get(
-            bookwriter_coll_book_id=release_row.link_bookwriter_coll_book_id,
+            bookwriter_coll_book_id=release_row['link_bookwriter_coll_book_id'],
             is_active=True,
         )
-    except (Chapter.DoesNotExist, CollBook.DoesNotExist):
-        raise Http404('Chapter not found')
+    except CollBook.DoesNotExist:
+        raise Http404('Book not found')
 
-    # Best-effort view-count bump. Not transactional; eventual consistency
-    # is fine for analytics.
-    SerialRelease.objects.filter(pk=release_row.pk).update(
-        read_count_cached=release_row.read_count_cached + 1,
-    )
-    return _render_chapter_reader_page(
-        request, chapter, owning_book, release_row, reader_mode_code='public',
+    return redirect(
+        reverse(
+            'bookwriter:read',
+            kwargs={
+                'book_id':         owning_book.bookwriter_coll_book_id,
+                'book_name_slug':  _build_book_reader_canonical_slug(owning_book),
+            },
+        ),
+        permanent=True,
     )
 
 
@@ -1019,3 +1241,323 @@ def _read_serial_release_comments_for_render(release_row, viewer_user_profile_id
         }
         for row in comment_rows
     ]
+
+
+# =====================================================================
+# MARKETPLACE — public discovery surface for every book that has at
+# least one published chapter. Read-only for everyone (including the
+# owner — owners go to /bookwriter/write/<id>/edit/ to edit). Mirrors
+# the My Library card aesthetic so the marketplace reads as part of
+# the same product, not a different app.
+# =====================================================================
+
+def bookwriter_marketplace(request):
+    """Public marketplace — every book with ≥1 published chapter.
+
+    URL: /bookwriter/marketplace/  (public, no auth required)
+
+    A book appears here when at least one of its chapters has an active
+    SerialRelease row with serial_release_status_code='published'.
+    Unpublishing the last published chapter automatically removes the
+    book from this listing on the next page load (no separate
+    moderation step required — the query is the source of truth).
+
+    Card click → public chapter reader for the FIRST published chapter
+    of the book (the natural starting point for a new reader).
+
+    Style: reuses the .bookwriter-library-card visual + CSS class set
+    so the marketplace feels native to the My Library aesthetic. The
+    marketplace card partial is a slim variant — same cover/meta visual,
+    no owner action buttons (edit / archive), card link points at the
+    public reader instead of the owner's 3D reader.
+    """
+    # Books with at least one published chapter, plus their FIRST
+    # (lowest sort_order) published chapter's slug for the card link.
+    # One DB hop for the joined fields; cover designs prefetched after.
+    published_release_rows = (
+        SerialRelease.objects
+        .filter(
+            serial_release_status_code='published',
+            is_active=True,
+            public_chapter_slug__isnull=False,
+        )
+        .order_by(
+            'link_bookwriter_coll_book_id',
+            'published_at',
+        )
+        .values(
+            'link_bookwriter_coll_book_id',
+            'public_chapter_slug',
+            'published_at',
+        )
+    )
+    # Reduce to one entry per book — the earliest-published chapter is
+    # the natural "open the book" landing point.
+    first_release_by_book_id = {}
+    for release_row in published_release_rows:
+        book_id_value = release_row['link_bookwriter_coll_book_id']
+        if book_id_value not in first_release_by_book_id:
+            first_release_by_book_id[book_id_value] = release_row
+
+    if not first_release_by_book_id:
+        marketplace_books_list = []
+    else:
+        published_book_ids_list = list(first_release_by_book_id.keys())
+        published_books_list = list(
+            CollBook.objects
+            .filter(
+                bookwriter_coll_book_id__in=published_book_ids_list,
+                is_active=True,
+            )
+            .order_by('-updated_at', '-created_at')
+        )
+        cover_designs_by_book_id = prefetch_book_cover_designs(published_books_list)
+        marketplace_books_list = []
+        for published_book in published_books_list:
+            saved_cover_design = cover_designs_by_book_id.get(
+                published_book.bookwriter_coll_book_id,
+            )
+            book_card_payload = build_book_card_payload(
+                published_book,
+                saved_cover_design,
+                _resolve_viewer_display_name(
+                    published_book.link_owner_user_profile_id
+                ),
+            )
+            # Marketplace card click → 3D book reader (the canonical
+            # public reading surface). Same URL shared by every entry-
+            # point: library card, marketplace card, promo card,
+            # inkwell breadcrumb pill, publish dashboard. Single
+            # source of truth lives in
+            # views_api_helpers.build_book_reader_canonical_path
+            # (already invoked inside build_book_card_payload above
+            # and exposed as `book_reader_canonical_url`).
+            book_card_payload['public_chapter_url'] = request.build_absolute_uri(
+                book_card_payload['book_reader_canonical_url']
+            )
+            marketplace_books_list.append(book_card_payload)
+
+    # JSON-LD — a CollectionPage listing every published book as a
+    # CreativeWork. Helps search engines + AI crawlers (Google, Gemini,
+    # Perplexity, ChatGPT) understand this as a book directory.
+    json_ld_payload = {
+        '@context': 'https://schema.org',
+        '@type': 'CollectionPage',
+        'name': 'Bookwriter Marketplace — কলম',
+        'description': (
+            'Every book published through কলম — Bangladesh-and-beyond '
+            'writers sharing fiction, non-fiction, poetry, and serialised '
+            'works for free public reading.'
+        ),
+        'url': request.build_absolute_uri(),
+        'hasPart': [
+            {
+                '@type': 'CreativeWork',
+                'name': card_payload['book_title'],
+                'author': {
+                    '@type': 'Person',
+                    'name': card_payload['book_author'],
+                } if card_payload.get('book_author') else None,
+                'url': card_payload['public_chapter_url'],
+            }
+            for card_payload in marketplace_books_list[:50]
+        ],
+    }
+
+    return render(request, 'bookwriter/pages/marketplace.html', {
+        'marketplace_books_list': marketplace_books_list,
+        'marketplace_total_book_count': len(marketplace_books_list),
+        'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(
+            current_mode_label='Marketplace',
+        ),
+        'active_sidebar_nav_id': 'bookwriter',
+        'seo': {
+            'title': 'Marketplace — Public Books on কলম | আমলনামা নিউজ',
+            'description': (
+                'Read every book published through কলম — Bangladeshi '
+                'writers sharing fiction, non-fiction, poetry, and '
+                'serialised works for free.'
+            ),
+            'canonical': request.build_absolute_uri(),
+            'og_type': 'website',
+            'json_ld': json_ld_payload,
+        },
+    })
+
+
+# =====================================================================
+# READER-FEEDBACK ADMIN — owner-only review surface for every beta
+# comment + suggestion left on a book. Sits at
+#   /bookwriter/write/<book_id>/feedback/
+# alongside the inkwell editor at /bookwriter/write/<book_id>/edit/.
+# Lists comments grouped by chapter, with All / Open / Resolved / By
+# reader filter chips and one-click resolve toggling. Wires to the
+# already-shipped api_bookwriter_beta_comment_resolve endpoint.
+# =====================================================================
+
+def bookwriter_inkwell_feedback(request, book_id):
+    """Reader-feedback admin sub-page for ONE specific book.
+
+    URL: /bookwriter/write/<book_id>/feedback/  (owner-only)
+
+    Lists every BetaComment row attached to the book, grouped by
+    chapter, ordered most-recent-first. Each row shows the author
+    avatar, anchored excerpt (the snippet the reader was reading
+    when they left the note), the comment text, kind (general /
+    suggestion), and a resolve-toggle button (calls existing
+    api_bookwriter_beta_comment_resolve). Filter chips: All / Open /
+    Resolved / By reader (chips populated from BetaReader rows for
+    this book). Reuses _resolve_book_for_owner so non-owners get a
+    JSON 404 / forbidden, never the page.
+    """
+    user_profile_id = get_user_profile_id(request)
+    if user_profile_id is None:
+        return redirect('user_account:login')
+
+    try:
+        current_book = CollBook.objects.get(
+            bookwriter_coll_book_id=book_id,
+            link_owner_user_profile_id=user_profile_id,
+            is_active=True,
+        )
+    except CollBook.DoesNotExist:
+        raise Http404('Book not found')
+
+    # Chapters in display order — a beta comment with a missing chapter
+    # row (legacy / hard-deleted) is skipped silently.
+    book_chapters_for_feedback = list(
+        Chapter.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+        )
+        .order_by('sort_order', 'chapter_number')
+        .values(
+            'bookwriter_chapter_id',
+            'chapter_number',
+            'chapter_title_en',
+            'chapter_title_bn',
+        )
+    )
+    chapter_id_to_label = {
+        chapter_row['bookwriter_chapter_id']: {
+            'chapter_number':        chapter_row['chapter_number'],
+            'chapter_display_title': (
+                chapter_row['chapter_title_en']
+                or chapter_row['chapter_title_bn']
+                or ('Chapter %s' % chapter_row['chapter_number'])
+            ),
+        }
+        for chapter_row in book_chapters_for_feedback
+    }
+
+    # Beta readers attached to this book — used by both the per-comment
+    # avatar lookup AND the "By reader" filter chip set.
+    beta_readers_list = list(
+        BetaReader.objects
+        .filter(
+            link_bookwriter_coll_book_id=current_book.bookwriter_coll_book_id,
+            is_active=True,
+        )
+        .order_by('-created_at')
+        .values(
+            'bookwriter_beta_reader_id',
+            'reader_email',
+            'reader_display_name',
+            'reader_avatar_initial',
+            'reader_avatar_color_hex',
+            'beta_permission_code',
+        )
+    )
+    beta_reader_lookup_by_id = {
+        reader_row['bookwriter_beta_reader_id']: reader_row
+        for reader_row in beta_readers_list
+    }
+
+    # Beta comments — the heart of this page.
+    beta_comments_for_book = list(
+        BetaComment.objects
+        .filter(
+            link_bookwriter_chapter_id__in=list(chapter_id_to_label.keys()),
+            is_active=True,
+        )
+        .order_by('-created_at')
+        .values(
+            'bookwriter_beta_comment_id',
+            'link_bookwriter_chapter_id',
+            'link_bookwriter_beta_reader_id',
+            'comment_anchor_text',
+            'comment_text',
+            'comment_kind_code',
+            'suggestion_replacement_text',
+            'suggestion_resolution_code',
+            'is_resolved',
+            'created_at',
+        )
+    )
+
+    # Group + decorate for the template (one source of truth — view
+    # builds the shape, template iterates).
+    comment_rows_decorated = []
+    for raw_comment_row in beta_comments_for_book:
+        chapter_label = chapter_id_to_label.get(
+            raw_comment_row['link_bookwriter_chapter_id']
+        ) or {'chapter_number': '?', 'chapter_display_title': 'Untitled'}
+        reader_row = beta_reader_lookup_by_id.get(
+            raw_comment_row['link_bookwriter_beta_reader_id']
+        ) or {}
+        comment_rows_decorated.append({
+            'beta_comment_id':            raw_comment_row['bookwriter_beta_comment_id'],
+            'beta_reader_id':             raw_comment_row['link_bookwriter_beta_reader_id'],
+            'chapter_id':                 raw_comment_row['link_bookwriter_chapter_id'],
+            'chapter_number':             chapter_label['chapter_number'],
+            'chapter_display_title':      chapter_label['chapter_display_title'],
+            'comment_anchor_text':        raw_comment_row['comment_anchor_text'] or '',
+            'comment_text':               raw_comment_row['comment_text'] or '',
+            'comment_kind_code':          raw_comment_row['comment_kind_code'] or 'general',
+            'suggestion_replacement_text':raw_comment_row['suggestion_replacement_text'] or '',
+            'suggestion_resolution_code': raw_comment_row['suggestion_resolution_code'] or '',
+            'is_resolved':                bool(raw_comment_row['is_resolved']),
+            'created_at_iso':             (
+                raw_comment_row['created_at'].isoformat()
+                if raw_comment_row['created_at'] else ''
+            ),
+            'reader_display_name':        reader_row.get('reader_display_name')
+                                          or reader_row.get('reader_email')
+                                          or 'Beta reader',
+            'reader_avatar_initial':      reader_row.get('reader_avatar_initial') or '?',
+            'reader_avatar_color_hex':    reader_row.get('reader_avatar_color_hex') or '#7a6f5e',
+            'beta_permission_code':       reader_row.get('beta_permission_code') or 'read',
+        })
+
+    open_comment_count = sum(
+        1 for comment in comment_rows_decorated if not comment['is_resolved']
+    )
+    resolved_comment_count = sum(
+        1 for comment in comment_rows_decorated if comment['is_resolved']
+    )
+
+    return render(request, 'bookwriter/pages/inkwell_feedback.html', {
+        'current_book': current_book,
+        'book_id': current_book.bookwriter_coll_book_id,
+        'beta_comment_rows_list': comment_rows_decorated,
+        'beta_readers_filter_list': beta_readers_list,
+        'open_comment_count': open_comment_count,
+        'resolved_comment_count': resolved_comment_count,
+        'total_comment_count': len(comment_rows_decorated),
+        'bookwriter_breadcrumb_trail': build_bookwriter_breadcrumb_trail(
+            current_book=current_book,
+            current_mode_label='Reader feedback',
+        ),
+        'bookwriter_open_editor_url': reverse(
+            'bookwriter:write',
+            kwargs={'book_id': current_book.bookwriter_coll_book_id},
+        ),
+        'active_sidebar_nav_id': 'bookwriter',
+        'seo': {
+            'title': 'Reader feedback — কলম | আমলনামা নিউজ',
+            'description': 'Review beta-reader comments and suggestions for your book.',
+            'canonical': request.build_absolute_uri(),
+            'noindex': True,
+        },
+    })

@@ -3180,12 +3180,15 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
 }
 
 /* Gallery's left rail and content pane both fill the wrapper height
-   (no inline height:100vh — that overflows in embedded mode). */
+   (no inline height:100vh — that overflows in embedded mode).
+   Width 220px (was 280px) — slimmer rail buys back 60px of horizontal
+   space for the chapter list beside it, which was getting squeezed
+   on 1100-1400px viewports. */
 .bookwriter-gallery-view .bookwriter-gallery-rail-fill {
   height: 100%;
   overflow-y: auto;
   flex-shrink: 0;
-  width: 280px;
+  width: 220px;
 }
 .bookwriter-gallery-view .bookwriter-gallery-content-pane {
   height: 100%;
@@ -3255,10 +3258,17 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
 .bookwriter-gmode-button-is-active { background: var(--ink); color: var(--paper); font-family: 'Fraunces', serif; font-style: normal; }
 
 .bookwriter-gallery-body {
-  padding: 48px 64px 80px;
+  padding: 48px 56px 80px;
   display: grid;
-  grid-template-columns: 1fr 320px;
-  gap: 48px;
+  /* minmax(0, 1fr) on the main column lets the serial-list shrink
+     below its intrinsic content width — without it the per-chapter
+     row's `auto` status column refuses to fit and gets clipped on
+     the right edge. Sidebar trimmed 320 → 280px and gap 48 → 32px
+     so the chapter rows have meaningful room on 1100-1400px screens
+     (where the @container 1024 breakpoint hasn't yet collapsed the
+     sidebar to a single column). */
+  grid-template-columns: minmax(0, 1fr) minmax(0, 280px);
+  gap: 32px;
   max-width: 1300px;
   margin: 0 auto;
   width: 100%;
@@ -3276,8 +3286,13 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
 
 .bookwriter-serial {
   display: grid;
-  grid-template-columns: 60px 1fr auto;
-  gap: 20px;
+  /* minmax(0, 1fr) on the body column allows it to shrink below its
+     intrinsic content width — chapter excerpts wrap, status chip on
+     the right stays visible. Without minmax(0, ...) the body refuses
+     to shrink and the auto status column gets pushed off the right
+     edge, clipped by the gallery-body max-width. */
+  grid-template-columns: 50px minmax(0, 1fr) auto;
+  gap: 16px;
   padding: 20px 0;
   border-bottom: 1px solid var(--line);
   align-items: start;
@@ -3326,6 +3341,11 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   flex-direction: column;
   gap: 6px;
   align-items: flex-end;
+  /* Hard ceiling so a long chip label can't push the row's auto
+     column wider than this. Combined with minmax(0, 1fr) on the
+     body column above, this guarantees the serial row fits inside
+     the gallery-body grid without overflow. */
+  max-width: 140px;
 }
 
 .bookwriter-status-chip {
@@ -3334,6 +3354,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   letter-spacing: 0.2em;
   text-transform: uppercase;
   padding: 4px 10px;
+  white-space: nowrap;
   border-radius: 30px;
 }
 
@@ -4116,6 +4137,11 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   .bookwriter-cover-desk { display: none; }
   .bookwriter-bible-view { grid-template-columns: minmax(220px, 240px) minmax(0, 1fr); }
   .bookwriter-gallery-body { grid-template-columns: 1fr; }
+  /* Once the gallery body collapses to one column, the chapter row
+     has the full width back — but we also slim the gallery rail
+     further (220 → 200) so the writer keeps maximum reading width
+     for the chapter excerpts. */
+  .bookwriter-gallery-view .bookwriter-gallery-rail-fill { width: 200px; }
   .bookwriter-snapshot-panel { width: 320px; }
 }
 /* True mobile breakpoint — hide ALL rails so the centre content gets
@@ -4145,6 +4171,19 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   .bookwriter-gallery-header h1 { font-size: var(--text-4xl); }
   .bookwriter-gallery-mode-switch { position: static; margin-top: 18px; }
   .bookwriter-gallery-body { padding: 32px 24px; }
+  /* On phones, stack each chapter row vertically — number on top,
+     body below, status chip + button at the bottom — so nothing has
+     to share a horizontal row that doesn't exist. */
+  .bookwriter-serial {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+  .bookwriter-serial-status {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    max-width: 100%;
+  }
   .bookwriter-snapshot-panel { width: 100%; }
   .bookwriter-modal { padding: 28px 22px; }
   .bookwriter-focus-page h1 { font-size: 32px; }
