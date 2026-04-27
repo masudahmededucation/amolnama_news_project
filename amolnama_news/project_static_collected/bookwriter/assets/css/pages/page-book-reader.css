@@ -311,6 +311,33 @@
 .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(9)  { z-index: 9; }
 .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(10) { z-index: 10; }
 
+/* FORWARD-TURN JUMP-FIX: when a sheet is mid-flip (both -turning AND
+   -flipped present), pin its z-index above every other sheet so the
+   sibling behind it can't pop into view for one frame before the
+   rotation animation visibly tilts the current sheet away.
+
+   The `-turning` class is added by JS (page-book-reader.js, see
+   turnToNextSheet) at the start of every flip and removed via
+   setTimeout(PAGE_FLIP_ANIMATION_MS) when the rotation completes —
+   so this z-index lift is automatic and lasts ONLY for the 1.3s
+   animation window, then the sheet returns to its normal
+   `:nth-child` flipped z-index from the ladder above.
+
+   Why this is the right specificity (no !important):
+     existing :nth-child rules above = (0,3,0)
+     this 3-class rule              = (0,3,0)
+     same specificity → source-order tiebreak → this rule wins
+   Backward turn matches `-turning` only (not `-flipped`), so this
+   selector doesn't apply and the existing smooth backward behaviour
+   is preserved.
+
+   See app-troubleshooting.txt entry
+   `R-bookwriter-book-reader-jump-snapshot-of-next-page-on-forward-turn-only`
+   for the full diagnostic story. */
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-turning.bookwriter-book-reader-page-sheet-flipped {
+  z-index: 100;
+}
+
 .bookwriter-book-reader-page-face {
   position: absolute;
   inset: 0;

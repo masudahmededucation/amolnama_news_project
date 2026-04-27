@@ -18,6 +18,116 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-book-reader-jump-snapshot-of-next-page-on-forward-turn-only. "Flat snapshot of the next page flashes for one frame before the page-flip rotation animation begins"
+Date: 2026-04-27
+Was: In the 3D book reader (/bookwriter/read/<id>/<slug>/) on Chrome,
+     every forward page-turn (clicking Next or right-half of stage)
+     showed a brief flash of the next page's content sitting flat at
+     the same screen position BEFORE the rotation animation visibly
+     tilted the current sheet away. Backward turns (Prev / left-half)
+     were always smooth — no flash. The cover-open animation also did
+     not flash. The asymmetry only-forward / only-after-cover-opens
+     was the diagnostic key.
+
+Diagnostic timeline (the wrong theories we ruled out before finding
+the cause; documented here so future-me doesn't re-investigate):
+     A. **GPU pre-promotion** — the page-sheet rule had
+          will-change: transform;
+          transform: translateZ(0);
+        added in commit ca435091 ("pre-promote sheets to GPU
+        compositor layer") supposedly to fix this same flash. Tested
+        live in Chrome DevTools by unchecking both lines on the
+        .bookwriter-book-reader-page-sheet rule — flash still
+        happened. **Theory wrong. Pre-promotion is not the cause.**
+        Lines kept (removing them risked CPU repaint jank on weak
+        devices for no gain).
+     B. **Cover-back face leak** — initial guess that the cover's
+        back face (`visibility: hidden`) being absent on page sheets
+        was the cause. Cover and page sheets share every relevant
+        property (transform-origin, transform-style: preserve-3d,
+        transition timing). The only behavioural difference between
+        smooth-cover and jumpy-pages was z-index handling.
+     C. **Forward vs backward symmetry of the transform itself** —
+        ruled out: the transform interpolates 0° → −175° forward and
+        −175° → 0° backward, with the same `transition: transform
+        1.3s`. Symmetric. If the transform itself were the cause, it
+        would happen on backward too. It doesn't.
+
+Root cause:
+     INSTANT z-index drop on the sheet receiving the `-flipped` class.
+
+     The page-sheet z-index ladder is:
+       .bookwriter-book-reader-page-sheet:nth-child(1) { z-index: 50; }
+       .bookwriter-book-reader-page-sheet:nth-child(2) { z-index: 49; }
+       ...
+       .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(1) { z-index: 1; }
+       .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(2) { z-index: 2; }
+       ...
+
+     When `turnToNextSheet` adds `-flipped` to the current sheet:
+       — z-index changes 50 → 1 INSTANTLY (z-index can't transition)
+       — transform animates 0° → −175° over 1.3s
+     At frame 0 of the animation, the rotation has barely begun (still
+     ≈0°), but the z-index drop is already complete. The next sheet
+     (z-index 49, no class change) is now ABOVE the rotating sheet in
+     stacking order. For one frame, the next sheet's content is
+     visible at the same screen position before the rotating sheet
+     visibly tilts away. That visible frame IS the "flat snapshot of
+     next page" the user sees.
+
+     Backward turn doesn't have this problem: removing `-flipped`
+     RAISES the z-index (1 → 50), nothing previously hidden gets
+     revealed (the unflipping sheet was already visible on the left
+     side as a back-face), so no flash.
+
+Fix:
+     ONE new CSS rule added to page-book-reader.css after the existing
+     `:nth-child` ladder:
+
+       .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-turning.bookwriter-book-reader-page-sheet-flipped {
+         z-index: 100;
+       }
+
+     - The `-turning` class is added by JS (page-book-reader.js,
+       turnToNextSheet) at the start of every flip and removed by a
+       setTimeout(PAGE_FLIP_ANIMATION_MS) when the animation
+       completes. So the z-index lift is automatic and lasts ONLY for
+       the 1.3s rotation window, then the sheet returns to its normal
+       flipped z-index.
+     - The 3-class selector matches the existing `:nth-child` rules'
+       specificity (0,3,0). With the new rule placed AFTER the ladder
+       in source order, source-order tiebreak makes it win — no
+       `!important` needed.
+     - Backward turn matches `-turning` only (not `-flipped`), so the
+       new selector doesn't apply and the existing smooth backward
+       behaviour is preserved.
+
+Verified end-to-end via Chrome DevTools console rule injection:
+       var s = document.createElement('style');
+       s.textContent = '.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-turning { z-index: 100 !important; }';
+       document.head.appendChild(s);
+     With this rule live: forward turns are smooth, backward turns
+     unchanged, no regressions on cover open / close / multi-step
+     jump-to-page navigation.
+
+Lesson:
+     - In CSS card-flip surfaces using preserve-3d + a flip class
+       that toggles BOTH transform AND z-index, the z-index change
+       happens INSTANTLY while the transform animates. ALWAYS pair the
+       flip class with a transient `-turning` class that holds the
+       sheet's z-index high during the animation window — drop it to
+       the final position only AFTER the rotation has completed.
+       Without this, the sibling behind gets revealed for one frame
+       at the start.
+     - When debugging asymmetric animation glitches (forward jumps
+       but backward smooth, or vice versa), always look for an
+       INSTANT state change that only happens on one path. The
+       transform itself is symmetric and rarely the cause; z-index,
+       opacity, visibility, display changes are the usual culprits.
+     - Test theories in DevTools BEFORE shipping. The GPU pre-
+       promotion theory looked correct on paper; live test refuted
+       it instantly. Saved a bad commit.
+
 ### R-bookwriter-book-reader-content-bleeds-below-page-and-overlaps-jump-tab. Chapter prose visible BELOW the book, with the jump-tab pill overlapping it
 Date: 2026-04-24
 Was: In the 3D book reader (/bookwriter/read/<id>/), once the user
