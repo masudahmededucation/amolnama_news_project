@@ -772,9 +772,33 @@
   z-index: 2;
   font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
   font-size: var(--text-lg);
-  line-height: 2.4;
+  /* Reduced from line-height: 2.4 since each entry is now 2 visual
+     lines (kicker + title-row); 1.5 keeps reasonable density at the
+     entry level while .toc-item adds margin-bottom for entry spacing. */
+  line-height: 1.5;
 }
 .bookwriter-book-reader-toc-item {
+  /* Each entry is now two stacked rows: a small italic eyebrow
+     ("CHAPTER N") above the title-row (title + dotline + page).
+     Mirrors the kicker + title pattern used on the chapter-start
+     page so the TOC reads as a typographic preview of the book's
+     interior. */
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 18px;
+}
+.bookwriter-book-reader-toc-item:last-child {
+  margin-bottom: 0;
+}
+.bookwriter-book-reader-toc-chapter-kicker {
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-xs);
+  color: var(--bookwriter-reader-ink-soft);
+  letter-spacing: 4px;
+  text-transform: uppercase;
+}
+.bookwriter-book-reader-toc-title-row {
   display: flex;
   align-items: baseline;
   gap: 8px;

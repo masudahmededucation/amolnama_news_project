@@ -79,9 +79,12 @@
               <ol class="bookwriter-book-reader-toc-list">
                 {% for chapter in book_chapters_for_reader %}
                   <li class="bookwriter-book-reader-toc-item">
-                    <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
-                    <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
-                    <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
+                    <span class="bookwriter-book-reader-toc-chapter-kicker">Chapter {{ chapter.chapter_number }}</span>
+                    <span class="bookwriter-book-reader-toc-title-row">
+                      <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
+                      <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
+                      <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
+                    </span>
                   </li>
                 {% endfor %}
               </ol>
