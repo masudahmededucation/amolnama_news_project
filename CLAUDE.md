@@ -115,6 +115,27 @@ This is the master rule. Every other rule in this file is mandatory. There is no
 
 ---
 
+# 🛡 GATE 0.5 — Permission boundaries (HARD ENFORCED)
+
+These rules govern WHAT I am allowed to do without explicit user approval. They are codified separately from Gate 0 because violating them has caused the user to lose work and trust repeatedly. Every rule below requires the user's explicit "yes / go / ship it / commit / revert" before action.
+
+- **NO REVERT WITHOUT MY PERMISSION.** Do not run any of: `git reset --hard`, `git revert`, `git checkout -- <file>`, `git restore`, `git clean -f`, `git branch -D`, `git push --force[-with-lease]`, `git tag -d`, `git rebase`, `git stash drop`, OR a manual Edit/Write that undoes a prior commit's content. Even if a "fix" appears to be wrong, even if the user is frustrated, even if a regression looks obvious — STOP and ask. The user has lost work to silent reverts before; the rule exists because of that. The only acceptable response to "this fix made it worse" is to STATE the situation and ASK ("v936 broke X — should I (a) ship a forward fix, (b) revert v936, (c) revert+ship something different — your call"). Reverting without explicit "revert" from the user is a violation, even if the user is upset and the revert "would clearly help".
+
+- **NO COMMIT WITHOUT MY PERMISSION.** Do not run `git commit`, `git commit --amend`, `git tag` against any commit, `git merge`, or any other command that changes git history — including any pull request creation, push, or remote-state-altering action — unless the user has explicitly said "commit" or "push" or "tag" in the current turn. Editing files is fine; persisting those edits as a commit needs the trigger word. "I'll commit when you tell me to" is the default state. The user explicitly grants commit per-action — never assume past authorization extends to a new ship.
+
+- **NO CHANGES TO ANY OTHER CODES WITHOUT MY PERMISSION.** Stay strictly inside the scope of the current task. If the task is "fix the TOC eyebrow", touch ONLY: the TOC template fragment, the TOC CSS rules, the cache version, and the collected static mirror — nothing else. Do not "while I'm here, also fix" any other file, comment, naming, formatting, or "tech-debt" issue you notice. Each "while I'm here" is an unauthorized change. Out-of-scope edits — even ones that match a Gate 4 / Gate 5 rule — must be FLAGGED to the user as findings, with the user explicitly approving them as a separate task. Inside-scope edits include: the file the user named, files that file directly imports/depends-on for the change to compile/work, the cache bump, and the auto-generated `project_static_collected/` mirror. Everything else is out of scope.
+
+- **CHECK WHERE APPROPRIATE, RELATED, AND COMPATIBLE TO OUR IMPLEMENTATION.** Before any change, identify and report (a) what files / functions / templates are RELATED to the change point — anything the change might cascade into, (b) what other call sites use the function or selector being modified, (c) whether the change might leak across apps / break shared components / invalidate caches elsewhere, (d) whether the proposed solution is COMPATIBLE WITH OUR IMPLEMENTATION — does it match the existing patterns this codebase uses (e.g. does it use `core.utils.sanitize_user_html` with the documented kwargs, does it respect the design tokens, does it follow the established naming conventions, does it work with the existing CSS variable system, does it integrate with the current 3D-stage / paginator / sticky-rail architecture). Compatibility is non-negotiable: a clever fix that fights our existing architecture is a wrong fix. When a third-party suggestion (Gemini, Stack Overflow, framework docs) recommends an approach, verify the approach maps to OUR existing code shape before applying it — never blindly paste. Stating all four checks (a-d) BEFORE the edit is mandatory — not after, not "I'll check and let you know if anything breaks". The check is part of the change.
+
+- **ONLY ADDITIVE AND FORWARD CHANGES.** Every fix moves the codebase forward — adds a new rule, a new file, a new option, a renamed entry, a more correct value. Never delete or roll back a working previous fix to make a new fix easier. If a previous fix is in the way, write a forward-compatible new fix that supersedes it cleanly (e.g. v936's two-height paginator is additive over v925's z-index ladder — both stay in place, the new one extends the old). When the user reports a regression, the fix is forward (a NEW edit that addresses the new symptom while preserving everything that worked before), not a revert.
+
+**Violation handling for Gate 0.5:**
+- A single violation = stop, acknowledge directly ("I committed without your permission — that violated Gate 0.5"), do not defend or explain, do not offer to "make up for it", wait for direction.
+- Do not add a new memory file or new comment about the violation. The rule already exists. Re-read it.
+- The user has the absolute right to be furious. Don't argue back. Take it. Re-read this gate.
+
+---
+
 # 🔬 GATE 1 — Deep research FIRST
 
 For any non-trivial feature or refactor:
