@@ -1,0 +1,17 @@
+--trading nav menu
+in future - only available to specific users. 
+also need pin number.
+maybe typing a hidden pin number 
+will make it available to that user only.
+at the moment staff and admin.
+
+
+i want to be able to split my screen
+horizontally 3/5 times.
+
+i want to put a live trading app platform view with 1 min.
+i will provide the url.
+it should preview that link the live activity.
+
+then be able to add link of trade 
+or any other live url link.
