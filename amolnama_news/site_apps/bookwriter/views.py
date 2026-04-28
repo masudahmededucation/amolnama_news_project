@@ -39,6 +39,7 @@ from .views_api_helpers import (
     build_book_reader_canonical_path,
     build_book_reader_canonical_slug,
     build_bookwriter_breadcrumb_trail,
+    chunk_toc_chapters_into_pages,
     pack_chapter_pages_into_book_sheets,
     paginate_chapter_html_into_pages,
     prefetch_book_cover_designs,
@@ -664,12 +665,23 @@ def bookwriter_book_reader(request, book_id, book_name_slug=None):
         'url': request.build_absolute_uri(),
     }
 
+    # Multi-page TOC: chunk the chapter list into pages of N entries
+    # so a long book ("Bangladesh July 2024 archive scale" — 100s to
+    # 1000s of chapters) splits across multiple Contents sheets
+    # ("Contents - I, II, III..."). The first chunk renders on the
+    # frontispiece's back face (the existing TOC slot — preserves the
+    # title-page → flip → contents experience). Additional chunks
+    # render as their own dedicated TOC sheets immediately after the
+    # frontispiece, before the chapter sheets.
+    book_toc_pages = chunk_toc_chapters_into_pages(book_chapters_for_reader)
+
     return render(request, 'bookwriter/pages/book_reader.html', {
         'current_book': current_book,
         'book_title_for_display': book_title_for_display,
         'book_subtitle_for_display': book_subtitle_for_display,
         'book_author_for_display': book_author_for_display,
         'book_chapters_for_reader': book_chapters_for_reader,
+        'book_toc_pages': book_toc_pages,
         'book_reader_sheets_list': book_reader_sheets_list,
         'book_chapters_raw_html_for_client_pagination':
             book_chapters_raw_html_for_client_pagination,

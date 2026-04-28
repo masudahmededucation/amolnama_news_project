@@ -73,35 +73,83 @@
             <div class="bookwriter-book-reader-folio" aria-hidden="true">i</div>
           </div>
           <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+            {% comment %}
+              Frontispiece back face is intentionally BLANK — same as
+              every chapter sheet's back face (digital-book "ONE PAGE
+              PER SHEET" convention, see views_api_helpers.pack_chapter
+              _pages_into_book_sheets). The TOC content used to live
+              here, but in the 3D book layout, after the user flips
+              the frontispiece, the back face stays visible on the
+              LEFT side of the open book WHILE the next sheet's front
+              is on the RIGHT — so users saw TOC content "on both
+              sides" simultaneously, with the prev-button area
+              interfering with hover/click on the left-side chapter
+              entries. v942 moved every TOC chunk (including the first)
+              onto its own dedicated sheet rendered immediately below
+              this one. Now only the right-side current sheet shows
+              TOC content; left-side stays blank, matching chapter
+              flips. Just the binding-shadow stays so the page texture
+              looks continuous.
+            {% endcomment %}
             <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
-            <div class="bookwriter-book-reader-toc-title">Contents</div>
-            {% if book_chapters_for_reader %}
-              <ol class="bookwriter-book-reader-toc-list">
-                {% for chapter in book_chapters_for_reader %}
-                  <li class="bookwriter-book-reader-toc-item">
-                    <button type="button"
-                            class="bookwriter-book-reader-toc-link"
-                            id="bookwriter-book-reader-toc-link-chapter-{{ chapter.chapter_number }}"
-                            name="bookwriter_book_reader_toc_link_chapter_{{ chapter.chapter_number }}"
-                            data-bookwriter-toc-target-chapter-number="{{ chapter.chapter_number }}"
-                            aria-label="Jump to Chapter {{ chapter.chapter_number }}: {{ chapter.chapter_title }}">
-                      <span class="bookwriter-book-reader-toc-chapter-kicker">Chapter {{ chapter.chapter_number }}</span>
-                      <span class="bookwriter-book-reader-toc-title-row">
-                        <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
-                        <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
-                        <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
-                      </span>
-                    </button>
-                  </li>
-                {% endfor %}
-              </ol>
-            {% else %}
-              <p class="bookwriter-book-reader-toc-empty">This book has no chapters yet.</p>
-            {% endif %}
-            <div class="bookwriter-book-reader-folio" aria-hidden="true">ii</div>
           </div>
           <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
         </div>
+
+        {% comment %}
+          Dedicated TOC sheets — one sheet per chunk produced by
+          chunk_toc_chapters_into_pages. v942: render EVERY chunk
+          (including the first — the frontispiece's back face is now
+          blank, matching every chapter sheet's back face). Each sheet
+          follows the standard digital-book pattern: content on FRONT
+          face, BACK face blank, so the client-side chapter paginator
+          can leave these sheets untouched and the existing CSS works
+          without modification. data-bookwriter-sheet-type="toc" is
+          the hook used by the stage-click TOC guard in
+          page-book-reader.js so the large left/right click-to-turn
+          area is disabled on these pages (only prev/next buttons turn
+          them); the chapter-link buttons receive clicks instead.
+          Heading is plain "Contents" if there's only one chunk, or
+          "Contents — I, II, III…" when multiple chunks exist.
+        {% endcomment %}
+        {% for toc_page in book_toc_pages %}
+        <div class="bookwriter-book-reader-page-sheet"
+             data-bookwriter-sheet-type="toc"
+             data-bookwriter-toc-page-roman="{{ toc_page.roman_numeral_upper }}">
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
+            <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+            {% if book_toc_pages|length == 1 %}
+              <div class="bookwriter-book-reader-toc-title">Contents</div>
+            {% else %}
+              <div class="bookwriter-book-reader-toc-title">Contents &mdash; {{ toc_page.roman_numeral_upper }}</div>
+            {% endif %}
+            <ol class="bookwriter-book-reader-toc-list">
+              {% for chapter in toc_page.entries %}
+                <li class="bookwriter-book-reader-toc-item">
+                  <button type="button"
+                          class="bookwriter-book-reader-toc-link"
+                          id="bookwriter-book-reader-toc-link-chapter-{{ chapter.chapter_number }}"
+                          name="bookwriter_book_reader_toc_link_chapter_{{ chapter.chapter_number }}"
+                          data-bookwriter-toc-target-chapter-number="{{ chapter.chapter_number }}"
+                          aria-label="Jump to Chapter {{ chapter.chapter_number }}: {{ chapter.chapter_title }}">
+                    <span class="bookwriter-book-reader-toc-chapter-kicker">Chapter {{ chapter.chapter_number }}</span>
+                    <span class="bookwriter-book-reader-toc-title-row">
+                      <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
+                      <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
+                      <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
+                    </span>
+                  </button>
+                </li>
+              {% endfor %}
+            </ol>
+            <div class="bookwriter-book-reader-folio" aria-hidden="true">{{ toc_page.roman_folio_lower }}</div>
+          </div>
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+            <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
+          </div>
+          <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
+        </div>
+        {% endfor %}
 
         {% comment %}
           Body sheets — one sheet per pair of paginated chapter pages.

@@ -540,6 +540,17 @@
     if (stageClickEvent.target.closest(
       '.bookwriter-book-reader-page-sheet[data-bookwriter-sheet-type="frontispiece"] .bookwriter-book-reader-page-back'
     )) return;
+    /* Multi-page TOC sheets (data-bookwriter-sheet-type="toc") added in
+       v941. Same special-case as the frontispiece's back face: clickable
+       chapter entries on the FRONT face would conflict with the stage
+       page-turn click area, so disable stage page-turn there. The back
+       face of TOC sheets is intentionally blank — no buttons, no content
+       — so we leave the stage page-turn ENABLED on the back face so the
+       user can still flick past a flipped TOC sheet using the large
+       click area (consistent with chapter-sheet back faces). */
+    if (stageClickEvent.target.closest(
+      '.bookwriter-book-reader-page-sheet[data-bookwriter-sheet-type="toc"] .bookwriter-book-reader-page-front'
+    )) return;
     var stageRect = stageElement.getBoundingClientRect();
     var clickXWithinStage = stageClickEvent.clientX - stageRect.left;
     if (clickXWithinStage > stageRect.width / 2) turnToNextSheet();

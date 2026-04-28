@@ -984,6 +984,71 @@ def paginate_chapter_html_into_pages(
     return paginated_pages or ['']
 
 
+DEFAULT_TOC_ENTRIES_PER_PAGE = 6
+
+
+def _integer_to_roman_upper(integer_value):
+    """Convert a positive integer to UPPERCASE roman numerals for
+    Table-of-Contents page labels ("Contents — I, II, III…").
+    Falls back to plain integer string above 3999 (the standard
+    upper limit of classical roman). No third-party dependency.
+    """
+    if not isinstance(integer_value, int) or integer_value < 1 or integer_value > 3999:
+        return str(integer_value)
+    roman_value_pairs = [
+        (1000, 'M'), (900, 'CM'), (500, 'D'),  (400, 'CD'),
+        (100,  'C'), (90,  'XC'), (50,  'L'),  (40,  'XL'),
+        (10,   'X'), (9,   'IX'), (5,   'V'),  (4,   'IV'),
+        (1,    'I'),
+    ]
+    result_parts = []
+    remaining = integer_value
+    for value, numeral in roman_value_pairs:
+        while remaining >= value:
+            result_parts.append(numeral)
+            remaining -= value
+    return ''.join(result_parts)
+
+
+def chunk_toc_chapters_into_pages(chapters_list, entries_per_page=DEFAULT_TOC_ENTRIES_PER_PAGE):
+    """Split the flat chapter list into TOC page chunks for multi-page
+    Table-of-Contents rendering ("Contents — I, II, III…").
+
+    Each returned dict carries:
+      - `roman_numeral_upper` ('I', 'II', 'III'…) for the page heading
+      - `roman_folio_lower` ('ii', 'iii', 'iv'…) for the printed folio
+        on the page corner. The first TOC page is the back face of the
+        frontispiece (folio 'ii' since the title page is 'i'), so the
+        sequence starts at 'ii' and increments per TOC page.
+      - `entries` — slice of the chapter list for this page
+      - `is_first` / `is_last` — used by the template to decide whether
+        the page heading should be plain "Contents" (single-page case)
+        or "Contents — I" (multi-page case)
+
+    Why this lives in views_api_helpers (not in the view): keeps the
+    view body declarative and lets the helper be unit-tested in
+    isolation. Uses a module-level DEFAULT_TOC_ENTRIES_PER_PAGE constant
+    so the chunk size is one place to tune (mirrors the spirit of the
+    server-side / client-side paginator constants elsewhere in this file).
+    """
+    if not chapters_list:
+        return []
+    if entries_per_page < 1:
+        entries_per_page = DEFAULT_TOC_ENTRIES_PER_PAGE
+    chunks = []
+    chunk_index = 0
+    for slice_start in range(0, len(chapters_list), entries_per_page):
+        chunk_index += 1
+        chunks.append({
+            'roman_numeral_upper': _integer_to_roman_upper(chunk_index),
+            'roman_folio_lower':   _integer_to_roman_upper(chunk_index + 1).lower(),
+            'entries':             chapters_list[slice_start:slice_start + entries_per_page],
+            'is_first':            slice_start == 0,
+            'is_last':             slice_start + entries_per_page >= len(chapters_list),
+        })
+    return chunks
+
+
 def pack_chapter_pages_into_book_sheets(chapters_with_pages):
     """Pack each chapter's paginated pages onto book sheets — ONE
     PAGE PER SHEET (digital-book model).
