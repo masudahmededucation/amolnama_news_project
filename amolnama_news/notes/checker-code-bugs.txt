@@ -1,7 +1,9 @@
 no revert without my permission
 no commit without my permission
 no changes any other codes without my permission
---check where appropriate and related
+check code where appropriate, related, 
+and compatible to our implementation
+only additive and forward changes only
 
 --check all the memory rules
 then follow them if appropriate
