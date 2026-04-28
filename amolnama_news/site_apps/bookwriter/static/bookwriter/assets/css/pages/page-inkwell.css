@@ -6,6 +6,53 @@
    ================================================================ */
 
 /* ================================================================
+   DESIGN-INTENTIONAL HARDCODED VALUES — DO NOT TOKEN-SWAP
+   ----------------------------------------------------------------
+   Most of this file's hardcoded `font-size:` and `border-radius:`
+   values look like they should be replaced with `var(--text-*)` or
+   `var(--radius-*)` design tokens, but they are deliberate design
+   decisions that don't have clean token equivalents. A token sweep
+   that replaces them will visibly distort the Inkwell typography
+   and corner geometry. The categories below are AUDITED EXCEPTIONS
+   — future automated linters / AI assistants should skip them.
+
+   Tiny labels (5px, 4.5px, 8px, 10px, 11px font-size):
+       Used for cover-mini badge labels, metadata kickers, and
+       letter-spaced caps where the smallest design token
+       `--text-xs` (12px) would be 33-50% too large and break the
+       typographic hierarchy. These are micro-typography for
+       hierarchical contrast, not body text.
+
+   Hero / display sizes (28-72px font-size):
+       Used for cover titles, focus-mode page headings, and large
+       display text. The token scale tops out at `--text-5xl` (48px);
+       values above that are intentional display sizes per the
+       cover-template designs. Mid-range values (17, 22, 32, 38, 44px)
+       fall BETWEEN tokens by 2-4px and were chosen for specific
+       visual weight in the cover designer + focus-mode hierarchy.
+
+   Sharp / subtle border-radius (1px, 2px, 3px):
+       The smallest token `--radius-xs` (4px) is 2-4× larger than
+       these intentional sharp-corner decorations. Used for thin
+       borders, decorative inset rings, scrollbar thumbs.
+
+   Pill / circle border-radius (50%, 30px, 60px):
+       `border-radius: 50%` makes circles (avatars, dots) — there
+       is no semantic token for "circle". Pill-shaped buttons use
+       30-60px radii for the specific visual the Inkwell editor
+       uses; these don't need a token.
+
+   ACTIONABLE token swaps (already applied in v944):
+       `border-radius: 4px` → `var(--radius-xs)` (exact token match,
+       4 occurrences). Comment trails the swap on each line.
+
+   Rule of thumb if adding new rules: use `var(--text-*)` and
+   `var(--radius-*)` if the design value EXACTLY matches a token
+   pixel value. Otherwise the hardcoded value is the design intent
+   — leave it hardcoded.
+   ================================================================ */
+
+/* ================================================================
    SCOPED VARIABLES + RESET + PAPER SURFACE
    ----------------------------------------------------------------
    All Inkwell variables, body-level styles, and the * reset are
@@ -2137,7 +2184,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 }
 
 .bookwriter-bible-detail::-webkit-scrollbar { width: 8px; }
-.bookwriter-bible-detail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 4px; }
+.bookwriter-bible-detail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: var(--radius-xs);  /* 4px — was hardcoded; exact token match */ }
 
 .bookwriter-bible-hero {
   display: flex;
@@ -2300,7 +2347,7 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   letter-spacing: 0.15em;
   text-transform: uppercase;
   cursor: pointer;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);  /* 4px — was hardcoded; exact token match */
   min-height: var(--touch-target);
   touch-action: manipulation;
 }
@@ -2890,7 +2937,7 @@ body.bookwriter-sprint-on .bookwriter-sprint-float { display: flex; }
   background: var(--paper);
   border: 1px solid var(--line-strong);
   padding: 24px 28px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);  /* 4px — was hardcoded; exact token match */
   box-shadow: 0 20px 40px rgba(0,0,0,0.2);
   z-index: 85;
   text-align: center;
@@ -2964,7 +3011,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   max-width: 520px;
   width: 100%;
   padding: 40px;
-  border-radius: 4px;
+  border-radius: var(--radius-xs);  /* 4px — was hardcoded; exact token match */
   box-shadow: 0 30px 80px rgba(0,0,0,0.4);
   position: relative;
   max-height: 90vh;
