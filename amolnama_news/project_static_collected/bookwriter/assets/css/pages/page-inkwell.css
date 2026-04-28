@@ -110,8 +110,8 @@ body.bookwriter-standalone {
    height. dvh keeps iOS Safari's collapsing URL bar from leaving a
    short first paint. */
 .bookwriter-embedded-wrapper {
-  min-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  min-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  min-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  min-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
 }
 
 /* Mode containers fill whichever wrapper they're inside.
@@ -166,10 +166,10 @@ body.bookwriter-standalone {
      keep the rail capped to viewport height so the inner chapters
      list scrolls internally rather than stretching the grid row. */
   position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  top: var(--bookwriter-header-offset, 0px);
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
   overflow: hidden;
 }
 
@@ -1081,8 +1081,8 @@ body.bookwriter-book-settings-open .bookwriter-book-settings-panel {
      scroll internally when they overflow instead of stretching the
      whole grid row taller than the viewport. */
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
   overflow-y: auto;
   /* Sticky positioning created an empty band at the top of the desk
      for the same reason it broke the rail. Reverted to normal flow. */
@@ -2019,10 +2019,10 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   overflow-y: auto;
   min-width: 0;
   position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  top: var(--bookwriter-header-offset, 0px);
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
 }
 
 .bookwriter-bible-rail::-webkit-scrollbar { width: 6px; }
@@ -2068,10 +2068,10 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   padding: 20px 0;
   min-width: 0;
   position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  top: var(--bookwriter-header-offset, 0px);
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
 }
 
 .bookwriter-bible-item {
@@ -3445,10 +3445,10 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   flex-direction: column;
   overflow-y: auto;
   position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  top: var(--bookwriter-header-offset, 0px);
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
   min-width: 0;
 }
 
@@ -3967,10 +3967,10 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
   gap: 22px;
   min-width: 0;
   position: sticky;
-  top: var(--bookwriter-header-offset, 64px);
+  top: var(--bookwriter-header-offset, 0px);
   align-self: start;
-  max-height: calc(100vh - var(--bookwriter-header-offset, 64px));
-  max-height: calc(100dvh - var(--bookwriter-header-offset, 64px));
+  max-height: calc(100vh - var(--bookwriter-header-offset, 0px));
+  max-height: calc(100dvh - var(--bookwriter-header-offset, 0px));
 }
 
 .bookwriter-cover-desk::-webkit-scrollbar { width: 6px; }
