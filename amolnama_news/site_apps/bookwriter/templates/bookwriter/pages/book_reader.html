@@ -112,6 +112,7 @@
           Heading is plain "Contents" if there's only one chunk, or
           "Contents — I, II, III…" when multiple chunks exist.
         {% endcomment %}
+        {% if book_toc_pages %}
         {% for toc_page in book_toc_pages %}
         <div class="bookwriter-book-reader-page-sheet"
              data-bookwriter-sheet-type="toc"
@@ -150,6 +151,32 @@
           <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
         </div>
         {% endfor %}
+        {% else %}
+        {% comment %}
+          Empty-book fallback (v943): when book_toc_pages is empty (the
+          author created a book but hasn't added chapters yet), render
+          ONE TOC sheet with the "no chapters yet" message so the
+          reader still has a navigable second page after the title.
+          Same sheet structure as a populated TOC sheet (front content,
+          back blank, data-bookwriter-sheet-type="toc" so the stage-
+          click guard still skips this page). Folio "ii" hardcoded
+          since this is the only TOC sheet.
+        {% endcomment %}
+        <div class="bookwriter-book-reader-page-sheet"
+             data-bookwriter-sheet-type="toc"
+             data-bookwriter-toc-page-roman="empty">
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
+            <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
+            <div class="bookwriter-book-reader-toc-title">Contents</div>
+            <p class="bookwriter-book-reader-toc-empty">This book has no chapters yet.</p>
+            <div class="bookwriter-book-reader-folio" aria-hidden="true">ii</div>
+          </div>
+          <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-back">
+            <div class="bookwriter-book-reader-binding-shadow bookwriter-book-reader-binding-shadow-mirrored" aria-hidden="true"></div>
+          </div>
+          <div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>
+        </div>
+        {% endif %}
 
         {% comment %}
           Body sheets — one sheet per pair of paginated chapter pages.
