@@ -32,6 +32,7 @@
   var pageIndicatorElement      = document.getElementById('bookwriter-book-reader-page-indicator');
   var jumpInputElement          = document.getElementById('bookwriter-book-reader-jump-input');
   var jumpButtonElement         = document.getElementById('bookwriter-book-reader-jump-button');
+  var tocShortcutButtonElement  = document.getElementById('bookwriter-book-reader-toc-shortcut-button');
   var jumpErrorElement          = document.getElementById('bookwriter-book-reader-jump-error');
   var controlsContainerElement  = document.getElementById('bookwriter-book-reader-controls');
   var chapterPageIndicatorElement = document.getElementById('bookwriter-book-reader-chapter-page-indicator');
@@ -504,6 +505,72 @@
       }
     });
   });
+
+  /* TOC SHORTCUT BUTTON (v945 + v946) — small "Contents" button in
+     the bottom controls pill that jumps the user to the FIRST
+     Contents sheet ("Contents — I"). Useful when the user picks the
+     wrong chapter from the TOC and wants to go back without walking
+     through prev N times or remembering the TOC page number for the
+     jump-input. Resolves the destination sheet by data-bookwriter-
+     sheet-type="toc" lookup against the live allPageSheetElements
+     (same robust pattern as the chapter-number lookup above) — works
+     regardless of how many TOC pages exist.
+
+     v946 — INSTANT JUMP for the book-open case to avoid flashing
+     intermediate sheets:
+     jumpToPageNumber's multi-step BACKWARD path (jumpToPageNumber()
+     line ~385) snaps every intermediate sheet [target+1..current-1]
+     to UNFLIPPED state before animating the final sheet hop. That
+     snap makes the sheet just above the target (e.g. Contents — II
+     when target is Contents — I) the topmost via the z-index ladder
+     for ~1 frame — the user reported "going to Contents — II then
+     Contents — I". For a navigation SHORTCUT (not a page turn) the
+     correct UX is instant jump with no animation. The cover-closed
+     case (book hasn't been opened yet) defers to jumpToPageNumber
+     which handles openTheBook + delayed jump correctly — no flash
+     possible because there are no intermediate sheets between cover
+     and Contents — I. */
+  if (tocShortcutButtonElement) {
+    tocShortcutButtonElement.addEventListener('click', function () {
+      if (isCurrentlyAnimating) return;
+      var firstTocSheetIndex = -1;
+      for (var tocSheetSearchIdx = 0; tocSheetSearchIdx < allPageSheetElements.length; tocSheetSearchIdx++) {
+        if (allPageSheetElements[tocSheetSearchIdx].dataset.bookwriterSheetType === 'toc') {
+          firstTocSheetIndex = tocSheetSearchIdx;
+          break;
+        }
+      }
+      if (firstTocSheetIndex < 0) return;
+      if (firstTocSheetIndex === sheetsAlreadyTurnedCount) return;
+
+      // Cover-closed: defer to jumpToPageNumber (handles openTheBook
+      // + delayed jump). No flash possible from this state.
+      if (!isBookCurrentlyOpen) {
+        jumpToPageNumber(firstTocSheetIndex + 1);
+        return;
+      }
+
+      // Book open — instant atomic jump. Disable all sheet transitions,
+      // set every sheet's flipped/unflipped state in one batch, force
+      // ONE reflow, re-enable transitions. Result: user goes from
+      // wherever they were straight to Contents — I with no animation
+      // and no intermediate flash.
+      for (var clearTransitionIdx = 0; clearTransitionIdx < allPageSheetElements.length; clearTransitionIdx++) {
+        allPageSheetElements[clearTransitionIdx].style.transition = 'none';
+        if (clearTransitionIdx < firstTocSheetIndex) {
+          allPageSheetElements[clearTransitionIdx].classList.add(SHEET_FLIPPED_CLASS_NAME);
+        } else {
+          allPageSheetElements[clearTransitionIdx].classList.remove(SHEET_FLIPPED_CLASS_NAME);
+        }
+      }
+      void pagesContainerElement.offsetWidth;
+      for (var restoreTransitionIdx = 0; restoreTransitionIdx < allPageSheetElements.length; restoreTransitionIdx++) {
+        allPageSheetElements[restoreTransitionIdx].style.transition = '';
+      }
+      sheetsAlreadyTurnedCount = firstTocSheetIndex;
+      refreshPageIndicator();
+    });
+  }
 
   /* Keyboard navigation — left/right arrows + Esc to close. */
   document.addEventListener('keydown', function (documentKeyEvent) {

@@ -1074,7 +1074,8 @@
   font-weight: 400;
 }
 
-.bookwriter-book-reader-jump-button {
+.bookwriter-book-reader-jump-button,
+.bookwriter-book-reader-toc-shortcut-button {
   background: transparent;
   border: 1px solid rgba(26, 20, 16, .3);
   color: var(--bookwriter-reader-ink);
@@ -1090,11 +1091,13 @@
               border-color var(--duration-fast, .2s) ease;
   touch-action: manipulation;
 }
-.bookwriter-book-reader-jump-button:hover {
+.bookwriter-book-reader-jump-button:hover,
+.bookwriter-book-reader-toc-shortcut-button:hover {
   background: rgba(26, 20, 16, .08);
   border-color: rgba(26, 20, 16, .6);
 }
-.bookwriter-book-reader-jump-button:focus-visible {
+.bookwriter-book-reader-jump-button:focus-visible,
+.bookwriter-book-reader-toc-shortcut-button:focus-visible {
   outline: 2px solid var(--bookwriter-reader-ink-red);
   outline-offset: 2px;
 }
