@@ -553,23 +553,60 @@
     var paddingLeftPx   = parseFloat(pageFrontComputedStyles.paddingLeft)   || 0;
     var paddingRightPx  = parseFloat(pageFrontComputedStyles.paddingRight)  || 0;
 
-    var contentWidthPx  = pageFrontBoundingRect.width  - paddingLeftPx - paddingRightPx;
-    var contentHeightPx = pageFrontBoundingRect.height - paddingTopPx  - paddingBottomPx;
+    var contentWidthPx = pageFrontBoundingRect.width - paddingLeftPx - paddingRightPx;
+    if (contentWidthPx <= 0) return null;
+
+    // TWO BODY HEIGHTS — chapter-start vs continuation pages have a
+    // different vertical content area inside the same page-front box.
+    //
+    // Chapter-start pages render in this order (top → bottom):
+    //   padding-top → kicker → chapter-title → chapter-body → padding-bottom
+    // The kicker (~14px + 12px margin) and chapter-title (~24-36px clamped
+    // + 40px margin + 1.25 line-height) are IN FLOW — they push the
+    // chapter-body's offsetTop down by ~95-110px on a typical page.
+    //
+    // Continuation pages render in this order:
+    //   padding-top → chapter-body → padding-bottom
+    // The running header is `position: absolute` (CSS line ~620), so it
+    // does NOT consume any flow space — chapter-body sits directly below
+    // padding-top.
+    //
+    // Measuring `pageFront.height − padding − safety` gave a SINGLE
+    // height that over-allocated chapter-start pages by ~100px, causing
+    // the user-reported overflow on chapter 5 page 12. Now we measure
+    // both correctly: chapter-start uses the chapter-body's actual
+    // offsetTop (which already includes padding-top + kicker + title);
+    // continuation uses just padding-top.
+    var firstChapterBody = firstChapterPageFront.querySelector(
+      '.bookwriter-book-reader-chapter-body'
+    );
+    if (firstChapterBody === null) return null;
+    var chapterBodyOffsetTopPx = firstChapterBody.offsetTop;
+
+    var chapterStartPageContentHeightPx =
+      pageFrontBoundingRect.height - chapterBodyOffsetTopPx - paddingBottomPx;
+    var continuationPageContentHeightPx =
+      pageFrontBoundingRect.height - paddingTopPx - paddingBottomPx;
 
     // SAFETY BUFFER for sub-pixel rounding. The browser rounds line
     // metrics (line-height, glyph advance) at fractional pixels, so a
     // ghost measurement of "fits exactly" can clip 1–2px in real
     // render — the user sees the last line of prose half-cut at the
     // bottom of the page. 16px ≈ half a line of body text, leaves
-    // breathing room without visibly under-filling the page.
+    // breathing room without visibly under-filling the page. Applied
+    // to BOTH heights for consistency.
     var BOTTOM_SAFETY_BUFFER_PX = 16;
-    contentHeightPx -= BOTTOM_SAFETY_BUFFER_PX;
+    chapterStartPageContentHeightPx -= BOTTOM_SAFETY_BUFFER_PX;
+    continuationPageContentHeightPx -= BOTTOM_SAFETY_BUFFER_PX;
 
-    if (contentWidthPx <= 0 || contentHeightPx <= 0) return null;
+    if (chapterStartPageContentHeightPx <= 0 || continuationPageContentHeightPx <= 0) {
+      return null;
+    }
 
     var measuredPaginatorOptions = {
-      contentWidthPx:  Math.floor(contentWidthPx),
-      contentHeightPx: Math.floor(contentHeightPx),
+      contentWidthPx: Math.floor(contentWidthPx),
+      chapterStartPageContentHeightPx: Math.floor(chapterStartPageContentHeightPx),
+      continuationPageContentHeightPx: Math.floor(continuationPageContentHeightPx),
       // Full page-front bounding height (no padding subtracted) — the
       // paginator uses this to constrain ghost <img> max-height to match
       // the .chapter-body img { max-height: calc(book-height - 200px) }
@@ -577,7 +614,7 @@
       // natural pixel size (often much taller than the real rendered
       // image), so the paginator over-allocates page space and pages
       // end up half-empty around image boundaries.
-      bookHeightPx:    Math.floor(pageFrontBoundingRect.height),
+      bookHeightPx:   Math.floor(pageFrontBoundingRect.height),
     };
 
     // Read computed font-size + line-height + font-family from the

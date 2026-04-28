@@ -172,7 +172,11 @@
     return ghostElement.querySelector('img, iframe, canvas, video, svg') !== null;
   }
 
-  function _paginateGhostChildrenIntoPages(ghostElement, pageHeightPx) {
+  function _paginateGhostChildrenIntoPages(
+    ghostElement,
+    chapterStartPageHeightPx,
+    continuationPageHeightPx
+  ) {
     // Snapshot the children, then clear ghost to start measurement
     // from empty state. The snapshotted nodes still hold their
     // already-loaded image data (browser keeps the elements alive).
@@ -180,6 +184,20 @@
     ghostElement.innerHTML = '';
 
     var paginatedPagesHtml = [];
+
+    // PER-PAGE HEIGHT — chapter-start (first page of the chapter) has
+    // less body room than continuation pages because the kicker +
+    // chapter-title sit IN FLOW above the body on chapter-start; the
+    // running header on continuation pages is `position: absolute` and
+    // takes no flow space. The current page being built is determined
+    // by paginatedPagesHtml.length (0 = chapter-start, ≥1 = continuation).
+    // Read this DYNAMICALLY at every fit-check so the right value is
+    // used after a flush.
+    function _currentPageHeightPx() {
+      return paginatedPagesHtml.length === 0
+        ? chapterStartPageHeightPx
+        : continuationPageHeightPx;
+    }
 
     for (var nodeIndex = 0; nodeIndex < topLevelChildNodes.length; nodeIndex++) {
       var nodeBeingMeasured = topLevelChildNodes[nodeIndex];
@@ -193,7 +211,7 @@
       // dimensions are preserved.
       ghostElement.appendChild(nodeBeingMeasured);
 
-      if (ghostElement.scrollHeight <= pageHeightPx) {
+      if (ghostElement.scrollHeight <= _currentPageHeightPx()) {
         // Fits — leave node in ghost and continue.
         continue;
       }
@@ -220,7 +238,10 @@
         ghostElement.innerHTML = '';
         ghostElement.appendChild(nodeBeingMeasured);
 
-        if (ghostElement.scrollHeight <= pageHeightPx) {
+        // After the flush above, paginatedPagesHtml.length is now ≥1, so
+        // _currentPageHeightPx() returns the continuation height — the
+        // right one for the fresh page we just opened.
+        if (ghostElement.scrollHeight <= _currentPageHeightPx()) {
           // Fits on fresh page — continue.
           continue;
         }
@@ -281,9 +302,11 @@
             : sentenceText
         );
 
-        if (ghostElement.scrollHeight > pageHeightPx) {
+        if (ghostElement.scrollHeight > _currentPageHeightPx()) {
           // Roll back, flush page, start fresh paragraph with the
-          // overflowing sentence.
+          // overflowing sentence. After the flush below, the next
+          // _currentPageHeightPx() call will return the continuation
+          // height because paginatedPagesHtml.length is now ≥1.
           workingParagraph.innerHTML = contentBeforeSentence;
           if (_ghostHasVisibleContent(ghostElement)) {
             paginatedPagesHtml.push(ghostElement.innerHTML);
@@ -460,7 +483,19 @@
   function paginateAllChaptersAndBuildSheetsHtml(chaptersData, options) {
     options = options || {};
     var pageFaceContentWidthPx  = options.contentWidthPx  || DEFAULT_PAGE_FACE_CONTENT_WIDTH_PX;
-    var pageFaceContentHeightPx = options.contentHeightPx || DEFAULT_PAGE_FACE_CONTENT_HEIGHT_PX;
+    // TWO body heights — chapter-start vs continuation. Chapter-start
+    // pages have kicker + chapter-title in flow above the body and
+    // therefore have less vertical room for prose; continuation pages
+    // have only the `position: absolute` running header (no flow space)
+    // and therefore have more room. Falling back to the legacy single
+    // `contentHeightPx` (or the single default) for both keeps the
+    // paginator working when the caller hasn't measured both heights
+    // (e.g. very-early call before DOM exists, or a no-JS path).
+    var legacySinglePageHeightPx = options.contentHeightPx || DEFAULT_PAGE_FACE_CONTENT_HEIGHT_PX;
+    var chapterStartPageContentHeightPx =
+      options.chapterStartPageContentHeightPx || legacySinglePageHeightPx;
+    var continuationPageContentHeightPx =
+      options.continuationPageContentHeightPx || legacySinglePageHeightPx;
     var fontFamily              = options.fontFamily      || DEFAULT_PAGE_FACE_FONT_FAMILY;
     var fontSizePx              = options.fontSizePx      || DEFAULT_PAGE_FACE_FONT_SIZE_PX;
     var lineHeight              = options.lineHeight      || DEFAULT_PAGE_FACE_LINE_HEIGHT;
@@ -517,7 +552,9 @@
 
       return _waitForFontsAndImagesInGhost(ghostElement).then(function () {
         var paginatedPages = _paginateGhostChildrenIntoPages(
-          ghostElement, pageFaceContentHeightPx,
+          ghostElement,
+          chapterStartPageContentHeightPx,
+          continuationPageContentHeightPx,
         );
         chaptersWithPaginatedPages.push({
           chapterNumber: chapter.chapter_number,
