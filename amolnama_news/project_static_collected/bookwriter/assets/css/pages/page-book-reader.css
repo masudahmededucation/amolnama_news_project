@@ -43,9 +43,25 @@
   --bookwriter-reader-cover-dark:        #3d0f08;  /* per-book hex (overridden inline) */
   --bookwriter-reader-cover-gold:        #c9a961;  /* per-book hex (overridden inline) */
 
-  /* Book stage dimensions — clamp keeps it readable across viewports. */
+  /* Book stage dimensions — RESPONSIVE.
+     Width: hard-cap 640, otherwise viewport-width minus 60px gutter.
+     Height: dynamic — `100dvh` (dynamic viewport height, accounts for
+       mobile address-bar hide/show) minus ~310px chrome.
+       Chrome budget breakdown — site header is hidden on the reader
+       page (see body:has() rule near the bottom of this file), so
+       the budget covers only:
+         breadcrumb              ~50px
+         stage-wrapper padding-top    40px
+         stage-wrapper padding-bottom 130px (contains jump-tab pill)
+         fullscreen button area  ~50px (button + inset + gap)
+         breathing top + bottom  ~40px (eye-easy gaps)
+       floored at 520px so the book never shrinks below readable size,
+       capped at 940px so it doesn't get gigantic on a 4K monitor.
+     The cap lifts in fullscreen mode (see :fullscreen rule below) so
+     the fullscreen toggle does real work — the book actually grows
+     to fill the new space. */
   --bookwriter-reader-book-width:  min(640px, calc(100vw - 60px));
-  --bookwriter-reader-book-height: min(860px, calc(100vh - 200px));
+  --bookwriter-reader-book-height: min(940px, max(520px, calc(100dvh - 310px)));
 
   position: relative;
   width: 100%;
@@ -56,7 +72,13 @@
   isolation: isolate;
 }
 
-/* Stage wrapper provides the dark theatre backdrop + perspective. */
+/* Stage wrapper provides the dark theatre backdrop + perspective.
+   Wrapper takes the full available width — the data model now puts
+   one page per sheet (back face blank), so flipped sheets piling up
+   on the LEFT side of the book just show blank paper, no leftover
+   chapter content peeks. This restores the visible per-page flip
+   animation during multi-step jumps (Path B clip would have hidden
+   the intermediate flips off-screen). */
 .bookwriter-book-reader-stage-wrapper {
   position: relative;
   width: 100%;
@@ -75,16 +97,31 @@
       var(--bookwriter-reader-stage-bg-2) 50%,
       var(--bookwriter-reader-stage-bg-3) 100%);
   border-radius: var(--radius-sm);
-  perspective: 2400px;
   overflow: hidden;
 }
 
+/* STAGE — perspective without preserve-3d.
+   ROOT-CAUSE FIX (was: stage had `transform-style: preserve-3d` which
+   put the cover and pages container into the SAME 3D coordinate
+   system). In a shared preserve-3d context, browsers ignore z-index
+   when sibling elements have different actual z-coordinates and sort
+   by 3D depth instead. Mid-rotation the cover's right edge swings
+   to z = -640 (behind the page plane at z = 0), and even with the
+   cover at z-index 10 000 003 vs page sheets at 9 999 999 the page
+   wins because it is in front in 3D space. The user saw this as a
+   "vertical strip / clipping" on the left of the cover — actually
+   the page beneath painting through the rotating cover.
+   Fix: drop preserve-3d on the stage (cover + pages now siblings in
+   a flat 2D context, z-index governs cleanly), but keep perspective
+   here so the cover and page-sheet rotations still get depth (cover
+   keeps its own preserve-3d for front/back faces; .pages keeps its
+   own for sheet flips — both unaffected by this change). */
 .bookwriter-book-reader-stage {
   position: relative;
   width: 100%;
   max-width: var(--bookwriter-reader-book-width);
   height: var(--bookwriter-reader-book-height);
-  transform-style: preserve-3d;
+  perspective: 2400px;
 }
 
 /* ============ COVER ============ */
@@ -248,7 +285,13 @@
 .bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
   .bookwriter-book-reader-cover {
   transform: rotateY(-175deg);
-  box-shadow: -30px 10px 40px rgba(0, 0, 0, .4);
+  /* X-offset is 0: the cover's `transition` rule above only animates
+     `transform`, not `box-shadow`. With a non-zero X-offset, the shadow
+     would snap-paint a ~70px dark band BESIDE the cover the instant the
+     stage-open class lands (cover still flat at 0°), bleeding onto the
+     page underneath for ~1s until the rotation finishes hiding the
+     cover. Drop-only shadow keeps the lift visible without the strip. */
+  box-shadow: 0 10px 40px rgba(0, 0, 0, .4);
   z-index: 0;
   animation: bookwriter-cover-hide-after-flip 1.4s linear forwards;
 }
@@ -258,6 +301,25 @@
   100%    { visibility: hidden; }
 }
 
+/* PAGE-FRONT FADE-IN (v929) — REMOVED in v932 as a band-aid that the
+   architectural fixes in v930 + v931 made obsolete.
+   The fade-in was added when the cover and pages shared a single
+   `transform-style: preserve-3d` context — the cover would visually
+   leak the page beneath during the rotation because z-index lost to
+   3D depth ordering. Hiding the page until the cover finished
+   rotating worked around that, but it caused the user's next
+   complaint: "first page appears as empty cream then text suddenly
+   shows up" — exactly the blank-then-snap effect of opacity going
+   0 → 1 mid-cover-rotation.
+   The proper fix landed in v930 (.stage flat) + v931 (.pages flat):
+   cover and pages now stack via z-index in flat 2D, so the cover
+   ALWAYS visually covers the pages throughout its rotation. Pages
+   can be visible from t=0 — the cover blocks them naturally — then
+   the cover snaps to visibility:hidden at the end of its animation
+   and the already-visible page is revealed instantly with no fade.
+   No code below — this comment exists so a future reader does not
+   re-add the fade-in thinking it was necessary. */
+
 .bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
   .bookwriter-book-reader-cover-hint {
   opacity: 0;
@@ -265,10 +327,27 @@
 }
 
 /* ============ PAGES STACK ============ */
+/* PAGES — perspective without preserve-3d.
+   Same root-cause fix as .stage above (line ~104). With preserve-3d
+   here, page-sheet siblings shared a single 3D coordinate system,
+   so z-index was overridden by actual 3D depth. The deterministic
+   z-index ladder (lines ~378-) only worked at REST (all sheets at
+   z=0) — but mid-flip the rotating sheet's right edge swung to
+   z = -640 (behind the flat sibling sheets at z=0), and 3D depth
+   sorting let those flat sheets paint over the moving sheet for
+   one frame ("forward-flip jump-snapshot" / "first page jumpy
+   issue" the user reported after the v930 stage fix exposed it).
+   Fix: drop preserve-3d here so page-sheets stack in flat 2D
+   relative to each other and z-index governs cleanly at every
+   moment, including mid-flip. Each .page-sheet keeps its OWN
+   preserve-3d (line ~352) so its internal front/back face flip
+   still renders in 3D — that internal 3D context is unaffected
+   by this change. Perspective moves here from .stage (still
+   present on .stage for the cover's rotation context). */
 .bookwriter-book-reader-pages {
   position: absolute;
   inset: 0;
-  transform-style: preserve-3d;
+  perspective: 2400px;
 }
 
 .bookwriter-book-reader-page-sheet {
@@ -310,6 +389,86 @@
 .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(8)  { z-index: 8; }
 .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(9)  { z-index: 9; }
 .bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped:nth-child(10) { z-index: 10; }
+
+/* DETERMINISTIC SHEET Z-INDEX LADDER — scales to ANY sheet count.
+
+   THE BUG THIS FIXES
+   The static :nth-child rules above only cover positions 1–10. The
+   `:nth-child(n+11) { z-index: 40 }` catch-all collapses every sheet
+   from position 11 onward onto the SAME z-index, so the responsive
+   paginator (commonly 14–25 sheets, future picture-galleries 1000+
+   sheets) ends up stacking those sheets by source order — the LAST
+   one in DOM paints on top of every earlier sibling. Symptom: at
+   chapter 4 the user sees chapter-8 content at rest; the correct
+   chapter only flashes during the page-flip (the .turning.flipped
+   rule transiently lifts the moving sheet above the broken stack).
+
+   THE FIX
+   JS sets --bookwriter-reader-sheet-position-from-top on every sheet.
+   These rules compute z-index from that custom property so the ladder
+   scales to any sheet count. Disjoint, very-large ranges keep every
+   unflipped sheet above every flipped sheet, with plenty of headroom
+   for 10 000+ page books (a July-2024-style photo gallery is the
+   worst-case shape we design for):
+     UNFLIPPED   z-index = 10 000 000 − position   (10M down to ~0)
+     FLIPPED     z-index = position                (1 up to ~10M)
+     TURNING     z-index = 10 000 001              (above every sheet)
+
+   These large values are SAFE — the stage already creates an isolated
+   stacking context via `transform: translateZ(0)` (the GPU pre-promote
+   rule at line ~304). Sheet z-index can therefore be arbitrarily large
+   without leaking out of the stage to compete with the controls or
+   floating buttons in the wrapper.
+
+   The `[style*="--bookwriter-reader-sheet-position-from-top"]` attribute
+   selector matches the same specificity as the existing nth-child
+   rules above ((0,2,0)). Source order then makes these rules win for
+   any sheet that has the variable set. Sheets without the variable
+   (no JS, JS error) fall back to the pre-existing nth-child ladder —
+   no regression for the no-JS path.
+
+   The turning-sheet override below uses 4 selectors so it wins over
+   the legacy `.turning.flipped { z-index: 100 }` rule earlier in the
+   file (which is far below our new unflipped range and would let
+   adjacent sheets pop over the moving sheet for one frame mid-flip
+   — the original forward-jump-snapshot bug class). */
+.bookwriter-book-reader-page-sheet[style*="--bookwriter-reader-sheet-position-from-top"] {
+  z-index: calc(10000000 - var(--bookwriter-reader-sheet-position-from-top));
+}
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-flipped[style*="--bookwriter-reader-sheet-position-from-top"] {
+  z-index: var(--bookwriter-reader-sheet-position-from-top);
+}
+.bookwriter-book-reader-page-sheet.bookwriter-book-reader-page-sheet-turning.bookwriter-book-reader-page-sheet-flipped[style*="--bookwriter-reader-sheet-position-from-top"] {
+  z-index: 10000001;
+}
+
+/* COVER STAYS ABOVE PAGE SHEETS — both at rest AND during open.
+   The pre-existing `.bookwriter-book-reader-cover { z-index: 100 }`
+   declaration was tuned for the legacy nth-child(1..10) sheet ladder
+   (max sheet z-index 50). Our new deterministic ladder pushes sheet
+   z-indices to the millions (~9.9M for sheet position 1), which
+   suddenly outranks the cover at z-index 100 — and the frontispiece
+   sheet starts painting OVER the cover at rest. Symptom: a strip of
+   the frontispiece's binding-shadow shows along the left of the
+   cover (only top half visible — the "vertical clip" the user
+   reported).
+
+   Fix: lift the cover above the sheet ladder in EVERY state. Two
+   rules below — first matches at rest (specificity 0,2,1: stage +
+   cover descendant), second matches during open (specificity 0,3,0).
+   Both set the same value so the cover stacks identically before,
+   during, and after the open-rotation; the existing CSS animation
+   `bookwriter-cover-hide-after-flip` and the JS `visibility: hidden`
+   write at the end of openTheBook() handle making the cover invisible
+   AFTER the rotation completes, so this z-index lift only matters
+   while the cover is visible. */
+.bookwriter-book-reader-stage .bookwriter-book-reader-cover {
+  z-index: 10000003;
+}
+.bookwriter-book-reader-stage.bookwriter-book-reader-stage-open
+  .bookwriter-book-reader-cover {
+  z-index: 10000003;
+}
 
 /* FORWARD-TURN JUMP-FIX: when a sheet is mid-flip (both -turning AND
    -flipped present), pin its z-index above every other sheet so the
@@ -357,13 +516,18 @@
 }
 
 .bookwriter-book-reader-page-front {
-  /* Bottom padding 160px so the last line of body text sits well
-     above the bottom edge of the page (book convention — generous
-     bottom margin gives the page a settled, finished look). */
-  padding: 55px 65px 160px;
+  /* Bottom padding 80px keeps a comfortable book-style bottom margin
+     while leaving enough usable content area on responsive book
+     sizes (520–940px height) to fit 2+ paragraphs per page. The
+     prior 160px swallowed nearly half the usable space on small
+     viewports and forced the paginator to flush after a single
+     paragraph, leaving every page visibly half-empty. 80px ≈
+     book-height/8 which is the printed-book convention for trade
+     paperbacks. */
+  padding: 55px 65px 80px;
 }
 .bookwriter-book-reader-page-back {
-  padding: 55px 65px 160px;
+  padding: 55px 65px 80px;
   transform: rotateY(180deg);
 }
 
@@ -412,26 +576,17 @@
   opacity: 1;
 }
 
-/* Spine binding shadow — darkens the gutter near the spine. */
-.bookwriter-book-reader-binding-shadow {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 60px;
-  background: linear-gradient(
-    to right,
-    rgba(0, 0, 0, .22) 0%,
-    rgba(0, 0, 0, .08) 40%,
-    rgba(0, 0, 0, 0) 100%);
-  pointer-events: none;
-  z-index: 4;
-}
-
+/* Spine binding shadow — was a 60px dark vertical gradient on the left
+   of every page front (mirrored on every page back). The original
+   intent was to darken the gutter near the spine for a real-book look,
+   but in practice the 60px-wide rgba(0,0,0,.22) strip read as
+   "vertical clipping on the page" — visible on the frontispiece the
+   moment the cover opens, then on every chapter page too. Disabled
+   until a subtler design lands. The DOM element + class are kept in
+   the template so this can be re-enabled with a single rule change. */
+.bookwriter-book-reader-binding-shadow,
 .bookwriter-book-reader-binding-shadow-mirrored {
-  left: auto;
-  right: 0;
-  transform: scaleX(-1);
+  display: none;
 }
 
 /* ============ PAGE CONTENT ============ */
@@ -536,7 +691,20 @@
 .bookwriter-book-reader-chapter-body p { margin: 0 0 .75em; }
 .bookwriter-book-reader-chapter-body img {
   max-width: 100%;
+  /* RESPONSIVE: cap image height so tall portrait images shrink to
+     fit the page-face content area instead of overflowing past the
+     visible page. The cap is `book-height − 200px` to account for
+     the running header (top), folio (bottom), and surrounding prose
+     in the same chapter-body container. `object-fit: contain` keeps
+     the aspect ratio intact when the cap kicks in. `display: block`
+     + `margin: 0 auto` centres the image horizontally so it doesn't
+     hug a single edge when smaller than the page width. */
+  max-height: calc(var(--bookwriter-reader-book-height) - 200px);
   height: auto;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
   border-radius: var(--radius-xs);
 }
 
@@ -660,6 +828,21 @@
   color: var(--bookwriter-reader-ink-soft);
   font-size: var(--text-lg);
   letter-spacing: 4px;
+}
+
+/* Inline closing flourish — appended to the bottom of the LAST chapter
+   page-front by page-book-reader.js IF there is room, so the writer
+   never sees a separate near-empty "end" sheet. Centered ornament
+   above the "end" line, with breathing room above the prose. The JS
+   removes this element if appending it overflows the page-front.    */
+.bookwriter-book-reader-colophon-inline {
+  text-align: center;
+  margin-top: 2.5em;
+  position: relative;
+  z-index: 2;
+}
+.bookwriter-book-reader-colophon-inline .bookwriter-book-reader-colophon-ornament {
+  margin-bottom: .4em;
 }
 
 /* ============ PAPER-TAB CONTROLS ============
@@ -868,6 +1051,41 @@
   opacity: 1;
 }
 
+/* ============ PER-CHAPTER PAGE INDICATOR ============
+   Top-right pill inside the book stage. Shows "X of Y" where X is
+   the 1-based position of the current sheet within its chapter and
+   Y is the total sheet count for that chapter. Hidden via the
+   `hidden` HTML attribute on non-chapter sheets (frontispiece) and
+   when no chapter sheet is currently shown.
+
+   Positioned absolute against .bookwriter-book-reader-stage-wrapper
+   so it lives in the wrapper's flat 2D stacking context (same
+   reasoning as the floating-buttons block below) — the page sheets'
+   3D preserve-3d context never paints over it.
+   Anchored 28px INSIDE the right edge of the centered book stage so
+   it sits visibly within the page's top-right corner with breathing
+   room from the close button which is OUTSIDE the book on the same
+   side. */
+.bookwriter-book-reader-chapter-page-indicator {
+  position: absolute;
+  top: 24px;
+  right: calc(50% - var(--bookwriter-reader-book-width) / 2 + 28px);
+  z-index: 50;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--bookwriter-reader-ink-soft);
+  background: rgba(255, 250, 234, .85);
+  padding: 6px 14px;
+  border-radius: var(--radius-sm, 4px);
+  border: 1px solid var(--bookwriter-reader-paper-edge-mid);
+  letter-spacing: .5px;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, .08);
+}
+
 /* ============ FLOATING BUTTONS (edit + close) ============
    These buttons live OUTSIDE .bookwriter-book-reader-stage so they
    are not in its `transform-style: preserve-3d` rendering context.
@@ -934,6 +1152,120 @@
 }
 .bookwriter-book-reader-floating-close:hover {
   transform: rotate(90deg);
+}
+
+/* Fullscreen pill: pinned to the BOTTOM-CENTRE of the VIEWPORT via
+   `position: fixed`. Switched from `position: absolute` (the default
+   from .bookwriter-book-reader-floating-button) because anchoring to
+   the wrapper meant the button had to fit inside the wrapper's 130px
+   padding-bottom — which was already filled by the ~70px jump-tab
+   pill, leaving no clearance. With `position: fixed` the button sits
+   on the viewport itself, always below the jump-tab, never clipped
+   by the wrapper's `overflow: hidden`. Reading affordance — visible
+   to owner AND public viewer. */
+.bookwriter-book-reader-floating-fullscreen {
+  position: fixed;
+  top: auto;
+  right: auto;
+  bottom: 4px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 200;
+}
+.bookwriter-book-reader-floating-fullscreen:hover {
+  /* Preserve the centring while applying the hover scale. */
+  transform: translateX(-50%) scale(1.08);
+}
+
+/* Icon SVG inside the fullscreen pill — sized to match the existing
+   floating-button glyph proportions. The button paints stroke from
+   currentColor so the SVG inherits the right ink colour without an
+   override. */
+.bookwriter-book-reader-floating-fullscreen-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+}
+.bookwriter-book-reader-floating-fullscreen-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+/* :fullscreen — when the user enters browser-native fullscreen via
+   the toggle button, the book height calc is tightened so the WHOLE
+   layout (breadcrumb + book + jump-tab + fullscreen button) fits
+   within the viewport WITHOUT page-scroll AND with comfortable
+   breathing space top + bottom.
+
+   The 320px chrome budget breaks down as:
+     breadcrumb           ~50px
+     wrapper padding-top   40px
+     wrapper padding-bot  130px (contains the jump-tab pill)
+     fullscreen button     50px (44px touch-target + 4px bottom inset + 2px gap)
+     breathing margin    ~50px (split top + bottom for eye-easy gaps)
+                         -----
+                          320px total
+   Width budget unchanged from non-fullscreen — the constraint is
+   vertical, not horizontal. The book still grows wider than its
+   non-fullscreen cap (840 vs 640) because more horizontal space is
+   genuinely available in fullscreen. */
+.bookwriter-book-reader-page:fullscreen,
+:fullscreen .bookwriter-book-reader-page,
+.bookwriter-book-reader-page:-webkit-full-screen,
+:-webkit-full-screen .bookwriter-book-reader-page {
+  --bookwriter-reader-book-height: min(1280px, max(520px, calc(100dvh - 310px)));
+  --bookwriter-reader-book-width:  min(840px, calc(100vw - 60px));
+}
+
+/* ============ DISTRACTION-FREE READING SHELL ============
+   The reader is its own focused surface. Hide the global page
+   header (Install App / language switcher / notification bell /
+   user dropdown), the global sidebar nav, AND the right panel
+   (clock / ticker / trending) so the breadcrumb + book + jump-tab
+   + fullscreen button get the entire viewport with eye-easy gaps
+   top + bottom — matches the desired-view screenshot the user
+   supplied.
+
+   Scoped via `body:has(.bookwriter-book-reader-page)` so this rule
+   ONLY triggers when the reader page is rendered; every other page
+   in the project keeps its global chrome intact. `:has()` is the
+   modern parent-selector pseudo-class supported by Chrome 105+,
+   Safari 15.4+, Firefox 121+ — fine for the project's target
+   audience. On older browsers the global chrome stays visible and
+   the page page-scrolls — graceful degradation, no broken layout.
+
+   We also strip <main>'s default 1rem padding + 1200px max-width
+   on the reader so the book + breadcrumb get the full viewport
+   width to work with. The .app-layout grid stays GRID (not block)
+   with the now-hidden columns collapsed to 0px — that keeps the
+   page-wrapper in its natural single-column flow without the
+   right-panel falling through to the page bottom. */
+body:has(.bookwriter-book-reader-page) .header,
+body:has(.bookwriter-book-reader-page) .sidebar-navigation,
+body:has(.bookwriter-book-reader-page) .right-panel {
+  display: none;
+}
+body:has(.bookwriter-book-reader-page) main {
+  padding: 0;
+  max-width: none;
+}
+body:has(.bookwriter-book-reader-page) .app-layout {
+  /* Single-column grid — sidebar AND right-panel siblings are
+     `display: none` above (removed from grid layout entirely), so
+     the only remaining visible child is .page-wrapper. With a
+     single-column 1fr template, page-wrapper takes the full
+     viewport width.
+
+     PRIOR BUG (now fixed): a 3-column template `0 minmax(0,1fr) 0`
+     caused page-wrapper to AUTO-PLACE into column 1 (0px wide)
+     because grid auto-placement uses DOM order — and with sidebar
+     hidden, page-wrapper became "first visible item" → column 1.
+     Result: main + breadcrumb + book all squeezed to 0px. The
+     single-column template avoids the auto-placement trap. */
+  grid-template-columns: 1fr;
+  max-width: none;
 }
 
 /* ============ FLOATING PREV / NEXT (lightbox pattern) ============
@@ -1010,6 +1342,9 @@
   }
   .bookwriter-book-reader-stage-wrapper {
     padding: 30px 12px 100px;
+  }
+  /* Perspective lives on .stage now (root-cause fix at line ~104). */
+  .bookwriter-book-reader-stage {
     perspective: 1800px;
   }
   .bookwriter-book-reader-cover-front  { padding: 50px 35px; }
@@ -1035,8 +1370,9 @@
 
 /* ============ TOUCH DEVICES ============ */
 @media (pointer: coarse) {
-  /* Tighter perspective + always-visible floating buttons (no hover). */
-  .bookwriter-book-reader-stage-wrapper { perspective: 1600px; }
+  /* Tighter perspective + always-visible floating buttons (no hover).
+     Perspective lives on .stage now (root-cause fix at line ~104). */
+  .bookwriter-book-reader-stage { perspective: 1600px; }
 }
 
 /* ============ REDUCED MOTION ============

@@ -985,20 +985,30 @@ def paginate_chapter_html_into_pages(
 
 
 def pack_chapter_pages_into_book_sheets(chapters_with_pages):
-    """Pack each chapter's paginated pages onto book sheets (front +
-    back faces, two faces per sheet). Each chapter starts a fresh
-    sheet so the chapter title always lands at the top of a clean
-    page (book convention). Returns a flat list of sheet dicts ready
-    for the reader template:
+    """Pack each chapter's paginated pages onto book sheets — ONE
+    PAGE PER SHEET (digital-book model).
+
+    Every paginated chapter page becomes its own sheet. The sheet's
+    FRONT face holds the page content; the BACK face is intentionally
+    blank (just the paper texture from CSS). This means:
+      - Total sheet count == total page count, so EVERY page is
+        reachable via Next/Prev/jump. No content hidden on a back
+        face that's only visible from the wrong angle.
+      - The 3D flip animation still runs page-to-page; the flipped
+        sheet's blank back briefly shows on the left during the
+        animation, like a real book leaf turning to reveal the
+        underlying page.
+
+    Returns a flat list of sheet dicts ready for the reader template:
 
         [{'chapter_number': 1,
           'chapter_title': 'Chapter One',
           'is_chapter_start_on_front': True,   # show title above front_html
           'front_html': '...',
-          'back_html': '...' or '',
-          'has_back_content': bool,
-          'front_page_label': 1,                # running arabic
-          'back_page_label': 2 or '',
+          'back_html': '',
+          'has_back_content': False,           # always False in this model
+          'front_page_label': 1,
+          'back_page_label': '',
          }, ...]
 
     `chapters_with_pages` is a list of dicts {chapter_number, chapter_title, pages_html_list}.
@@ -1008,28 +1018,21 @@ def pack_chapter_pages_into_book_sheets(chapters_with_pages):
 
     for chapter_dict in chapters_with_pages:
         chapter_pages = chapter_dict['pages_html_list']
-        for sheet_index_in_chapter in range(0, len(chapter_pages), 2):
+        for sheet_index_in_chapter in range(len(chapter_pages)):
             front_page_html = chapter_pages[sheet_index_in_chapter]
-            has_back = (sheet_index_in_chapter + 1) < len(chapter_pages)
-            back_page_html = chapter_pages[sheet_index_in_chapter + 1] if has_back else ''
 
             running_page_number += 1
             front_page_label = running_page_number
-            if has_back:
-                running_page_number += 1
-                back_page_label = running_page_number
-            else:
-                back_page_label = ''
 
             book_sheets.append({
                 'chapter_number': chapter_dict['chapter_number'],
                 'chapter_title': chapter_dict['chapter_title'],
                 'is_chapter_start_on_front': sheet_index_in_chapter == 0,
                 'front_html': front_page_html,
-                'back_html': back_page_html,
-                'has_back_content': has_back,
+                'back_html': '',
+                'has_back_content': False,
                 'front_page_label': front_page_label,
-                'back_page_label': back_page_label,
+                'back_page_label': '',
             })
 
     return book_sheets

@@ -109,7 +109,9 @@
             chapter; that face renders blank (with paper grain still)
         {% endcomment %}
         {% for book_sheet in book_reader_sheets_list %}
-          <div class="bookwriter-book-reader-page-sheet" data-bookwriter-sheet-type="chapter">
+          <div class="bookwriter-book-reader-page-sheet"
+               data-bookwriter-sheet-type="chapter"
+               data-bookwriter-sheet-chapter-number="{{ book_sheet.chapter_number }}">
             <div class="bookwriter-book-reader-page-face bookwriter-book-reader-page-front">
               <div class="bookwriter-book-reader-binding-shadow" aria-hidden="true"></div>
               {% comment %}
@@ -223,6 +225,18 @@
     </div>
 
     {% comment %}
+      Per-chapter page indicator — top-right of the book stage.
+      Shows "X of Y" where X is the current sheet's 1-based position
+      within its chapter and Y is the total sheet count for that
+      chapter. Hidden on non-chapter sheets (frontispiece). Updated
+      by page-book-reader.js inside refreshPageIndicator().
+    {% endcomment %}
+    <div class="bookwriter-book-reader-chapter-page-indicator"
+         id="bookwriter-book-reader-chapter-page-indicator"
+         aria-live="polite"
+         hidden></div>
+
+    {% comment %}
       Lightbox-style page navigation — middle-left / middle-right
       floating arrow buttons. Outside the 3D stage (same reason as
       edit/close). Visible only when book is open; disabled at
@@ -273,6 +287,29 @@
        aria-label="Close reader and return to library">
       <span aria-hidden="true">&times;</span>
     </a>
+
+    {% comment %}
+      Fullscreen toggle — mirrors the standard reading-app affordance
+      (Kindle web, ePub readers, video players). Uses the browser's
+      native Fullscreen API (document.documentElement.requestFullscreen)
+      so the browser hides its own chrome — URL bar, tabs, OS taskbar
+      — and the reader fills the screen. Esc exits universally.
+      Owner + public viewer both get this button (it's a reading
+      affordance, not an edit one). The icon swaps between expand
+      (⛶) and contract (⛶ + ✕) via JS based on the fullscreenchange
+      event so the same button enters AND exits fullscreen.
+    {% endcomment %}
+    <button type="button"
+            class="bookwriter-book-reader-floating-button bookwriter-book-reader-floating-fullscreen"
+            id="bookwriter-book-reader-floating-fullscreen-button"
+            name="bookwriter_book_reader_floating_fullscreen_button"
+            data-bookwriter-fullscreen-state="off"
+            title="Enter full screen — distraction-free reading (press Esc to exit)"
+            aria-label="Enter full screen reading mode">
+      <span class="bookwriter-book-reader-floating-fullscreen-icon"
+            id="bookwriter-book-reader-floating-fullscreen-icon"
+            aria-hidden="true">&#x26F6;</span>
+    </button>
 
   </div>
 </section>

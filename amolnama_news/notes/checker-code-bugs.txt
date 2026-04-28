@@ -1,3 +1,6 @@
+no revert without my permission
+no commit without my permission
+no changes any other codes without my permission
 --check where appropriate and related
 
 --check all the memory rules
@@ -34,7 +37,8 @@ then continue implementing it.
 --split into smaller tasks
 you should be writing plan.
 implementing step 1 to... and mark them once done.
-this way you know what is done and not.
+this way you know what is d
+one and not.
 
 ----database naming conventions
 follow naming conventions

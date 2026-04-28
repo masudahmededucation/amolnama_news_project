@@ -160,6 +160,18 @@
      which made scrollHeight measurements wrong and silently dropped
      content (the parrot-disappearing bug).
   ---------------------------------------------------------------- */
+  /* True if the ghost element holds anything a reader would actually
+     see (real text content OR a media element). Used INSTEAD of the
+     plainer `ghostElement.innerHTML.trim().length > 0` so flushed
+     pages are never just whitespace + empty `<p></p>` shells.
+     (Diagnosis from a 2026 Gemini consult — Bug 4: empty page 9.)  */
+  function _ghostHasVisibleContent(ghostElement) {
+    if (ghostElement.textContent && ghostElement.textContent.trim().length > 0) {
+      return true;
+    }
+    return ghostElement.querySelector('img, iframe, canvas, video, svg') !== null;
+  }
+
   function _paginateGhostChildrenIntoPages(ghostElement, pageHeightPx) {
     // Snapshot the children, then clear ghost to start measurement
     // from empty state. The snapshotted nodes still hold their
@@ -196,8 +208,15 @@
 
       if (ghostHasContent) {
         // sub-case (a): flush prior content as a page, retry node on
-        // a fresh empty page.
-        paginatedPagesHtml.push(ghostElement.innerHTML);
+        // a fresh empty page. The visibility check guards against
+        // pushing a page whose innerHTML is just whitespace / empty
+        // shell tags (defense in depth — `ghostHasContent` should
+        // already be false in that case, but the dual check costs
+        // nothing and prevents the empty-page-9 regression class
+        // from sneaking back in via a different code path).
+        if (_ghostHasVisibleContent(ghostElement)) {
+          paginatedPagesHtml.push(ghostElement.innerHTML);
+        }
         ghostElement.innerHTML = '';
         ghostElement.appendChild(nodeBeingMeasured);
 
@@ -225,7 +244,9 @@
         if (!ghostElement.contains(nodeBeingMeasured)) {
           ghostElement.appendChild(nodeBeingMeasured);
         }
-        paginatedPagesHtml.push(ghostElement.innerHTML);
+        if (_ghostHasVisibleContent(ghostElement)) {
+          paginatedPagesHtml.push(ghostElement.innerHTML);
+        }
         ghostElement.innerHTML = '';
         continue;
       }
@@ -264,7 +285,9 @@
           // Roll back, flush page, start fresh paragraph with the
           // overflowing sentence.
           workingParagraph.innerHTML = contentBeforeSentence;
-          paginatedPagesHtml.push(ghostElement.innerHTML);
+          if (_ghostHasVisibleContent(ghostElement)) {
+            paginatedPagesHtml.push(ghostElement.innerHTML);
+          }
           ghostElement.innerHTML = '';
           workingParagraph = nodeBeingMeasured.cloneNode(false);
           workingParagraph.innerHTML = sentenceText;
@@ -273,8 +296,11 @@
       }
     }
 
-    // Flush any remaining content as the last page.
-    if (ghostElement.innerHTML.trim().length > 0) {
+    // Flush any remaining content as the last page — but only if it
+    // actually has visible content (text or media). Whitespace-only
+    // residue (e.g. an empty trailing `<p></p>` left by a paragraph
+    // sentence-split) must NOT become a blank final page.
+    if (_ghostHasVisibleContent(ghostElement)) {
       paginatedPagesHtml.push(ghostElement.innerHTML);
     }
 
@@ -282,10 +308,34 @@
   }
 
   /* ----------------------------------------------------------------
-     Pack each chapter's pages onto sheets (front + back, two faces
-     per sheet) and assign running arabic page numbers. Mirrors the
+     True if a paginated page-html string carries any visible content
+     (any text, or any <img>). Used to drop empty continuation pages
+     before they become blank sheets in the reader — without this
+     filter a chapter could end up with a sheet whose front face is
+     just the running header + folio + nothing, which the user reads
+     as a "missing" page (Bug: page 9 empty seen on chapter 5).
+  ---------------------------------------------------------------- */
+  function _isPageContentNonEmpty(pageHtml) {
+    if (!pageHtml) return false;
+    if (pageHtml.indexOf('<img') !== -1) return true;
+    var textOnly = pageHtml.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').trim();
+    return textOnly.length > 0;
+  }
+
+  /* ----------------------------------------------------------------
+     Pack each chapter's pages onto sheets — ONE PAGE PER SHEET
+     (digital-book model). Every paginated chapter page becomes its
+     own sheet; back face is intentionally blank. Mirrors the
      server-side `pack_chapter_pages_into_book_sheets` exactly so
-     either path produces the same sheet shape.
+     either pagination path produces the same sheet shape and the
+     reader behaves identically server- vs client-paginated.
+     Total sheet count == total page count → every page reachable.
+
+     Empty continuation pages are filtered out (defensive — the
+     paginator can land on a boundary that produces a blank
+     continuation page when chapters mix images and short prose).
+     Page 0 (chapter-start) is ALWAYS kept so the chapter title sheet
+     still exists for empty chapters.
   ---------------------------------------------------------------- */
   function _packChapterPagesIntoSheetData(chaptersWithPaginatedPages) {
     var bookSheetsList = [];
@@ -293,30 +343,32 @@
 
     for (var chapterIndex = 0; chapterIndex < chaptersWithPaginatedPages.length; chapterIndex++) {
       var chapterWithPages = chaptersWithPaginatedPages[chapterIndex];
-      var chapterPagesHtml = chapterWithPages.pagesHtmlList;
+      var rawChapterPagesHtml = chapterWithPages.pagesHtmlList;
 
-      for (var sheetIndexInChapter = 0; sheetIndexInChapter < chapterPagesHtml.length; sheetIndexInChapter += 2) {
+      // Drop empty continuation pages (kept page 0 unconditionally so
+      // the chapter title sheet always exists even if the body is empty).
+      var chapterPagesHtml = [];
+      for (var pageFilterIdx = 0; pageFilterIdx < rawChapterPagesHtml.length; pageFilterIdx++) {
+        if (pageFilterIdx === 0 || _isPageContentNonEmpty(rawChapterPagesHtml[pageFilterIdx])) {
+          chapterPagesHtml.push(rawChapterPagesHtml[pageFilterIdx]);
+        }
+      }
+
+      for (var sheetIndexInChapter = 0; sheetIndexInChapter < chapterPagesHtml.length; sheetIndexInChapter++) {
         var frontPageHtml = chapterPagesHtml[sheetIndexInChapter];
-        var hasBackContent = (sheetIndexInChapter + 1) < chapterPagesHtml.length;
-        var backPageHtml = hasBackContent ? chapterPagesHtml[sheetIndexInChapter + 1] : '';
 
         runningPageNumber += 1;
         var frontPageLabel = runningPageNumber;
-        var backPageLabel = '';
-        if (hasBackContent) {
-          runningPageNumber += 1;
-          backPageLabel = runningPageNumber;
-        }
 
         bookSheetsList.push({
           chapter_number: chapterWithPages.chapterNumber,
           chapter_title:  chapterWithPages.chapterTitle,
           is_chapter_start_on_front: sheetIndexInChapter === 0,
           front_html: frontPageHtml,
-          back_html:  backPageHtml,
-          has_back_content: hasBackContent,
+          back_html:  '',
+          has_back_content: false,
           front_page_label: frontPageLabel,
-          back_page_label:  backPageLabel,
+          back_page_label:  '',
         });
       }
     }
@@ -391,7 +443,8 @@
     return ''
       + '<div class="bookwriter-book-reader-page-sheet"'
         + ' data-bookwriter-sheet-type="chapter"'
-        + ' data-bookwriter-sheet-source="client-paginator">'
+        + ' data-bookwriter-sheet-source="client-paginator"'
+        + ' data-bookwriter-sheet-chapter-number="' + sheetData.chapter_number + '">'
       + frontFaceParts.join('')
       + backFaceParts.join('')
       + '<div class="bookwriter-book-reader-page-shade" aria-hidden="true"></div>'
@@ -411,6 +464,12 @@
     var fontFamily              = options.fontFamily      || DEFAULT_PAGE_FACE_FONT_FAMILY;
     var fontSizePx              = options.fontSizePx      || DEFAULT_PAGE_FACE_FONT_SIZE_PX;
     var lineHeight              = options.lineHeight      || DEFAULT_PAGE_FACE_LINE_HEIGHT;
+    // Book stage height (full page-front bounding rect height, NOT
+    // the inner content area). Used by the per-chapter image-constraint
+    // pass below to mirror `.chapter-body img { max-height: calc(book-
+    // height - 200px) }` on the actual rendered page. 0 means caller
+    // didn't measure it — image constraint pass becomes a no-op.
+    var bookHeightPx            = options.bookHeightPx    || 0;
 
     var ghostElement = _createGhostMeasurer({
       contentWidthPx: pageFaceContentWidthPx,
@@ -432,6 +491,30 @@
       }
       var chapter = chaptersData[chapterIndex];
       ghostElement.innerHTML = chapter.chapter_html || '';
+
+      // CONSTRAIN GHOST IMAGES to match the actual rendered size.
+      // .bookwriter-book-reader-chapter-body img in CSS sets:
+      //   max-width: 100%;
+      //   max-height: calc(var(--bookwriter-reader-book-height) - 200px);
+      // The ghost is OUTSIDE that selector chain (no .chapter-body
+      // ancestor, no --bookwriter-reader-book-height in scope), so
+      // without this loop ghost images render at NATURAL pixel size
+      // (commonly 600–1000px tall). The paginator then over-allocates
+      // page space for them — a page with an image becomes mostly
+      // white because the actual rendered image is much shorter than
+      // the ghost measured it to be, AND surrounding text gets pushed
+      // to subsequent pages that look "half empty". Mirroring the CSS
+      // rule on the ghost makes ghost-measurement match actual render.
+      if (bookHeightPx > 0) {
+        var imageMaxHeightPx = Math.max(0, bookHeightPx - 200);
+        var ghostImageList = ghostElement.querySelectorAll('img');
+        for (var ghostImageIdx = 0; ghostImageIdx < ghostImageList.length; ghostImageIdx++) {
+          ghostImageList[ghostImageIdx].style.maxWidth  = '100%';
+          ghostImageList[ghostImageIdx].style.maxHeight = imageMaxHeightPx + 'px';
+          ghostImageList[ghostImageIdx].style.height    = 'auto';
+        }
+      }
+
       return _waitForFontsAndImagesInGhost(ghostElement).then(function () {
         var paginatedPages = _paginateGhostChildrenIntoPages(
           ghostElement, pageFaceContentHeightPx,
