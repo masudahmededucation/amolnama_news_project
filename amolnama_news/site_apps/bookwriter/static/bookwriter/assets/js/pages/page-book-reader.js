@@ -470,6 +470,41 @@
     });
   }
 
+  /* TOC entries — click (or keyboard Enter on focused button) on any
+     chapter row jumps to that chapter's first page.
+     RESOLUTION: lookup by `data-bookwriter-toc-target-chapter-number`
+     against the live `allPageSheetElements[].dataset.bookwriterSheet
+     ChapterNumber` — finds the FIRST sheet that belongs to the target
+     chapter (= the chapter-start page). This is robust against the
+     client-side paginator re-numbering pages: server-side word-count
+     pagination might say "Chapter 5 starts at page 9" but after the
+     client paginator (which measures real font/image sizes) the same
+     chapter actually starts at sheet 12 — the chapter-number lookup
+     resolves to the live DOM position regardless of which paginator
+     produced the sheets.
+     stopPropagation prevents the stage-click page-turn handler (below)
+     from ALSO firing when the user clicks a button on the TOC sheet
+     (belt-and-suspenders — the stage handler also has its own TOC-
+     page guard added in v939). */
+  document.querySelectorAll('.bookwriter-book-reader-toc-link').forEach(function (tocLinkButton) {
+    tocLinkButton.addEventListener('click', function (tocClickEvent) {
+      tocClickEvent.stopPropagation();
+      var targetChapterNumberString = tocLinkButton.dataset.bookwriterTocTargetChapterNumber;
+      if (!targetChapterNumberString) return;
+      var targetSheetIndex = -1;
+      for (var sheetSearchIdx = 0; sheetSearchIdx < allPageSheetElements.length; sheetSearchIdx++) {
+        if (allPageSheetElements[sheetSearchIdx].dataset.bookwriterSheetChapterNumber
+            === targetChapterNumberString) {
+          targetSheetIndex = sheetSearchIdx;
+          break;
+        }
+      }
+      if (targetSheetIndex >= 0) {
+        jumpToPageNumber(targetSheetIndex + 1);
+      }
+    });
+  });
+
   /* Keyboard navigation — left/right arrows + Esc to close. */
   document.addEventListener('keydown', function (documentKeyEvent) {
     if (document.activeElement === jumpInputElement) return;
@@ -488,12 +523,23 @@
   });
 
   /* Click on right half of stage = next, left half = prev — only when
-     open and the click didn't land on cover, controls, or floating btns. */
+     open and the click didn't land on cover, controls, floating btns,
+     or the TOC sheet (which has its own clickable chapter entries +
+     should ONLY be navigable via the prev/next floating buttons; the
+     large left/right click area would conflict with the chapter-jump
+     buttons on this page). The TOC lives on the page-BACK of the
+     frontispiece sheet, so the guard targets that specific area
+     across the entire back face — including empty space — not just
+     the toc-list itself, so clicking anywhere on the TOC page is
+     ignored by the stage page-turn handler. */
   stageElement.addEventListener('click', function (stageClickEvent) {
     if (!isBookCurrentlyOpen || isCurrentlyAnimating) return;
     if (stageClickEvent.target.closest('.bookwriter-book-reader-cover')) return;
     if (stageClickEvent.target.closest('.bookwriter-book-reader-controls')) return;
     if (stageClickEvent.target.closest('.bookwriter-book-reader-floating-button')) return;
+    if (stageClickEvent.target.closest(
+      '.bookwriter-book-reader-page-sheet[data-bookwriter-sheet-type="frontispiece"] .bookwriter-book-reader-page-back'
+    )) return;
     var stageRect = stageElement.getBoundingClientRect();
     var clickXWithinStage = stageClickEvent.clientX - stageRect.left;
     if (clickXWithinStage > stageRect.width / 2) turnToNextSheet();

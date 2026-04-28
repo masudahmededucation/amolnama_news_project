@@ -791,6 +791,11 @@
   margin-bottom: 0;
 }
 .bookwriter-book-reader-toc-chapter-kicker {
+  /* `display: block` so the kicker reserves the FULL row width inside
+     the toc-link button — without this, the inline default would let
+     the hit area collapse to text width on this row, leaving empty
+     stretches unresponsive to hover/click. */
+  display: block;
   font-family: 'Cormorant Garamond', serif;
   font-style: italic;
   font-size: var(--text-xs);
@@ -802,6 +807,58 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
+}
+/* TOC entry button — wraps each chapter's kicker + title-row inside a
+   real <button> so click + keyboard (Tab + Enter) BOTH jump to the
+   chapter's first page via jumpToPageNumber() in page-book-reader.js.
+   `display: flex; flex-direction: column` preserves the kicker-above-
+   title visual layout established in v937. Touch-target min-height +
+   touch-action per Gate 4 §22. Focus-visible ring uses the cover-gold
+   accent for typographic continuity with the book's own decoration. */
+.bookwriter-book-reader-toc-link {
+  display: flex;
+  flex-direction: column;
+  /* width: 100% + box-sizing: border-box guarantees the button
+     occupies the full toc-item width INCLUDING padding, so the hit
+     area covers the entire 2-row stripe. align-self: stretch is a
+     belt-and-suspenders against any flex parent that might not
+     auto-stretch buttons. */
+  width: 100%;
+  align-self: stretch;
+  box-sizing: border-box;
+  background: transparent;
+  border: 0;
+  padding: 6px 8px;
+  margin: 0;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  border-radius: var(--radius-xs);
+  min-height: var(--touch-target);
+  touch-action: manipulation;
+  transition: background-color var(--duration-fast, .15s) ease;
+}
+/* Darker hover background — uses the existing book palette token
+   `--bookwriter-reader-paper-bg-4` (#d9c79a, the deepest cream tone
+   in the paper scale). Reads as "this row is highlighted" against
+   the bg-1/bg-2 page background, on-brand with the cream/warm
+   typography of the book interior. Was rgba(0,0,0,.04) which the
+   user reported as "very very light greyish". */
+.bookwriter-book-reader-toc-link:hover {
+  background-color: var(--bookwriter-reader-paper-bg-4);
+}
+.bookwriter-book-reader-toc-link:active {
+  background-color: var(--bookwriter-reader-paper-edge-mid);
+}
+.bookwriter-book-reader-toc-link:focus-visible {
+  outline: 2px solid var(--bookwriter-reader-cover-gold, var(--accent));
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .bookwriter-book-reader-toc-link {
+    transition: none;
+  }
 }
 .bookwriter-book-reader-toc-text {
   color: var(--bookwriter-reader-ink);

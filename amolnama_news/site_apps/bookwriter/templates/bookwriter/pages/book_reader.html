@@ -79,12 +79,19 @@
               <ol class="bookwriter-book-reader-toc-list">
                 {% for chapter in book_chapters_for_reader %}
                   <li class="bookwriter-book-reader-toc-item">
-                    <span class="bookwriter-book-reader-toc-chapter-kicker">Chapter {{ chapter.chapter_number }}</span>
-                    <span class="bookwriter-book-reader-toc-title-row">
-                      <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
-                      <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
-                      <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
-                    </span>
+                    <button type="button"
+                            class="bookwriter-book-reader-toc-link"
+                            id="bookwriter-book-reader-toc-link-chapter-{{ chapter.chapter_number }}"
+                            name="bookwriter_book_reader_toc_link_chapter_{{ chapter.chapter_number }}"
+                            data-bookwriter-toc-target-chapter-number="{{ chapter.chapter_number }}"
+                            aria-label="Jump to Chapter {{ chapter.chapter_number }}: {{ chapter.chapter_title }}">
+                      <span class="bookwriter-book-reader-toc-chapter-kicker">Chapter {{ chapter.chapter_number }}</span>
+                      <span class="bookwriter-book-reader-toc-title-row">
+                        <span class="bookwriter-book-reader-toc-text">{{ chapter.chapter_title }}</span>
+                        <span class="bookwriter-book-reader-toc-dotline" aria-hidden="true"></span>
+                        <span class="bookwriter-book-reader-toc-page">{{ chapter.toc_page_label }}</span>
+                      </span>
+                    </button>
                   </li>
                 {% endfor %}
               </ol>
