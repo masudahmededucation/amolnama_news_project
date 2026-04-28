@@ -233,6 +233,28 @@ describe me the objectives,
 issues you are having, 
 the thing you have tried 
 - chapter with multiple page 
-or larger text splitting logic 
+or larger text splitting logic
 - for google. 
 include any the issues you are having
+
+
+i think pagination should be done on the client side browser basis right? i think you have done that already even got clue from gemini. describe me the responsive text, image, and pagination issues you are having to me for google.
+this is actually chapter 6. 7/8 same issues
+--new bug you have created
+not showing text - sometimes it jumps and show the text that is how i know. actually during page turning it shows
+
+tried to jump to page 1 from page 14 - it had 14 animation then went to page 1. it should one animation and one jump to page 1. are you clear?
+
+some texts are showing just half. it should be responsive and should have gone to the next page. happened on page 6.
+
+page 9 just empty page. so you have issue on pagination as well and also making the text responsive.
+
+--describe problems for google
+describe me the objectives, 
+issues you are having, 
+the thing you have tried 
+- chapter with multiple page 
+or larger text splitting logic
+- for google. 
+include any the issues you are having
+

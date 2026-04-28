@@ -236,3 +236,10 @@ on next previous page click
 we had this issue before in somewhere else
 check troubleshooting with less words to check
 
+
+
+also the first chapter 1 page 1 has empty text before image 
+- because image cannot fit in the same page. 
+so the only few text is show 
+- it is fine but looks odd. 
+it is happening for long time.
