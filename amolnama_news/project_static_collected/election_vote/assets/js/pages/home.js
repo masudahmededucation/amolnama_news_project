@@ -6,17 +6,22 @@
  *   voting-submission.js  — handlePartySelectionAndCastVote, displayVoteReceipt
  */
 
-/* --- Voting State --- */
-let selectedElection = null;
-let selectedDivision = null;
-let selectedDistrict = null;
-let selectedConstituency = null;
-let selectedParty = null;
+/* --- Voting State ---
+   `var` (not `let`) so SPA re-navigation re-loading this script does NOT
+   throw `Identifier 'selectedElection' has already been declared`. The
+   sibling voting-*.js modules access these by bare name, so they must
+   remain at top scope (which `var` keeps; an IIFE wrap would isolate
+   them and break cross-module access). */
+var selectedElection = null;
+var selectedDivision = null;
+var selectedDistrict = null;
+var selectedConstituency = null;
+var selectedParty = null;
 
 /* --- Bot-Detection Metrics --- */
-let voteStartTime = null;
-let interactionCount = 0;
-let stepTimestamps = [];
+var voteStartTime = null;
+var interactionCount = 0;
+var stepTimestamps = [];
 
 /* --- Track user interactions for bot detection --- */
 document.addEventListener('click', function () { interactionCount++; });

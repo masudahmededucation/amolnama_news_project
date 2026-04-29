@@ -2,12 +2,17 @@
 /* This file initializes state variables and loads all modular JS modules */
 
 
-/* ========== GLOBAL STATE VARIABLES ========== */
-let selectedDivision = null;
-let selectedDistrict = null;
-let selectedConstituency = null;
-let selectedParty = null;
-let currentVoteId = null;
+/* ========== GLOBAL STATE VARIABLES ==========
+   `var` (not `let`) so SPA re-navigation re-loading this script does NOT
+   throw `Identifier 'selectedDivision' has already been declared`. The
+   sibling voting-*.js modules access these by bare name, so they must
+   remain at top scope (which `var` keeps; an IIFE wrap would isolate
+   them and break cross-module access). */
+var selectedDivision = null;
+var selectedDistrict = null;
+var selectedConstituency = null;
+var selectedParty = null;
+var currentVoteId = null;
 
 /* ========== MODULE IMPORTS ========== */
 /* All modular functionality is imported from:
