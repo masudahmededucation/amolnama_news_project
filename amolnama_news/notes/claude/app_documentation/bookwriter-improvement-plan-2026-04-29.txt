@@ -1,0 +1,278 @@
+================================================================
+  BOOKWRITER IMPROVEMENT PLAN — 2026-04-29
+================================================================
+Session-tag baseline:  restore-point-post-v955-bookwriter-sweep
+Last commit on origin: 8881118d
+================================================================
+
+This plan covers the deferred items flagged during the
+2026-04-29 comprehensive bookwriter audit. Items are grouped
+by risk tier. Execute one item at a time; reassess after each
+before starting the next. Mark each item COMPLETE here when
+shipped + verified + committed.
+
+================================================================
+  TIER 1 — SAFE QUICK WINS (~2-3 days total; very low risk)
+  Strict additive, no behavior change, easy to verify.
+================================================================
+
+[ ] 1.1  Cache DOM queries in cover designer (~30 min)
+        File: bookwriter-cover-designer.js
+        Issue: Click handlers re-run document.querySelectorAll(
+          '.bookwriter-cover-template-tile'
+        ) etc. every click; nested handler re-queries again.
+        Fix: Cache the NodeList at init (once) and reuse in
+          every click handler.
+        Test: Click each template/palette/background tile;
+          previous-tile deselect + new-tile select still works.
+        Risk: Very low. Pure refactor, no API change.
+        Status: PENDING
+
+[ ] 1.2  Batch chapter prefetch in feedback (~1 hr)
+        File: views_api_collaboration.py around lines 440-540
+        Issue: Per-comment Chapter.objects.filter(...).first()
+          runs once per row in a 500-row loop.
+        Fix: Collect all chapter IDs from comment rows, then
+          Chapter.objects.in_bulk(chapter_ids) once into a
+          dict, look up per row from the dict.
+        Test: Open feedback page on a book with multiple
+          chapter comments; chapter info still renders per row.
+        Risk: Very low. ORM in_bulk is well-tested.
+        Status: PENDING
+
+[ ] 1.3  Bulk-validate ref enums (~2 hrs)
+        Files: views_api_book.py + views_api_collaboration.py
+        Issue: 6 separate RefXxx.objects.filter(...).exists()
+          calls per POST.
+        Fix: Pre-load ref tables once at request start into
+          frozensets; validate in-memory.
+        Test: POST each affected endpoint with valid + invalid
+          codes; same accept/reject behavior.
+        Risk: Low. Single SELECT replaces 6.
+        Status: PENDING
+
+[ ] 1.4  Parameterise 6 _resolve_*_for_owner functions (~1 hr)
+        File: views_api_helpers.py around lines 266-560
+        Issue: 6 near-identical functions
+          (_resolve_chapter_for_owner, _resolve_book_for_owner,
+          _resolve_plot_card_for_owner, _resolve_bible_entry_for_owner,
+          _resolve_margin_note_for_owner, _resolve_beta_reader_for_owner)
+          each doing lookup-verify-owner.
+        Fix: Single _resolve_model_for_owner(Model, id, user_id,
+          [extra_owner_check]) that takes the model class + id.
+          Update every caller to pass the model class.
+        Test: Each endpoint that previously called the per-model
+          resolver still returns same response on owner / non-owner
+          / missing-row cases.
+        Risk: Low. Mechanical refactor — pass Model class as arg.
+        Status: PENDING
+
+[ ] 1.5  Extract @owner_and_json_validated decorator (~1-2 hrs)
+        Files: views_api_book.py, views_api_chapter.py,
+          views_api_collaboration.py (9 endpoints)
+        Issue: Each endpoint repeats ~10 lines of auth + JSON-parse
+          + owner-resolve boilerplate.
+        Fix: Decorator that handles user_profile_id resolution,
+          JSON body parse, owner-resolve (using the parameterised
+          resolver from 1.4), and injects the resolved
+          (request, payload, owning_book) into the wrapped fn.
+        Test: Each decorated endpoint still returns 200 for owner
+          + valid payload, 403 for non-owner, 400 for invalid JSON.
+        Risk: Low. Endpoint shape unchanged; boilerplate moves
+          out of function bodies.
+        Status: PENDING
+
+After Tier 1: commit + tag restore-point-post-tier1-quick-wins.
+Then re-assess before starting Tier 2.
+
+================================================================
+  TIER 2 — MODERATE (~1 week; needs careful testing)
+  Has user-visible behavior change OR cross-system coordination.
+================================================================
+
+[ ] 2.1  Defer 6 sidebar queries on inkwell load (~3 days)
+        File: views.py around lines 223-308
+        Issue: 6 DB queries (bible categories, bible entries,
+          cover design, serial releases, beta share links, beta
+          readers) all run synchronously before template render,
+          blocking initial paint by ~500-800ms.
+        Fix: Move queries to async fetch endpoints; render the
+          inkwell page with skeleton placeholders + data-fetch
+          on DOMContentLoaded.
+        Test: Page paints immediately; skeletons replaced by
+          real data within ~200-400ms.
+        Risk: Medium. Skeleton-state UI needs polish; race
+          conditions if user clicks sidebar before fetch completes.
+        Status: PENDING
+
+[ ] 2.2  Dedup 6 hardcoded enum lists against ref tables (~1 day)
+        Files: views_api_collaboration.py:41-48 +
+          views_api_helpers.py:106-108 + bookwriter-prose-image.js:37-38
+        Issue: ALLOWED_BETA_PERMISSIONS, _IMG_SIZE_ALLOWED_VALUES
+          etc. duplicate DB ref-table data.
+        Fix: Add /api/refs/ endpoint that returns all ref tables
+          as JSON; JS pre-loads at page init. Python validates
+          against a cached snapshot of the ref table (refresh
+          every N minutes via run_background_task).
+        Test: Adding a new ref-table row appears in JS dropdowns
+          without code change.
+        Risk: Medium. New endpoint needs careful caching strategy.
+        Status: PENDING
+
+[ ] 2.3  Eliminate streak recompute loop on every inkwell load (~1 day)
+        File: views.py around lines 754-764
+        Issue: O(N) loop walks streak history per page load.
+        Fix: Cache the consecutive_days count in eng_user_streak
+          row OR Redis; invalidate when user adds a new
+          writing_session/sprint_session row (background_task).
+        Test: Streak display matches actual; cache invalidates
+          when new session added.
+        Risk: Medium. Cache-invalidation correctness.
+        Status: PENDING
+
+[ ] 2.4  Chapter prefetch on scroll in 3D reader (~half day)
+        File: page-book-reader.js
+        Issue: No prefetch for next-chapter HTML when reading;
+          user waits 2-3s when next chapter starts.
+        Fix: IntersectionObserver fires prefetch when scroll
+          reaches 70% of current chapter; debounced; cancellable
+          if user changes direction.
+        Test: Open dev tools network tab; verify prefetch
+          fires at 70% scroll, not before.
+        Risk: Medium. Spam if user fast-scrolls; debounce essential.
+        Status: PENDING
+
+[ ] 2.5  Split 4 large Python files (~half day each)
+        Files: views.py (1574), views_api_helpers.py (1148),
+          views_api_collaboration.py (886), views_api_chapter.py (802)
+        Issue: Files too large to navigate; mixed concerns.
+        Fix: Split per-domain (e.g. views_library.py + views_editor.py
+          + views_reader.py + views_feedback.py for views.py).
+          Update imports in urls.py + each split file.
+        Test: python manage.py check + URL routes still resolve
+          + each endpoint still returns same response.
+        Risk: Medium. Mechanical move-functions; risk = missed
+          import or circular import.
+        Status: PENDING
+
+After Tier 2: commit + tag restore-point-post-tier2-moderate-fixes.
+Then re-assess before starting Tier 3.
+
+================================================================
+  TIER 3 — RISKY (multi-day, real regression risk)
+  Defer until there's concrete maintenance pain.
+================================================================
+
+[ ] 3.1  Split page-inkwell.js (2340 lines → ~10 modules)
+        File: page-inkwell.js
+        Issue: Monolithic IIFE with 10+ unrelated concerns
+          (word-count, save-chip, mode-switcher, snapshots,
+          sprints, beta-share, drag-reorder, corkboard, bible,
+          cover-designer).
+        Fix: Extract each concern into its own module.
+        Risk: High. IIFE-scoped vars, window.* exports, inline
+          onclick handlers all break if module boundaries cut wrong.
+          Needs feature-by-feature regression sweep.
+        Time: ~2 days for the split + 1 day testing.
+        Status: PENDING — defer until split is justified by a
+          concrete maintenance pain.
+
+[ ] 3.2  Split page-book-reader.js / page-public-reader.js
+        Files: page-book-reader.js (1227), page-public-reader.js (629)
+        Issue: Each contains multiple concerns (navigation,
+          pagination, fullscreen, TOC, sheet layout for the reader;
+          comments + reactions + view-tracking + beta highlights
+          for the public reader).
+        Risk: High. The book reader is the 3D state machine that
+          had v948 + v950 bug history; splitting it risks
+          re-introducing the kind of cache/state-coupling bugs
+          the recent fixes resolved.
+        Status: PENDING — defer.
+
+[ ] 3.3  Async pagination packing
+        File: views_api_helpers.py — pack_chapter_pages_into_book_sheets
+        Issue: Sync loop packs 100+ chapters into sheets;
+          ~300-600ms on large book opens.
+        Fix: Worker-side pagination (move the algorithm to a
+          Web Worker on the client) OR async-capable Django response.
+        Risk: High. Pagination correctness regression possible;
+          this is the engine that v947+v950 stabilised.
+        Status: PENDING — defer until concrete pain.
+
+================================================================
+  DESIGN-CALL (NOT a "safe vs unsafe" choice)
+================================================================
+
+[ ] D.1  41 hardcoded font-sizes in page-inkwell.css
+        Issue: Sizes (5/8/10/11/17/22/28/32/38/42/44/56/72px) don't
+          exactly match the global --text-* scale
+          (12/14/16/18/20/24/30/36/48px).
+        Three options:
+          (a) Snap each to nearest token → visual change.
+          (b) Extend the token scale in colors.css with
+              additional sizes covering 5-72px range → touches
+              the global token vocabulary; affects every app
+              that uses --text-*.
+          (c) Leave hardcoded + document as design-intentional;
+              accept this single non-compliance.
+        Recommendation: discuss with design before any change.
+          Currently shipped: option (c) — sizes are hardcoded
+          and accepted.
+        Status: PENDING DESIGN REVIEW.
+
+================================================================
+  EXECUTION LOG (append as items complete)
+================================================================
+
+2026-04-29  Tier 1 executed:
+  [DONE] 1.1  bookwriter-cover-designer.js — 4 NodeLists cached
+              at outer scope (template tiles, font pick buttons,
+              palette tiles, background options) + the
+              upload-option single-element selector cached.
+              No visual/functional change. Cache bumped v956,
+              collectstatic mirrored.
+  [N/A]  1.2  Feedback comment render is ALREADY optimal — uses
+              one bulk __in= query for comments + pre-built
+              chapter_id_to_label and beta_reader_lookup_by_id
+              dicts. The performance agent's "batch chapter
+              prefetch" finding was incorrect; no N+1 to fix.
+  [DONE] 1.3  Cached ref-code validation. Added
+              _get_allowed_ref_codes(ref_model, code_field) helper
+              with module-level _allowed_ref_codes_cache dict
+              (lazy first-call fill, frozen for process lifetime,
+              empty-result skip-cache so fresh deploys re-fetch).
+              5 .exists() call sites swapped for cached frozenset
+              membership checks across views_api_book.py +
+              views_api_collaboration.py +
+              _is_valid_bible_category_code in helpers.
+              Tradeoff (user-approved): admin toggling is_active
+              on a ref row at runtime won't take effect until
+              Django restart. Verified via shell: all 5 ref tables
+              return expected lowercase code sets; cache populates
+              with 5 distinct keys after first call each.
+  [DONE] 1.4  Parameterised 3 of the 6 _resolve_*_for_owner
+              functions (chapter, plot_card, bible_entry) into
+              a single _resolve_child_of_book_for_owner(model,
+              pk_field, id, user_profile_id, label) helper. Each
+              of those 3 is now a 3-line wrapper. The other 3
+              resolvers (book, margin_note, beta_reader) stay as
+              named special cases — book IS the model (no child
+              lookup), margin_note returns 3-tuple via chapter
+              resolver, beta_reader delegates to book resolver.
+              Honest scope: 3-of-6, not 6-of-6.
+  [SKIP] 1.5  Decorator extraction reality-checked: ~20+
+              endpoints across 4 view files use 6 different
+              resolvers, not the 9-endpoint single-resolver
+              pattern initially scoped. A blanket decorator can't
+              handle the variety; would need 6 variants or a
+              resolver-injecting factory + per-endpoint signature
+              change + per-endpoint verification (per the
+              "research test verify" rule). Out of quick-win
+              scope. Recommend treating as Tier 2 with
+              per-resolver-type structured rollout.
+
+  Verified: python manage.py check passes (0 issues).
+  Files changed: bookwriter-cover-designer.js,
+    views_api_helpers.py, views_api_book.py,
+    views_api_collaboration.py, seo/views.py (cache v956),
+    project_static_collected mirror.

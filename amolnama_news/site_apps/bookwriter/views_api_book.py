@@ -36,6 +36,7 @@ from .models import (
     RefPublishCadence,
 )
 from .views_api_helpers import (
+    _get_allowed_ref_codes,
     _is_valid_hex_color,
     _read_json_body,
     _refresh_book_caches,
@@ -127,7 +128,7 @@ def api_bookwriter_book_title_save(request, book_id):
     # so null payloads are rejected.
     if 'book_status_code' in payload:
         candidate = payload['book_status_code']
-        if not isinstance(candidate, str) or not RefBookStatus.objects.filter(book_status_code=candidate, is_active=True).exists():
+        if not isinstance(candidate, str) or candidate not in _get_allowed_ref_codes(RefBookStatus, 'book_status_code'):
             return HttpResponseBadRequest('book_status_code must be a known status')
         updates['book_status_code'] = candidate
         update_fields.append('book_status_code')
@@ -148,7 +149,7 @@ def api_bookwriter_book_title_save(request, book_id):
 
     if 'book_visibility_code' in payload:
         candidate = payload['book_visibility_code']
-        if not isinstance(candidate, str) or not RefChapterVisibility.objects.filter(chapter_visibility_code=candidate, is_active=True).exists():
+        if not isinstance(candidate, str) or candidate not in _get_allowed_ref_codes(RefChapterVisibility, 'chapter_visibility_code'):
             return HttpResponseBadRequest('book_visibility_code must be a known visibility')
         updates['book_visibility_code'] = candidate
         update_fields.append('book_visibility_code')

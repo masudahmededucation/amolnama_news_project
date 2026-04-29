@@ -263,36 +263,50 @@ def strip_page_break_overlay_from_html(html_text):
     return ''.join(stripper.kept_html_parts)
 
 
-def _resolve_chapter_for_owner(chapter_id, user_profile_id):
-    """Look up an active chapter and verify the caller owns its book.
+def _resolve_child_of_book_for_owner(
+    child_model, child_pk_field_name, child_id, user_profile_id, child_human_label,
+):
+    """Common lookup for any child entity that has a direct
+    `link_bookwriter_coll_book_id` FK and is owned via the parent
+    book's owner. Used by `_resolve_chapter_for_owner`,
+    `_resolve_plot_card_for_owner`, `_resolve_bible_entry_for_owner`
+    (each is a thin wrapper around this).
 
-    Returns (chapter, owning_book) on success, or (None, error_response)
-    if anything fails. Centralises the lookup + auth chain so every
-    endpoint enforces the same checks.
+    Returns ((child_instance, owning_book), None) on success, or
+    (None, error_response) on any failure — same shape the wrappers
+    return so callers don't need to change.
     """
     try:
-        chapter = Chapter.objects.get(
-            bookwriter_chapter_id=chapter_id,
-            is_active=True,
-        )
-    except Chapter.DoesNotExist:
-        return None, JsonResponse({'ok': False, 'error': 'Chapter not found'}, status=404)
+        child_instance = child_model.objects.get(**{
+            child_pk_field_name: child_id,
+            'is_active': True,
+        })
+    except child_model.DoesNotExist:
+        return None, JsonResponse({'ok': False, 'error': child_human_label + ' not found'}, status=404)
 
     try:
         owning_book = CollBook.objects.get(
-            bookwriter_coll_book_id=chapter.link_bookwriter_coll_book_id,
+            bookwriter_coll_book_id=child_instance.link_bookwriter_coll_book_id,
         )
     except CollBook.DoesNotExist:
         logger.error(
-            'chapter %s points to missing book %s',
-            chapter_id, chapter.link_bookwriter_coll_book_id,
+            '%s %s points to missing book %s',
+            child_human_label.lower(), child_id, child_instance.link_bookwriter_coll_book_id,
         )
         return None, JsonResponse({'ok': False, 'error': 'Book not found'}, status=404)
 
     if owning_book.link_owner_user_profile_id != user_profile_id:
         return None, HttpResponseForbidden('Not the owner')
 
-    return (chapter, owning_book), None
+    return (child_instance, owning_book), None
+
+
+def _resolve_chapter_for_owner(chapter_id, user_profile_id):
+    """Look up an active chapter and verify the caller owns its book.
+    Returns ((chapter, owning_book), None) or (None, error_response)."""
+    return _resolve_child_of_book_for_owner(
+        Chapter, 'bookwriter_chapter_id', chapter_id, user_profile_id, 'Chapter',
+    )
 
 
 def _resolve_book_for_owner(book_id, user_profile_id):
@@ -436,58 +450,50 @@ def _refresh_book_caches(book_id):
 
 def _resolve_plot_card_for_owner(plot_card_id, user_profile_id):
     """Look up an active plot card and verify the caller owns its book.
-    Mirrors `_resolve_chapter_for_owner` but for the corkboard."""
-    try:
-        plot_card = PlotCard.objects.get(
-            bookwriter_plot_card_id=plot_card_id,
-            is_active=True,
-        )
-    except PlotCard.DoesNotExist:
-        return None, JsonResponse({'ok': False, 'error': 'Plot card not found'}, status=404)
-
-    try:
-        owning_book = CollBook.objects.get(
-            bookwriter_coll_book_id=plot_card.link_bookwriter_coll_book_id,
-        )
-    except CollBook.DoesNotExist:
-        logger.error(
-            'plot_card %s points to missing book %s',
-            plot_card_id, plot_card.link_bookwriter_coll_book_id,
-        )
-        return None, JsonResponse({'ok': False, 'error': 'Book not found'}, status=404)
-
-    if owning_book.link_owner_user_profile_id != user_profile_id:
-        return None, HttpResponseForbidden('Not the owner')
-
-    return (plot_card, owning_book), None
+    Returns ((plot_card, owning_book), None) or (None, error_response)."""
+    return _resolve_child_of_book_for_owner(
+        PlotCard, 'bookwriter_plot_card_id', plot_card_id, user_profile_id, 'Plot card',
+    )
 
 
 def _resolve_bible_entry_for_owner(bible_entry_id, user_profile_id):
     """Look up an active bible entry and verify the caller owns its book.
-    Mirrors `_resolve_chapter_for_owner` and `_resolve_plot_card_for_owner`."""
-    try:
-        bible_entry = BibleEntry.objects.get(
-            bookwriter_bible_entry_id=bible_entry_id,
-            is_active=True,
-        )
-    except BibleEntry.DoesNotExist:
-        return None, JsonResponse({'ok': False, 'error': 'Bible entry not found'}, status=404)
+    Returns ((bible_entry, owning_book), None) or (None, error_response)."""
+    return _resolve_child_of_book_for_owner(
+        BibleEntry, 'bookwriter_bible_entry_id', bible_entry_id, user_profile_id, 'Bible entry',
+    )
 
-    try:
-        owning_book = CollBook.objects.get(
-            bookwriter_coll_book_id=bible_entry.link_bookwriter_coll_book_id,
-        )
-    except CollBook.DoesNotExist:
-        logger.error(
-            'bible_entry %s points to missing book %s',
-            bible_entry_id, bible_entry.link_bookwriter_coll_book_id,
-        )
-        return None, JsonResponse({'ok': False, 'error': 'Book not found'}, status=404)
 
-    if owning_book.link_owner_user_profile_id != user_profile_id:
-        return None, HttpResponseForbidden('Not the owner')
+_allowed_ref_codes_cache = {}
 
-    return (bible_entry, owning_book), None
+
+def _get_allowed_ref_codes(ref_model, code_field_name):
+    """Return a frozenset of every ACTIVE code value in a ref table.
+
+    Process-lifetime cache: the first call hits the DB; subsequent calls
+    serve from memory. Tradeoff: if an admin/staff toggles is_active on
+    a ref row at runtime, this validation won't reject the formerly-active
+    code until the next Django restart. Acceptable because ref tables are
+    seeded at deploy and rarely touched at runtime; the marginal staleness
+    is worth eliminating an `.exists()` round-trip on every POST that
+    validates a ref code.
+
+    Empty-result protection: if the first call returns an empty set
+    (e.g. before seeds run on a fresh deploy), the cache entry is NOT
+    saved so the next call retries. Once a non-empty result lands, it's
+    frozen for the process lifetime.
+    """
+    cache_key = ref_model._meta.label_lower + ':' + code_field_name
+    cached_codes = _allowed_ref_codes_cache.get(cache_key)
+    if cached_codes:
+        return cached_codes
+    fresh_codes = frozenset(
+        ref_model.objects.filter(is_active=True)
+        .values_list(code_field_name, flat=True)
+    )
+    if fresh_codes:
+        _allowed_ref_codes_cache[cache_key] = fresh_codes
+    return fresh_codes
 
 
 def _is_valid_bible_category_code(category_code):
@@ -496,10 +502,7 @@ def _is_valid_bible_category_code(category_code):
     / 'lore' (whatever's active in ref_bible_category)."""
     if not category_code:
         return False
-    return RefBibleCategory.objects.filter(
-        bible_category_code=category_code,
-        is_active=True,
-    ).exists()
+    return category_code in _get_allowed_ref_codes(RefBibleCategory, 'bible_category_code')
 
 
 def _resolve_margin_note_for_owner(margin_note_id, user_profile_id):

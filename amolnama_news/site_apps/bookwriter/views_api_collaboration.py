@@ -29,6 +29,7 @@ from .models import (
 )
 from .views_api_helpers import (
     _generate_share_token,
+    _get_allowed_ref_codes,
     _read_json_body,
     _resolve_beta_reader_for_owner,
     _resolve_book_for_owner,
@@ -212,7 +213,7 @@ def api_bookwriter_book_beta_reader_invite(request, book_id):
         reader_display_name = _strip_html_to_plain(reader_display_name).strip()[:MAX_READER_DISPLAY_NAME_LENGTH] or None
 
     permission_code = payload.get('beta_permission_code') or 'read'
-    if not RefBetaPermission.objects.filter(beta_permission_code=permission_code, is_active=True).exists():
+    if permission_code not in _get_allowed_ref_codes(RefBetaPermission, 'beta_permission_code'):
         return HttpResponseBadRequest('beta_permission_code must be a known permission')
 
     avatar_initial = (reader_display_name or reader_email)[:1]
@@ -821,12 +822,12 @@ def api_bookwriter_release_view_record(request, serial_release_id):
 
     view_referrer_code = payload.get('view_referrer_code')
     if view_referrer_code is not None:
-        if not isinstance(view_referrer_code, str) or not RefViewReferrer.objects.filter(view_referrer_code=view_referrer_code, is_active=True).exists():
+        if not isinstance(view_referrer_code, str) or view_referrer_code not in _get_allowed_ref_codes(RefViewReferrer, 'view_referrer_code'):
             return HttpResponseBadRequest('view_referrer_code must be a known referrer')
 
     view_device_code = payload.get('view_device_code')
     if view_device_code is not None:
-        if not isinstance(view_device_code, str) or not RefViewDevice.objects.filter(view_device_code=view_device_code, is_active=True).exists():
+        if not isinstance(view_device_code, str) or view_device_code not in _get_allowed_ref_codes(RefViewDevice, 'view_device_code'):
             return HttpResponseBadRequest('view_device_code must be a known device')
 
     now = timezone.now()

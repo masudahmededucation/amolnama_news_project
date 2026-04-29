@@ -154,10 +154,15 @@
   }
 
   /* ---------- TEMPLATE TILES — single click handler does preview +
-       persist. (Was two separate handlers; collapsed.) ---------- */
-  document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (templateTileElement) {
+       persist. (Was two separate handlers; collapsed.)
+       Tier-1 perf: NodeList cached once at init and reused in the
+       click handler's deselect loop. Was: each click re-ran
+       document.querySelectorAll('.bookwriter-cover-template-tile')
+       which traverses the DOM. ---------- */
+  var allCoverTemplateTileElements = document.querySelectorAll('.bookwriter-cover-template-tile');
+  allCoverTemplateTileElements.forEach(function (templateTileElement) {
     templateTileElement.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-template-tile').forEach(function (otherTemplateTileElement) {
+      allCoverTemplateTileElements.forEach(function (otherTemplateTileElement) {
         otherTemplateTileElement.classList.remove('bookwriter-cover-template-tile-is-selected');
       });
       templateTileElement.classList.add('bookwriter-cover-template-tile-is-selected');
@@ -168,10 +173,11 @@
     });
   });
 
-  /* ---------- FONT BUTTONS — single handler. ---------- */
-  document.querySelectorAll('#fontPick button').forEach(function (fontPickButtonElement) {
+  /* ---------- FONT BUTTONS — single handler. Tier-1 perf: cached. ---------- */
+  var allFontPickButtonElements = document.querySelectorAll('#fontPick button');
+  allFontPickButtonElements.forEach(function (fontPickButtonElement) {
     fontPickButtonElement.addEventListener('click', function () {
-      document.querySelectorAll('#fontPick button').forEach(function (otherFontPickButtonElement) {
+      allFontPickButtonElements.forEach(function (otherFontPickButtonElement) {
         otherFontPickButtonElement.classList.remove('bookwriter-font-pick-button-is-active');
       });
       fontPickButtonElement.classList.add('bookwriter-font-pick-button-is-active');
@@ -208,10 +214,11 @@
     });
   }
 
-  /* ---------- PALETTE TILES — single handler. ---------- */
-  document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (paletteTileElement) {
+  /* ---------- PALETTE TILES — single handler. Tier-1 perf: cached. ---------- */
+  var allCoverPaletteTileElements = document.querySelectorAll('.bookwriter-cover-palette-tile');
+  allCoverPaletteTileElements.forEach(function (paletteTileElement) {
     paletteTileElement.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-cover-palette-tile').forEach(function (otherPaletteTileElement) {
+      allCoverPaletteTileElements.forEach(function (otherPaletteTileElement) {
         otherPaletteTileElement.classList.remove('bookwriter-cover-palette-tile-is-selected');
       });
       paletteTileElement.classList.add('bookwriter-cover-palette-tile-is-selected');
@@ -239,17 +246,22 @@
      background" — used by both the file-picker click on the Upload
      tile AND the drag-drop handler below. Swaps the upload-tile
      active state, sets currentBackgroundCode, paints the cover. */
+  /* Tier-1 perf: cache the background-option NodeList ONCE so both
+     the click-handler deselect loop and the upload-file applier can
+     reuse it. The upload-tile lookup also caches its single element. */
+  var allBackgroundOptionElements = document.querySelectorAll('.bookwriter-background-option');
+  var uploadBackgroundOptionElement = document.querySelector(
+    '.bookwriter-background-option[data-background-style-code="upload"]'
+  );
+
   function applyUploadedImageFileAsCoverBackground(imageFile) {
     if (!imageFile || (imageFile.type || '').indexOf('image/') !== 0) return;
     var fileReader = new FileReader();
     fileReader.onload = function (fileReadEvent) {
-      var uploadOptionElement = document.querySelector(
-        '.bookwriter-background-option[data-background-style-code="upload"]'
-      );
-      document.querySelectorAll('.bookwriter-background-option').forEach(function (otherBackgroundOptionElement) {
+      allBackgroundOptionElements.forEach(function (otherBackgroundOptionElement) {
         otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
       });
-      if (uploadOptionElement) uploadOptionElement.classList.add('bookwriter-background-option-is-selected');
+      if (uploadBackgroundOptionElement) uploadBackgroundOptionElement.classList.add('bookwriter-background-option-is-selected');
       currentBackgroundCode = 'upload';
       coverElement.style.background = 'url(' + fileReadEvent.target.result + ') center/cover, ' + currentPalette.backgroundColor;
       if (coverArtElement) coverArtElement.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
@@ -257,7 +269,7 @@
     fileReader.readAsDataURL(imageFile);
   }
 
-  document.querySelectorAll('.bookwriter-background-option').forEach(function (backgroundOptionElement) {
+  allBackgroundOptionElements.forEach(function (backgroundOptionElement) {
     backgroundOptionElement.addEventListener('click', function () {
       if (backgroundOptionElement.dataset.backgroundStyleCode === 'upload') {
         var fileInputElement = document.createElement('input');
@@ -270,7 +282,7 @@
         fileInputElement.click();
         return;
       }
-      document.querySelectorAll('.bookwriter-background-option').forEach(function (otherBackgroundOptionElement) {
+      allBackgroundOptionElements.forEach(function (otherBackgroundOptionElement) {
         otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
       });
       backgroundOptionElement.classList.add('bookwriter-background-option-is-selected');
