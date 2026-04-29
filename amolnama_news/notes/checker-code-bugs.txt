@@ -4,6 +4,11 @@ no changes any other codes without my permission
 check code where appropriate, related, 
 and compatible to our implementation
 only additive and forward changes only
+whatever you do 
+- the design, style and function 
+- should not change 
+- actually nothing should change. 
+only just improve the code to gold standard practice.
 
 --check all the memory rules
 then follow them if appropriate

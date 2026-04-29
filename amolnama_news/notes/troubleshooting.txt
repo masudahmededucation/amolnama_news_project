@@ -1,3 +1,13 @@
+--describe problems for google
+describe me the objectives, 
+issues you are having, 
+the thing you have tried 
+- chapter with multiple page 
+or larger text splitting logic
+- for google. 
+include any the issues you are having
+
+
 LEFT
 #	Task	What's needed
 1	Wire content create flows	When each app creates new content, INSERT into content_registry and set link_content_registry_id. Affects: post/views_api.py, newshub/views.py, poem/views_api.py, art/views_api.py, stories/views_api.py, bangladesh/views_api.py, debate/views_api.py
@@ -228,14 +238,6 @@ right? better for seo right?
 
 
 
---describe problems for google
-describe me the objectives, 
-issues you are having, 
-the thing you have tried 
-- chapter with multiple page 
-or larger text splitting logic
-- for google. 
-include any the issues you are having
 
 
 i think pagination should be done on the client side browser basis right? i think you have done that already even got clue from gemini. describe me the responsive text, image, and pagination issues you are having to me for google.
