@@ -134,11 +134,84 @@
   // mutate the sheet list (see _rebuildChapterSheetsWithClientSidePaginator).
   _applyDeterministicZIndexLadderToAllSheets();
 
+  /* v947 — page numbering follows BOOK CONVENTION (folio), not sheet
+     position. The reader has 3 kinds of sheets:
+       - frontispiece (title page)               — folio "i"
+       - toc          (Contents — I / II / III)  — folio "ii", "iii", "iv"...
+       - chapter      (body pages)                — folio "1", "2", "3"...
+     `maxChapterFolio` is the highest arabic folio across chapter sheets
+     (= total chapter pages), cached for fast indicator rendering and
+     for `jumpInputElement.max`. Recomputed at script init and after
+     the client-side paginator rebuilds chapter sheets. */
+  var maxChapterFolio = 0;
+
+  function _readChapterFolioFromSheetElement(sheetElement) {
+    if (!sheetElement || sheetElement.dataset.bookwriterSheetType !== 'chapter') {
+      return null;
+    }
+    var folioElement = sheetElement.querySelector(
+      '.bookwriter-book-reader-page-front .bookwriter-book-reader-folio'
+    );
+    if (!folioElement) return null;
+    var folioInteger = parseInt(folioElement.textContent.trim(), 10);
+    return isFinite(folioInteger) ? folioInteger : null;
+  }
+
+  function _recomputeMaxChapterFolioFromCurrentSheets() {
+    var newMax = 0;
+    for (var sheetIdx = 0; sheetIdx < allPageSheetElements.length; sheetIdx++) {
+      var folio = _readChapterFolioFromSheetElement(allPageSheetElements[sheetIdx]);
+      if (folio !== null && folio > newMax) newMax = folio;
+    }
+    maxChapterFolio = newMax;
+    if (jumpInputElement && newMax > 0) {
+      jumpInputElement.max = String(newMax);
+    }
+  }
+  _recomputeMaxChapterFolioFromCurrentSheets();
+
   function refreshPageIndicator() {
     if (pageIndicatorElement) {
-      var displayCurrent = (sheetsAlreadyTurnedCount + 1);
-      pageIndicatorElement.textContent =
-        displayCurrent + ' / ' + totalSheetCount;
+      /* v947 indicator uses BOOK CONVENTION:
+         - frontispiece                              → "Title"
+         - toc (Contents — I / II / III)             → "Contents — I"
+         - chapter                                   → "Page N of M"
+                                                       (N = current chapter
+                                                        folio, M = max
+                                                        chapter folio)
+         - colophon / unknown                        → fallback to sheet
+                                                       position so we
+                                                       never render blank.
+         User mental model now matches the printed folio on the page —
+         no more "I'm on page 6 but the indicator says 9 of 16"
+         confusion from sheet-position counting front matter. */
+      var currentSheetElement = allPageSheetElements[sheetsAlreadyTurnedCount];
+      var indicatorTextNew = '';
+      if (currentSheetElement) {
+        var sheetTypeForIndicator = currentSheetElement.dataset.bookwriterSheetType;
+        if (sheetTypeForIndicator === 'frontispiece') {
+          indicatorTextNew = 'Title';
+        } else if (sheetTypeForIndicator === 'toc') {
+          var tocRoman = currentSheetElement.dataset.bookwriterTocPageRoman;
+          if (tocRoman && tocRoman !== 'empty') {
+            indicatorTextNew = 'Contents — ' + tocRoman;
+          } else {
+            indicatorTextNew = 'Contents';
+          }
+        } else if (sheetTypeForIndicator === 'chapter') {
+          var currentFolio = _readChapterFolioFromSheetElement(currentSheetElement);
+          if (currentFolio !== null && maxChapterFolio > 0) {
+            indicatorTextNew = 'Page ' + currentFolio + ' of ' + maxChapterFolio;
+          } else {
+            indicatorTextNew = (sheetsAlreadyTurnedCount + 1) + ' / ' + totalSheetCount;
+          }
+        } else {
+          indicatorTextNew = (sheetsAlreadyTurnedCount + 1) + ' / ' + totalSheetCount;
+        }
+      } else {
+        indicatorTextNew = (sheetsAlreadyTurnedCount + 1) + ' / ' + totalSheetCount;
+      }
+      pageIndicatorElement.textContent = indicatorTextNew;
     }
     if (prevButtonElement) {
       prevButtonElement.disabled =
@@ -442,7 +515,39 @@
       jumpInputElement.focus();
       return;
     }
-    jumpToPageNumber(parseInt(rawInputValue, 10));
+    /* v947 — typed number is interpreted as a CHAPTER FOLIO (the
+       arabic page number printed on body pages), not as a sheet
+       position. Earlier behavior counted the frontispiece + every
+       Contents — N sheet, so typing "6" landed on chapter folio "3"
+       (because 3 front-matter sheets shifted everything by 3). The
+       lookup below resolves the typed number against each chapter
+       sheet's printed folio so the user types the same number they
+       SEE on the page. Front-matter pages (frontispiece, TOC) are
+       reachable via prev/next + the Contents shortcut button — the
+       jump input is body-page navigation only. */
+    var requestedChapterFolio = parseInt(rawInputValue, 10);
+    if (!isFinite(requestedChapterFolio) || requestedChapterFolio < 1) {
+      showJumpErrorMessage('Enter a valid page number');
+      jumpInputElement.focus();
+      return;
+    }
+    var resolvedSheetIndex = -1;
+    for (var folioLookupIdx = 0; folioLookupIdx < allPageSheetElements.length; folioLookupIdx++) {
+      var folioCandidate = _readChapterFolioFromSheetElement(allPageSheetElements[folioLookupIdx]);
+      if (folioCandidate === requestedChapterFolio) {
+        resolvedSheetIndex = folioLookupIdx;
+        break;
+      }
+    }
+    if (resolvedSheetIndex < 0) {
+      showJumpErrorMessage(
+        'No page ' + requestedChapterFolio
+        + (maxChapterFolio > 0 ? ' (book has ' + maxChapterFolio + ')' : '')
+      );
+      jumpInputElement.focus();
+      return;
+    }
+    jumpToPageNumber(resolvedSheetIndex + 1);
     jumpInputElement.value = '';
   }
 
