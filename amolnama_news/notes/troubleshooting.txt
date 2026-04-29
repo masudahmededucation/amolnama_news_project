@@ -260,3 +260,6 @@ or larger text splitting logic
 - for google. 
 include any the issues you are having
 
+
+
+--commit and push to remote then create restore point
