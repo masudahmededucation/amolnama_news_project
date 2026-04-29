@@ -45,7 +45,7 @@
 
   /* ---------- LIVE-PREVIEW STATE ---------- */
   var currentTemplateCode = 'classical';
-  var currentPalette      = { bg: '#f4ede0', fg: '#1a1612', accent: '#8b2a1f' };
+  var currentPalette      = { backgroundColor: '#f4ede0', foregroundColor: '#1a1612', accent: '#8b2a1f' };
   var currentBackgroundCode = 'solid';
   var zoomPercent = 100;
 
@@ -81,42 +81,42 @@
 
   /* ---------- BACKGROUND PAINT ---------- */
   function applyBackgroundToCoverPreview() {
-    coverElement.style.background = currentPalette.bg;
+    coverElement.style.background = currentPalette.backgroundColor;
     if (coverArtElement) coverArtElement.style.background = '';
 
     if (currentTemplateCode === 'photo' && coverArtElement) {
       coverArtElement.style.background =
         'linear-gradient(transparent 30%, rgba(0,0,0,0.55) 100%),' +
         'radial-gradient(ellipse at 30% 20%, ' + hexWithAlpha(currentPalette.accent, 0.3) + ', transparent 60%),' +
-        'linear-gradient(165deg, ' + currentPalette.fg + ' 0%, ' + currentPalette.accent + ' 60%, ' + currentPalette.bg + ' 100%)';
+        'linear-gradient(165deg, ' + currentPalette.foregroundColor + ' 0%, ' + currentPalette.accent + ' 60%, ' + currentPalette.backgroundColor + ' 100%)';
       return;
     }
 
     switch (currentBackgroundCode) {
       case 'solid':
-        coverElement.style.background = currentPalette.bg;
+        coverElement.style.background = currentPalette.backgroundColor;
         break;
-      case 'grad-1':
-        coverElement.style.background = 'linear-gradient(135deg, ' + currentPalette.bg + ', ' + currentPalette.accent + ')';
+      case 'gradient-1':
+        coverElement.style.background = 'linear-gradient(135deg, ' + currentPalette.backgroundColor + ', ' + currentPalette.accent + ')';
         break;
-      case 'grad-2':
-        coverElement.style.background = 'linear-gradient(165deg, ' + currentPalette.fg + ', ' + currentPalette.bg + ')';
+      case 'gradient-2':
+        coverElement.style.background = 'linear-gradient(165deg, ' + currentPalette.foregroundColor + ', ' + currentPalette.backgroundColor + ')';
         break;
-      case 'grad-3':
-        coverElement.style.background = 'linear-gradient(135deg, ' + currentPalette.fg + ', ' + shade(currentPalette.fg, 20) + ')';
+      case 'gradient-3':
+        coverElement.style.background = 'linear-gradient(135deg, ' + currentPalette.foregroundColor + ', ' + shade(currentPalette.foregroundColor, 20) + ')';
         break;
       case 'noise':
-        coverElement.style.background = currentPalette.bg;
+        coverElement.style.background = currentPalette.backgroundColor;
         if (coverArtElement) {
           coverArtElement.style.background = "url(\"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n'><feTurbulence baseFrequency='0.85' numOctaves='3'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.4'/></svg>\")";
           coverArtElement.style.mixBlendMode = 'multiply';
         }
         break;
       case 'dots':
-        coverElement.style.background = 'radial-gradient(' + currentPalette.fg + ' 1.5px, transparent 1.5px) 0 0 / 18px 18px, ' + currentPalette.bg;
+        coverElement.style.background = 'radial-gradient(' + currentPalette.foregroundColor + ' 1.5px, transparent 1.5px) 0 0 / 18px 18px, ' + currentPalette.backgroundColor;
         break;
       case 'stripes':
-        coverElement.style.background = 'repeating-linear-gradient(45deg, ' + currentPalette.accent + ', ' + currentPalette.accent + ' 6px, ' + currentPalette.bg + ' 6px, ' + currentPalette.bg + ' 18px)';
+        coverElement.style.background = 'repeating-linear-gradient(45deg, ' + currentPalette.accent + ', ' + currentPalette.accent + ' 6px, ' + currentPalette.backgroundColor + ' 6px, ' + currentPalette.backgroundColor + ' 18px)';
         break;
     }
   }
@@ -216,15 +216,15 @@
       });
       paletteTileElement.classList.add('bookwriter-cover-palette-tile-is-selected');
       currentPalette = {
-        bg:     paletteTileElement.dataset.bg,
-        fg:     paletteTileElement.dataset.fg,
-        accent: paletteTileElement.dataset.accent
+        backgroundColor: paletteTileElement.dataset.paletteBackgroundColor,
+        foregroundColor: paletteTileElement.dataset.paletteForegroundColor,
+        accent:          paletteTileElement.dataset.accent
       };
-      if (coverElement) coverElement.style.color = currentPalette.fg;
+      if (coverElement) coverElement.style.color = currentPalette.foregroundColor;
       applyBackgroundToCoverPreview();
       persistCoverFieldsAfterDebounce({
-        cover_palette_bg_hex_override:     currentPalette.bg     || null,
-        cover_palette_fg_hex_override:     currentPalette.fg     || null,
+        cover_palette_background_color_hex_override:     currentPalette.backgroundColor     || null,
+        cover_palette_foreground_color_hex_override:     currentPalette.foregroundColor     || null,
         cover_palette_accent_hex_override: currentPalette.accent || null,
       });
     });
@@ -244,14 +244,14 @@
     var fileReader = new FileReader();
     fileReader.onload = function (fileReadEvent) {
       var uploadOptionElement = document.querySelector(
-        '.bookwriter-background-option[data-bg="upload"]'
+        '.bookwriter-background-option[data-background-style-code="upload"]'
       );
       document.querySelectorAll('.bookwriter-background-option').forEach(function (otherBackgroundOptionElement) {
         otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
       });
       if (uploadOptionElement) uploadOptionElement.classList.add('bookwriter-background-option-is-selected');
       currentBackgroundCode = 'upload';
-      coverElement.style.background = 'url(' + fileReadEvent.target.result + ') center/cover, ' + currentPalette.bg;
+      coverElement.style.background = 'url(' + fileReadEvent.target.result + ') center/cover, ' + currentPalette.backgroundColor;
       if (coverArtElement) coverArtElement.style.background = 'linear-gradient(transparent 40%, rgba(0,0,0,0.55))';
     };
     fileReader.readAsDataURL(imageFile);
@@ -259,7 +259,7 @@
 
   document.querySelectorAll('.bookwriter-background-option').forEach(function (backgroundOptionElement) {
     backgroundOptionElement.addEventListener('click', function () {
-      if (backgroundOptionElement.dataset.bg === 'upload') {
+      if (backgroundOptionElement.dataset.backgroundStyleCode === 'upload') {
         var fileInputElement = document.createElement('input');
         fileInputElement.type = 'file';
         fileInputElement.accept = 'image/*';
@@ -274,7 +274,7 @@
         otherBackgroundOptionElement.classList.remove('bookwriter-background-option-is-selected');
       });
       backgroundOptionElement.classList.add('bookwriter-background-option-is-selected');
-      currentBackgroundCode = backgroundOptionElement.dataset.bg;
+      currentBackgroundCode = backgroundOptionElement.dataset.backgroundStyleCode;
       applyBackgroundToCoverPreview();
     });
   });

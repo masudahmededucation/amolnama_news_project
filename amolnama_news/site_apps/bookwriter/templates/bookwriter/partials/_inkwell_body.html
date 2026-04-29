@@ -487,22 +487,22 @@
       <div class="bookwriter-section">
         <div class="bookwriter-section-title">Palette</div>
         <div class="bookwriter-palettes" id="palettes">
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-classical{% if not saved_cover_design_state.cover_palette_bg_hex_override or saved_cover_design_state.cover_palette_bg_hex_override == '#f4ede0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#f4ede0" data-fg="#1a1612" data-accent="#8b2a1f">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-classical{% if not saved_cover_design_state.cover_palette_background_color_hex_override or saved_cover_design_state.cover_palette_background_color_hex_override == '#f4ede0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#f4ede0" data-palette-foreground-color="#1a1612" data-accent="#8b2a1f">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-noir{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1a1612' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#1a1612" data-fg="#f4ede0" data-accent="#c46a5d">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-noir{% if saved_cover_design_state.cover_palette_background_color_hex_override == '#1a1612' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#1a1612" data-palette-foreground-color="#f4ede0" data-accent="#c46a5d">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-forest{% if saved_cover_design_state.cover_palette_bg_hex_override == '#2d3b2d' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#2d3b2d" data-fg="#e8dcc0" data-accent="#c8945a">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-forest{% if saved_cover_design_state.cover_palette_background_color_hex_override == '#2d3b2d' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#2d3b2d" data-palette-foreground-color="#e8dcc0" data-accent="#c8945a">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-clay{% if saved_cover_design_state.cover_palette_bg_hex_override == '#c47a4f' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#c47a4f" data-fg="#f7e8d0" data-accent="#3d1f15">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-clay{% if saved_cover_design_state.cover_palette_background_color_hex_override == '#c47a4f' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#c47a4f" data-palette-foreground-color="#f7e8d0" data-accent="#3d1f15">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-midnight{% if saved_cover_design_state.cover_palette_bg_hex_override == '#1c2530' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#1c2530" data-fg="#d4c4a0" data-accent="#a03030">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-midnight{% if saved_cover_design_state.cover_palette_background_color_hex_override == '#1c2530' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#1c2530" data-palette-foreground-color="#d4c4a0" data-accent="#a03030">
             <span></span><span></span><span></span>
           </div>
-          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-sand{% if saved_cover_design_state.cover_palette_bg_hex_override == '#e8dcc0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-bg="#e8dcc0" data-fg="#3d1f15" data-accent="#5a6b3f">
+          <div class="bookwriter-cover-palette-tile bookwriter-cover-palette-tile-sand{% if saved_cover_design_state.cover_palette_background_color_hex_override == '#e8dcc0' %} bookwriter-cover-palette-tile-is-selected{% endif %}" data-palette-background-color="#e8dcc0" data-palette-foreground-color="#3d1f15" data-accent="#5a6b3f">
             <span></span><span></span><span></span>
           </div>
         </div>
@@ -518,18 +518,18 @@
                   name="bookwriter_cover_background_solid_button"
                   data-background-code="solid">Solid</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-1{% if saved_cover_design_state.cover_background_code == 'grad-1' %} bookwriter-cover-background-button-is-selected{% endif %}"
-                  id="bookwriter-cover-background-grad-1-button"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-gradient-1{% if saved_cover_design_state.cover_background_code == 'grad-1' %} bookwriter-cover-background-button-is-selected{% endif %}"
+                  id="bookwriter-cover-background-gradient-1-button"
                   name="bookwriter_cover_background_grad_1_button"
                   data-background-code="grad-1">Gradient 1</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-2{% if saved_cover_design_state.cover_background_code == 'grad-2' %} bookwriter-cover-background-button-is-selected{% endif %}"
-                  id="bookwriter-cover-background-grad-2-button"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-gradient-2{% if saved_cover_design_state.cover_background_code == 'grad-2' %} bookwriter-cover-background-button-is-selected{% endif %}"
+                  id="bookwriter-cover-background-gradient-2-button"
                   name="bookwriter_cover_background_grad_2_button"
                   data-background-code="grad-2">Gradient 2</button>
           <button type="button"
-                  class="bookwriter-cover-background-button bookwriter-cover-background-grad-3{% if saved_cover_design_state.cover_background_code == 'grad-3' %} bookwriter-cover-background-button-is-selected{% endif %}"
-                  id="bookwriter-cover-background-grad-3-button"
+                  class="bookwriter-cover-background-button bookwriter-cover-background-gradient-3{% if saved_cover_design_state.cover_background_code == 'grad-3' %} bookwriter-cover-background-button-is-selected{% endif %}"
+                  id="bookwriter-cover-background-gradient-3-button"
                   name="bookwriter_cover_background_grad_3_button"
                   data-background-code="grad-3">Gradient 3</button>
           <button type="button"
@@ -624,14 +624,14 @@
       <div class="bookwriter-desk-card">
         <h4>Background</h4>
         <div class="bookwriter-background-optionions" id="bgOptions">
-          <div class="bookwriter-background-option bookwriter-bg-solid bookwriter-background-option-is-selected" data-bg="solid" title="Solid"></div>
-          <div class="bookwriter-background-option bookwriter-bg-grad-1" data-bg="grad-1" title="Warm gradient"></div>
-          <div class="bookwriter-background-option bookwriter-bg-grad-2" data-bg="grad-2" title="Moss gradient"></div>
-          <div class="bookwriter-background-option bookwriter-bg-grad-3" data-bg="grad-3" title="Ink gradient"></div>
-          <div class="bookwriter-background-option bookwriter-bg-noise" data-bg="noise" title="Textured"></div>
-          <div class="bookwriter-background-option bookwriter-bg-dots" data-bg="dots" title="Dotted"></div>
-          <div class="bookwriter-background-option bookwriter-bg-stripes" data-bg="stripes" title="Stripes"></div>
-          <div class="bookwriter-background-option bookwriter-bg-upload" data-bg="upload" title="Upload image">+</div>
+          <div class="bookwriter-background-option bookwriter-background-solid bookwriter-background-option-is-selected" data-background-style-code="solid" title="Solid"></div>
+          <div class="bookwriter-background-option bookwriter-background-gradient-1" data-background-style-code="gradient-1" title="Warm gradient"></div>
+          <div class="bookwriter-background-option bookwriter-background-gradient-2" data-background-style-code="gradient-2" title="Moss gradient"></div>
+          <div class="bookwriter-background-option bookwriter-background-gradient-3" data-background-style-code="gradient-3" title="Ink gradient"></div>
+          <div class="bookwriter-background-option bookwriter-background-noise" data-background-style-code="noise" title="Textured"></div>
+          <div class="bookwriter-background-option bookwriter-background-dots" data-background-style-code="dots" title="Dotted"></div>
+          <div class="bookwriter-background-option bookwriter-background-stripes" data-background-style-code="stripes" title="Stripes"></div>
+          <div class="bookwriter-background-option bookwriter-background-upload" data-background-style-code="upload" title="Upload image">+</div>
         </div>
       </div>
 
@@ -797,38 +797,38 @@
         <div class="bookwriter-brand-mark">কলম</div>
         <div class="bookwriter-brand-tag">the book bible</div>
       </div>
-      <div class="bookwriter-bible-cats" id="bookwriter-bible-categories">
+      <div class="bookwriter-bible-categories" id="bookwriter-bible-categories">
         {% if book_bible_categories_list %}
           {% for category_row in book_bible_categories_list %}
-            <div class="bookwriter-bible-cat{% if forloop.first %} bookwriter-bible-cat-is-selected{% endif %}"
-                 data-cat="{{ category_row.category_code }}">
+            <div class="bookwriter-bible-category{% if forloop.first %} bookwriter-bible-category-is-selected{% endif %}"
+                 data-category-code="{{ category_row.category_code }}">
               <span>{% if category_row.category_icon %}{{ category_row.category_icon }} {% endif %}{{ category_row.category_name_en }}</span>
-              <span class="bookwriter-bible-cat-count" data-cat-count="{{ category_row.category_code }}">
+              <span class="bookwriter-bible-category-count" data-category-entry-count="{{ category_row.category_code }}">
                 {{ category_row.entry_count|stringformat:"02d" }}
               </span>
             </div>
           {% endfor %}
         {% else %}
           {# Anonymous / no-categories fallback — keeps the demo rail look. #}
-          <div class="bookwriter-bible-cat bookwriter-bible-cat-is-selected" data-cat="characters">
+          <div class="bookwriter-bible-category bookwriter-bible-category-is-selected" data-category-code="characters">
             <span>Characters</span>
-            <span class="bookwriter-bible-cat-count">07</span>
+            <span class="bookwriter-bible-category-count">07</span>
           </div>
-          <div class="bookwriter-bible-cat" data-cat="locations">
+          <div class="bookwriter-bible-category" data-category-code="locations">
             <span>Locations</span>
-            <span class="bookwriter-bible-cat-count">04</span>
+            <span class="bookwriter-bible-category-count">04</span>
           </div>
-          <div class="bookwriter-bible-cat" data-cat="objects">
+          <div class="bookwriter-bible-category" data-category-code="objects">
             <span>Objects &amp; Artifacts</span>
-            <span class="bookwriter-bible-cat-count">03</span>
+            <span class="bookwriter-bible-category-count">03</span>
           </div>
-          <div class="bookwriter-bible-cat" data-cat="research">
+          <div class="bookwriter-bible-category" data-category-code="research">
             <span>Research</span>
-            <span class="bookwriter-bible-cat-count">12</span>
+            <span class="bookwriter-bible-category-count">12</span>
           </div>
-          <div class="bookwriter-bible-cat" data-cat="lore">
+          <div class="bookwriter-bible-category" data-category-code="lore">
             <span>Lore &amp; Timeline</span>
-            <span class="bookwriter-bible-cat-count">05</span>
+            <span class="bookwriter-bible-category-count">05</span>
           </div>
         {% endif %}
       </div>
@@ -850,7 +850,7 @@
         {% for bible_entry_row in book_bible_entries_list %}
           <div class="bookwriter-bible-item{% if forloop.first %} bookwriter-bible-item-is-selected{% endif %}"
                data-bible-entry-id="{{ bible_entry_row.bookwriter_bible_entry_id }}"
-               data-cat="{{ bible_entry_row.bible_category_code }}">
+               data-category-code="{{ bible_entry_row.bible_category_code }}">
             <div class="bookwriter-bible-avatar"
                  {% if bible_entry_row.entry_avatar_color_hex and bible_entry_row.entry_avatar_color_hex_2 %}style="--bookwriter-bible-avatar-hex-1:{{ bible_entry_row.entry_avatar_color_hex }};--bookwriter-bible-avatar-hex-2:{{ bible_entry_row.entry_avatar_color_hex_2 }};"{% endif %}>
               {{ bible_entry_row.entry_avatar_initial|default:bible_entry_row.entry_name|slice:":1" }}
@@ -1089,7 +1089,7 @@
               <article class="bookwriter-serial bookwriter-publish-controls-row"
                        id="bookwriter-publish-controls-row-{{ ch.chapter_id }}"
                        data-bookwriter-chapter-id="{{ ch.chapter_id }}">
-                <div class="bookwriter-serial-num">{{ ch.chapter_number }}.</div>
+                <div class="bookwriter-serial-number">{{ ch.chapter_number }}.</div>
                 <div class="bookwriter-serial-body">
                   <h4>{{ ch.chapter_display_title }}</h4>
                   {% if ch.chapter_excerpt_text %}
@@ -1411,15 +1411,15 @@
 
       <div class="bookwriter-share-permission-group">
         <h4>What can readers do?</h4>
-        <div class="bookwriter-share-permission-tile bookwriter-share-permission-tile-is-selected" onclick="pickPerm(this)" data-perm="read">
+        <div class="bookwriter-share-permission-tile bookwriter-share-permission-tile-is-selected" onclick="pickPermission(this)" data-permission-code="read">
           <div class="bookwriter-share-permission-radio"></div>
           <div class="bookwriter-share-permission-text"><div class="bookwriter-share-permission-title">Read only</div><div class="bookwriter-share-permission-description">They can read every published chapter. No feedback, no notes.</div></div>
         </div>
-        <div class="bookwriter-share-permission-tile" onclick="pickPerm(this)" data-perm="comment">
+        <div class="bookwriter-share-permission-tile" onclick="pickPermission(this)" data-permission-code="comment">
           <div class="bookwriter-share-permission-radio"></div>
           <div class="bookwriter-share-permission-text"><div class="bookwriter-share-permission-title">Read &amp; leave margin notes</div><div class="bookwriter-share-permission-description">They can highlight passages and leave comments. They can't edit your manuscript.</div></div>
         </div>
-        <div class="bookwriter-share-permission-tile" onclick="pickPerm(this)" data-perm="suggest">
+        <div class="bookwriter-share-permission-tile" onclick="pickPermission(this)" data-permission-code="suggest">
           <div class="bookwriter-share-permission-radio"></div>
           <div class="bookwriter-share-permission-text"><div class="bookwriter-share-permission-title">Read &amp; suggest edits</div><div class="bookwriter-share-permission-description">Suggestions come to you as tracked changes you can accept or reject.</div></div>
         </div>
@@ -1436,7 +1436,7 @@
                      data-share-token="{{ share_row.share_link_token }}">
                   <div class="bookwriter-reader-avatar">{{ share_row.beta_permission_code|slice:":1" }}</div>
                   <div class="bookwriter-reader-name">…/{{ share_row.share_link_token|slice:":12" }}</div>
-                  <div class="bookwriter-reader-perm">{{ share_row.beta_permission_code }}</div>
+                  <div class="bookwriter-reader-permission">{{ share_row.beta_permission_code }}</div>
                   <button type="button" class="bookwriter-reader-remove bookwriter-revoke-share-button"
                           id="bookwriter-share-revoke-{{ share_row.bookwriter_beta_share_link_id }}-button"
                           name="bookwriter_share_revoke_{{ share_row.bookwriter_beta_share_link_id }}_button"
@@ -1453,7 +1453,7 @@
             <div class="bookwriter-reader">
               <div class="bookwriter-reader-avatar">M</div>
               <div class="bookwriter-reader-name">Marguerite Holloway</div>
-              <div class="bookwriter-reader-perm">comment</div>
+              <div class="bookwriter-reader-permission">comment</div>
               <button type="button" class="bookwriter-reader-remove"
                       id="bookwriter-share-reader-remove-1-button"
                       name="bookwriter_share_reader_remove_1_button"
@@ -1462,7 +1462,7 @@
             <div class="bookwriter-reader">
               <div class="bookwriter-reader-avatar bookwriter-reader-avatar-demo-moss">D</div>
               <div class="bookwriter-reader-name">Daniel Suh</div>
-              <div class="bookwriter-reader-perm">read</div>
+              <div class="bookwriter-reader-permission">read</div>
               <button type="button" class="bookwriter-reader-remove"
                       id="bookwriter-share-reader-remove-2-button"
                       name="bookwriter_share_reader_remove_2_button"
@@ -1471,7 +1471,7 @@
             <div class="bookwriter-reader">
               <div class="bookwriter-reader-avatar bookwriter-reader-avatar-demo-accent">R</div>
               <div class="bookwriter-reader-name">Rose Adeyemi</div>
-              <div class="bookwriter-reader-perm">suggest</div>
+              <div class="bookwriter-reader-permission">suggest</div>
               <button type="button" class="bookwriter-reader-remove"
                       id="bookwriter-share-reader-remove-3-button"
                       name="bookwriter_share_reader_remove_3_button"
@@ -1514,7 +1514,7 @@
                      data-beta-reader-id="{{ beta_reader_row.bookwriter_beta_reader_id }}">
                   <div class="bookwriter-reader-avatar">{{ beta_reader_row.reader_avatar_initial|default:beta_reader_row.reader_email|slice:":1" }}</div>
                   <div class="bookwriter-reader-name">{{ beta_reader_row.reader_display_name|default:beta_reader_row.reader_email }}</div>
-                  <div class="bookwriter-reader-perm">{{ beta_reader_row.beta_permission_code }}</div>
+                  <div class="bookwriter-reader-permission">{{ beta_reader_row.beta_permission_code }}</div>
                   <button type="button" class="bookwriter-reader-remove bookwriter-beta-reader-remove-button"
                           id="bookwriter-beta-reader-{{ beta_reader_row.bookwriter_beta_reader_id }}-remove-button"
                           name="bookwriter_beta_reader_{{ beta_reader_row.bookwriter_beta_reader_id }}_remove_button"

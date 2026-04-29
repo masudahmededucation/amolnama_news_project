@@ -99,10 +99,10 @@
         listElement.innerHTML = '';
         var noteRecords = data.margin_notes || [];
         if (noteRecords.length === 0) {
-          var emptyEl = document.createElement('div');
-          emptyEl.className = 'bookwriter-margin-notes-empty';
-          emptyEl.textContent = 'No margin notes for this chapter yet.';
-          listElement.appendChild(emptyEl);
+          var emptyElement = document.createElement('div');
+          emptyElement.className = 'bookwriter-margin-notes-empty';
+          emptyElement.textContent = 'No margin notes for this chapter yet.';
+          listElement.appendChild(emptyElement);
         } else {
           noteRecords.forEach(function (note) { listElement.appendChild(renderMarginNoteRow(note)); });
         }
@@ -130,8 +130,8 @@
       .then(function (data) {
         var listElement = document.getElementById('bookwriter-margin-notes-list');
         if (!listElement) return;
-        var emptyEl = listElement.querySelector('.bookwriter-margin-notes-empty');
-        if (emptyEl) emptyEl.parentNode.removeChild(emptyEl);
+        var emptyElement = listElement.querySelector('.bookwriter-margin-notes-empty');
+        if (emptyElement) emptyElement.parentNode.removeChild(emptyElement);
         listElement.appendChild(renderMarginNoteRow(data.margin_note || {}));
         inputElement.value = '';
       })

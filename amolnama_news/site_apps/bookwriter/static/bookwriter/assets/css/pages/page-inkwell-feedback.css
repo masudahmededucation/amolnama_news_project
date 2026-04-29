@@ -13,11 +13,11 @@
 .bookwriter-feedback-page {
   /* Page-scoped warm-paper palette — same family as the library and
      reader so the feedback page reads as part of the same product. */
-  --bookwriter-feedback-paper-bg-1:    #f5ead0;
-  --bookwriter-feedback-paper-bg-2:    #ead9b4;
+  --bookwriter-feedback-paper-background-1:    #f5ead0;
+  --bookwriter-feedback-paper-background-2:    #ead9b4;
   --bookwriter-feedback-paper-edge:    rgba(184, 164, 119, .55);
-  --bookwriter-feedback-card-bg:       #fffaea;
-  --bookwriter-feedback-card-bg-resolved: rgba(255, 250, 234, .55);
+  --bookwriter-feedback-card-background:       #fffaea;
+  --bookwriter-feedback-card-background-resolved: rgba(255, 250, 234, .55);
   --bookwriter-feedback-ink:           #1a1410;
   --bookwriter-feedback-ink-soft:      rgba(26, 20, 16, .72);
   --bookwriter-feedback-ink-fade:      rgba(26, 20, 16, .5);
@@ -35,7 +35,7 @@
   font-family: 'Cormorant Garamond', 'EB Garamond', serif;
   color: var(--bookwriter-feedback-ink);
   background:
-    radial-gradient(ellipse at top, var(--bookwriter-feedback-paper-bg-1) 0%, var(--bookwriter-feedback-paper-bg-2) 100%);
+    radial-gradient(ellipse at top, var(--bookwriter-feedback-paper-background-1) 0%, var(--bookwriter-feedback-paper-background-2) 100%);
   border-radius: var(--radius-sm);
   isolation: isolate;
 }
@@ -106,7 +106,7 @@
 
 .bookwriter-feedback-filter-chip {
   appearance: none;
-  background: var(--bookwriter-feedback-card-bg);
+  background: var(--bookwriter-feedback-card-background);
   border: 1px solid var(--bookwriter-feedback-line-strong);
   color: var(--bookwriter-feedback-ink-soft);
   font-family: 'Cormorant Garamond', serif;
@@ -124,7 +124,7 @@
               border-color var(--duration-fast, .15s) ease;
 }
 .bookwriter-feedback-filter-chip:hover {
-  background: var(--bookwriter-feedback-paper-bg-1);
+  background: var(--bookwriter-feedback-paper-background-1);
   color: var(--bookwriter-feedback-ink);
 }
 .bookwriter-feedback-filter-chip:focus-visible {
@@ -151,11 +151,11 @@
 }
 
 .bookwriter-feedback-filter-chip-reader-avatar {
-  --bookwriter-feedback-reader-avatar-bg: #7a6f5e;
+  --bookwriter-feedback-reader-avatar-background: #7a6f5e;
   width: 22px;
   height: 22px;
   border-radius: var(--radius-full);
-  background: var(--bookwriter-feedback-reader-avatar-bg);
+  background: var(--bookwriter-feedback-reader-avatar-background);
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--text-xs);
@@ -173,7 +173,7 @@
 }
 
 .bookwriter-feedback-comment-row {
-  background: var(--bookwriter-feedback-card-bg);
+  background: var(--bookwriter-feedback-card-background);
   border: 1px solid var(--bookwriter-feedback-line);
   border-radius: var(--radius-sm);
   padding: 18px 20px;
@@ -183,7 +183,7 @@
 }
 
 .bookwriter-feedback-comment-row-is-resolved {
-  background: var(--bookwriter-feedback-card-bg-resolved);
+  background: var(--bookwriter-feedback-card-background-resolved);
   opacity: .75;
 }
 
@@ -204,11 +204,11 @@
 }
 
 .bookwriter-feedback-comment-row-reader-avatar {
-  --bookwriter-feedback-reader-avatar-bg: #7a6f5e;
+  --bookwriter-feedback-reader-avatar-background: #7a6f5e;
   width: 28px;
   height: 28px;
   border-radius: var(--radius-full);
-  background: var(--bookwriter-feedback-reader-avatar-bg);
+  background: var(--bookwriter-feedback-reader-avatar-background);
   color: #fff;
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--text-xs);
@@ -320,7 +320,7 @@
 
 .bookwriter-feedback-comment-row-resolve-button {
   appearance: none;
-  background: var(--bookwriter-feedback-card-bg);
+  background: var(--bookwriter-feedback-card-background);
   border: 1px solid var(--bookwriter-feedback-line-strong);
   color: var(--bookwriter-feedback-ink);
   font-family: 'EB Garamond', serif;

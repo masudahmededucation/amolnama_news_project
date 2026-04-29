@@ -2075,12 +2075,12 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
 .bookwriter-bible-rail::-webkit-scrollbar { width: 6px; }
 .bookwriter-bible-rail::-webkit-scrollbar-thumb { background: var(--ink-whisper); border-radius: 3px; }
 
-.bookwriter-bible-cats {
+.bookwriter-bible-categories {
   padding: 22px 20px;
   border-bottom: 1px solid var(--line);
 }
 
-.bookwriter-bible-cat {
+.bookwriter-bible-category {
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -2093,15 +2093,15 @@ body.bookwriter-mode-bible .bookwriter-bible-view { display: grid; }
   transition: background 0.2s;
 }
 
-.bookwriter-bible-cat:hover { background: rgba(0,0,0,0.04); }
-.bookwriter-bible-cat-is-selected {
+.bookwriter-bible-category:hover { background: rgba(0,0,0,0.04); }
+.bookwriter-bible-category-is-selected {
   background: var(--paper);
   color: var(--ink);
   font-weight: 500;
   box-shadow: inset 3px 0 0 var(--accent);
 }
 
-.bookwriter-bible-cat-count {
+.bookwriter-bible-category-count {
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--bookwriter-text-meta);
   color: var(--ink-fade);
@@ -3170,7 +3170,7 @@ body.bookwriter-modal-open .bookwriter-modal-backdrop { display: flex; }
   color: var(--ink);
 }
 
-.bookwriter-reader-perm {
+.bookwriter-reader-permission {
   font-family: 'JetBrains Mono', monospace;
   font-size: var(--bookwriter-text-marker);
   letter-spacing: 0.15em;
@@ -3345,7 +3345,7 @@ body.bookwriter-mode-gallery .bookwriter-gallery-view { display: flex; }
   align-items: start;
 }
 
-.bookwriter-serial-num {
+.bookwriter-serial-number {
   font-family: 'Fraunces', serif;
   font-style: italic;
   font-weight: 400;
@@ -4059,27 +4059,27 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
 .bookwriter-background-option-is-selected { outline: 2px solid var(--accent); outline-offset: 1px; }
 .bookwriter-background-option:hover { transform: scale(1.06); }
 
-.bookwriter-bg-solid  { background: var(--paper); }
-.bookwriter-bg-grad-1 { background: linear-gradient(135deg, #e8c98a, #8b2a1f); }
-.bookwriter-bg-grad-2 { background: linear-gradient(165deg, #5a6b3f, #c8b79a); }
-.bookwriter-bg-grad-3 { background: linear-gradient(135deg, #1a1612, #3d342a); }
-.bookwriter-bg-noise  { background: #c46a5d; position: relative; }
-.bookwriter-bg-noise::after {
+.bookwriter-background-solid  { background: var(--paper); }
+.bookwriter-background-gradient-1 { background: linear-gradient(135deg, #e8c98a, #8b2a1f); }
+.bookwriter-background-gradient-2 { background: linear-gradient(165deg, #5a6b3f, #c8b79a); }
+.bookwriter-background-gradient-3 { background: linear-gradient(135deg, #1a1612, #3d342a); }
+.bookwriter-background-noise  { background: #c46a5d; position: relative; }
+.bookwriter-background-noise::after {
   content: '';
   position: absolute;
   inset: 0;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40'><filter id='n'><feTurbulence baseFrequency='0.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.3'/></svg>");
 }
-.bookwriter-bg-dots {
+.bookwriter-background-dots {
   background:
     radial-gradient(var(--ink) 1px, transparent 1px),
     var(--paper);
   background-size: 6px 6px;
 }
-.bookwriter-bg-stripes {
+.bookwriter-background-stripes {
   background: repeating-linear-gradient(45deg, var(--ochre), var(--ochre) 3px, var(--paper) 3px, var(--paper) 8px);
 }
-.bookwriter-bg-upload {
+.bookwriter-background-upload {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -4556,37 +4556,37 @@ body.bookwriter-mode-cover .bookwriter-cover-view { display: grid; }
    is byte-identical.
    ================================================================ */
 .bookwriter-cover-palette-tile-classical {
-  --bookwriter-palette-bg: #f4ede0;
-  --bookwriter-palette-fg: #1a1612;
+  --bookwriter-palette-background-color: #f4ede0;
+  --bookwriter-palette-foreground-color: #1a1612;
   --bookwriter-palette-accent: #8b2a1f;
 }
 .bookwriter-cover-palette-tile-noir {
-  --bookwriter-palette-bg: #1a1612;
-  --bookwriter-palette-fg: #f4ede0;
+  --bookwriter-palette-background-color: #1a1612;
+  --bookwriter-palette-foreground-color: #f4ede0;
   --bookwriter-palette-accent: #c46a5d;
 }
 .bookwriter-cover-palette-tile-forest {
-  --bookwriter-palette-bg: #2d3b2d;
-  --bookwriter-palette-fg: #e8dcc0;
+  --bookwriter-palette-background-color: #2d3b2d;
+  --bookwriter-palette-foreground-color: #e8dcc0;
   --bookwriter-palette-accent: #c8945a;
 }
 .bookwriter-cover-palette-tile-clay {
-  --bookwriter-palette-bg: #c47a4f;
-  --bookwriter-palette-fg: #f7e8d0;
+  --bookwriter-palette-background-color: #c47a4f;
+  --bookwriter-palette-foreground-color: #f7e8d0;
   --bookwriter-palette-accent: #3d1f15;
 }
 .bookwriter-cover-palette-tile-midnight {
-  --bookwriter-palette-bg: #1c2530;
-  --bookwriter-palette-fg: #d4c4a0;
+  --bookwriter-palette-background-color: #1c2530;
+  --bookwriter-palette-foreground-color: #d4c4a0;
   --bookwriter-palette-accent: #a03030;
 }
 .bookwriter-cover-palette-tile-sand {
-  --bookwriter-palette-bg: #e8dcc0;
-  --bookwriter-palette-fg: #3d1f15;
+  --bookwriter-palette-background-color: #e8dcc0;
+  --bookwriter-palette-foreground-color: #3d1f15;
   --bookwriter-palette-accent: #5a6b3f;
 }
-.bookwriter-cover-palette-tile span:nth-child(1) { background: var(--bookwriter-palette-bg); }
-.bookwriter-cover-palette-tile span:nth-child(2) { background: var(--bookwriter-palette-fg); }
+.bookwriter-cover-palette-tile span:nth-child(1) { background: var(--bookwriter-palette-background-color); }
+.bookwriter-cover-palette-tile span:nth-child(2) { background: var(--bookwriter-palette-foreground-color); }
 .bookwriter-cover-palette-tile span:nth-child(3) { background: var(--bookwriter-palette-accent); }
 
 

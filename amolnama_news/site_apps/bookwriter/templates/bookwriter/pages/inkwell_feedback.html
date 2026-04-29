@@ -70,7 +70,7 @@
               data-bookwriter-feedback-filter-kind="reader"
               data-bookwriter-feedback-filter-value="{{ reader.bookwriter_beta_reader_id }}">
         <span class="bookwriter-feedback-filter-chip-reader-avatar"
-              style="--bookwriter-feedback-reader-avatar-bg: {{ reader.reader_avatar_color_hex|default:'#7a6f5e' }};">{{ reader.reader_avatar_initial|default:"?" }}</span>
+              style="--bookwriter-feedback-reader-avatar-background: {{ reader.reader_avatar_color_hex|default:'#7a6f5e' }};">{{ reader.reader_avatar_initial|default:"?" }}</span>
         {{ reader.reader_display_name|default:reader.reader_email|default:"Beta reader" }}
       </button>
     {% endfor %}
@@ -89,7 +89,7 @@
           <header class="bookwriter-feedback-comment-row-header">
             <div class="bookwriter-feedback-comment-row-reader">
               <span class="bookwriter-feedback-comment-row-reader-avatar"
-                    style="--bookwriter-feedback-reader-avatar-bg: {{ comment.reader_avatar_color_hex }};"
+                    style="--bookwriter-feedback-reader-avatar-background: {{ comment.reader_avatar_color_hex }};"
                     aria-hidden="true">{{ comment.reader_avatar_initial }}</span>
               <span class="bookwriter-feedback-comment-row-reader-name">{{ comment.reader_display_name }}</span>
               <span class="bookwriter-feedback-comment-row-reader-permission">{{ comment.beta_permission_code }}</span>

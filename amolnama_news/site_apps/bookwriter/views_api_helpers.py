@@ -725,9 +725,9 @@ def resolve_book_cover_palette(book, cover_design_or_none):
     if cover_design_or_none is None:
         return dict(fallback_palette)
     return {
-        'main': cover_design_or_none.cover_palette_bg_hex_override or fallback_palette['main'],
+        'main': cover_design_or_none.cover_palette_background_color_hex_override or fallback_palette['main'],
         'dark': cover_design_or_none.cover_palette_accent_hex_override or fallback_palette['dark'],
-        'gold': cover_design_or_none.cover_palette_fg_hex_override or fallback_palette['gold'],
+        'gold': cover_design_or_none.cover_palette_foreground_color_hex_override or fallback_palette['gold'],
     }
 
 

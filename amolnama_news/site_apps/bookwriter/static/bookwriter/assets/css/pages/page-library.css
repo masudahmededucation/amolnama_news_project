@@ -16,9 +16,9 @@
 
 .bookwriter-library-page {
   /* Page-scoped warm-paper palette — does NOT leak to global :root. */
-  --bookwriter-library-paper-bg:        #f0e4c8;
-  --bookwriter-library-paper-bg-warm:   #e8d9b4;
-  --bookwriter-library-paper-bg-light:  #f5ead0;
+  --bookwriter-library-paper-background:        #f0e4c8;
+  --bookwriter-library-paper-background-warm:   #e8d9b4;
+  --bookwriter-library-paper-background-light:  #f5ead0;
   --bookwriter-library-ink:             #2a1f12;
   --bookwriter-library-ink-soft:        #4a3820;
   --bookwriter-library-ink-muted:       #7a6340;
@@ -26,7 +26,7 @@
   --bookwriter-library-accent:          #8b2a1a;
   --bookwriter-library-card-shadow:     0 8px 16px rgba(60, 40, 20, .25),
                                          0 16px 32px rgba(60, 40, 20, .2);
-  --bookwriter-library-card-pages-grad: linear-gradient(90deg, #c9b784 0%, #e8d6aa 40%, #b8a477 100%);
+  --bookwriter-library-card-pages-gradient: linear-gradient(90deg, #c9b784 0%, #e8d6aa 40%, #b8a477 100%);
 
   position: relative;
   min-height: 100vh;
@@ -34,9 +34,9 @@
   padding: 60px 30px 80px;
   background:
     radial-gradient(ellipse at top,
-      var(--bookwriter-library-paper-bg-light) 0%,
-      var(--bookwriter-library-paper-bg) 50%,
-      var(--bookwriter-library-paper-bg-warm) 100%);
+      var(--bookwriter-library-paper-background-light) 0%,
+      var(--bookwriter-library-paper-background) 50%,
+      var(--bookwriter-library-paper-background-warm) 100%);
   color: var(--bookwriter-library-ink);
   font-family: 'Cormorant Garamond', 'Noto Serif Bengali', serif;
   isolation: isolate;
@@ -308,7 +308,7 @@
   top: 5px;
   bottom: 5px;
   width: 6px;
-  background: var(--bookwriter-library-card-pages-grad);
+  background: var(--bookwriter-library-card-pages-gradient);
   border-radius: 0 2px 2px 0;
   box-shadow: inset 0 0 4px rgba(0, 0, 0, .25);
   z-index: 0;

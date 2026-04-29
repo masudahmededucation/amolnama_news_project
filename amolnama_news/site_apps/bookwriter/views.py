@@ -859,8 +859,8 @@ def _read_book_cover_design_state(current_book_id):
             'cover_background_code': None,
             'cover_title_size_pt': 42,
             'cover_letter_spacing_unit': 0,
-            'cover_palette_bg_hex_override': None,
-            'cover_palette_fg_hex_override': None,
+            'cover_palette_background_color_hex_override': None,
+            'cover_palette_foreground_color_hex_override': None,
             'cover_palette_accent_hex_override': None,
         }
 
@@ -895,8 +895,8 @@ def _read_book_cover_design_state(current_book_id):
         'cover_background_code': resolved_background_code,
         'cover_title_size_pt': saved_design.cover_title_size_pt,
         'cover_letter_spacing_unit': saved_design.cover_letter_spacing_unit,
-        'cover_palette_bg_hex_override': saved_design.cover_palette_bg_hex_override,
-        'cover_palette_fg_hex_override': saved_design.cover_palette_fg_hex_override,
+        'cover_palette_background_color_hex_override': saved_design.cover_palette_background_color_hex_override,
+        'cover_palette_foreground_color_hex_override': saved_design.cover_palette_foreground_color_hex_override,
         'cover_palette_accent_hex_override': saved_design.cover_palette_accent_hex_override,
     }
 

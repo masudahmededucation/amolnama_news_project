@@ -19,8 +19,8 @@
   /* Self-contained warm-paper palette (does NOT lean on the inkwell
      scope vars — this card embeds anywhere, including pages that
      don't load the inkwell stylesheet). */
-  --bookwriter-random-promo-paper-bg-1: #f5ead0;
-  --bookwriter-random-promo-paper-bg-2: #ead9b4;
+  --bookwriter-random-promo-paper-background-1: #f5ead0;
+  --bookwriter-random-promo-paper-background-2: #ead9b4;
   --bookwriter-random-promo-paper-edge: rgba(184, 164, 119, .6);
   --bookwriter-random-promo-ink:        #1a1410;
   --bookwriter-random-promo-ink-soft:   rgba(26, 20, 16, .7);
@@ -39,8 +39,8 @@
   padding: 18px;
   border-radius: var(--radius-sm);
   background:
-    radial-gradient(ellipse at 30% 20%, var(--bookwriter-random-promo-paper-bg-1) 0%, transparent 60%),
-    linear-gradient(180deg, var(--bookwriter-random-promo-paper-bg-1) 0%, var(--bookwriter-random-promo-paper-bg-2) 100%);
+    radial-gradient(ellipse at 30% 20%, var(--bookwriter-random-promo-paper-background-1) 0%, transparent 60%),
+    linear-gradient(180deg, var(--bookwriter-random-promo-paper-background-1) 0%, var(--bookwriter-random-promo-paper-background-2) 100%);
   border: 1px solid var(--bookwriter-random-promo-paper-edge);
   box-shadow: var(--elevation-2, 0 4px 12px rgba(0, 0, 0, .12));
   isolation: isolate;

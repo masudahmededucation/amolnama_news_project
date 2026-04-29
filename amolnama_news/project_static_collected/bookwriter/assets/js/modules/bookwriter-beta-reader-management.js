@@ -45,24 +45,24 @@
 
   function appendBetaReaderRowToList(betaReaderRecord) {
     if (!betaReaderListElement || !betaReaderRecord.id) return;
-    var emptyEl = betaReaderListElement.querySelector('.bookwriter-beta-reader-empty');
-    if (emptyEl) emptyEl.parentNode.removeChild(emptyEl);
+    var emptyElement = betaReaderListElement.querySelector('.bookwriter-beta-reader-empty');
+    if (emptyElement) emptyElement.parentNode.removeChild(emptyElement);
 
     var rowElement = document.createElement('div');
     rowElement.className = 'bookwriter-reader bookwriter-beta-reader-row';
     rowElement.dataset.betaReaderId = String(betaReaderRecord.id);
 
-    var avatarEl = document.createElement('div');
-    avatarEl.className = 'bookwriter-reader-avatar';
-    avatarEl.textContent = betaReaderRecord.avatar_initial || (betaReaderRecord.email || '?').slice(0, 1);
+    var avatarElement = document.createElement('div');
+    avatarElement.className = 'bookwriter-reader-avatar';
+    avatarElement.textContent = betaReaderRecord.avatar_initial || (betaReaderRecord.email || '?').slice(0, 1);
 
-    var nameEl = document.createElement('div');
-    nameEl.className = 'bookwriter-reader-name';
-    nameEl.textContent = betaReaderRecord.display_name || betaReaderRecord.email || '';
+    var nameElement = document.createElement('div');
+    nameElement.className = 'bookwriter-reader-name';
+    nameElement.textContent = betaReaderRecord.display_name || betaReaderRecord.email || '';
 
-    var permEl = document.createElement('div');
-    permEl.className = 'bookwriter-reader-perm';
-    permEl.textContent = betaReaderRecord.permission_code || 'read';
+    var permissionElement = document.createElement('div');
+    permissionElement.className = 'bookwriter-reader-permission';
+    permissionElement.textContent = betaReaderRecord.permission_code || 'read';
 
     var removeButton = document.createElement('button');
     removeButton.type = 'button';
@@ -72,9 +72,9 @@
     removeButton.title = 'Remove this reader';
     removeButton.textContent = '×';
 
-    rowElement.appendChild(avatarEl);
-    rowElement.appendChild(nameEl);
-    rowElement.appendChild(permEl);
+    rowElement.appendChild(avatarElement);
+    rowElement.appendChild(nameElement);
+    rowElement.appendChild(permissionElement);
     rowElement.appendChild(removeButton);
     betaReaderListElement.appendChild(rowElement);
     wireBetaReaderRemoveButton(removeButton, rowElement);

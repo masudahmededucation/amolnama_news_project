@@ -4,6 +4,159 @@
 ============================================================
 
 Recent change log (most recent first):
+  2026-04-29  Comprehensive bookwriter quality + naming-compliance sweep.
+
+              **Bug fixes shipped (committed d7686315 + tagged
+              restore-point-post-v950-pre-naming-sweep on origin):**
+                * v948 — Floating prev/next buttons no longer toggle
+                  .disabled mid-flip; animation gate is enforced via
+                  the isCurrentlyAnimating JS flag only. Removes the
+                  Windows double-cursor artifact caused by the button
+                  switching between :hover (transform: translateX±4px)
+                  and :disabled (no transform) during the ~600ms flip.
+                  Pattern matches actions-bar.js (app-core.txt:52).
+                * v950 — Page indicator + TOC chapter starting pages
+                  now derive from a single source of truth: the live
+                  DOM. Drops the maxChapterFolio module cache that
+                  drifted when the client paginator rebuilt sheets
+                  with different folios than the server's word-count
+                  estimate (symptom: "Page 17 of 13").
+                  refreshPageIndicator now calls a pure
+                  _computeMaxChapterFolioFromCurrentSheets() per
+                  turn; new _populateTocPageLabelsFromCurrentSheets()
+                  writes live folios into the TOC's
+                  <span class="bookwriter-book-reader-toc-page"> at
+                  script init AND after every paginator rebuild.
+                  views.py: stopped baking server-side toc_page_label
+                  into the template; template renders empty span until
+                  JS populates.
+
+              **Naming-compliance sweep (~225 touch points across
+              11 files; cache bumped v951 then v952; collectstatic
+              mirrored; grep-verified zero leftover; NOT yet committed):**
+                * Filename rename: bookwriter-beta-reader-mgmt.js →
+                  bookwriter-beta-reader-management.js + 5 ref updates.
+                * `cat` cluster: data-cat / data-cat-count /
+                  dataset.cat / .bookwriter-bible-cat-* CSS classes
+                  / callback param — all renamed to category equivalents.
+                * `perm` cluster: pickPerm() → pickPermission(),
+                  data-perm → data-permission-code, dataset.perm →
+                  dataset.permissionCode, .bookwriter-reader-perm →
+                  .bookwriter-reader-permission, permEl/permElement →
+                  permissionElement.
+                * .bookwriter-serial-num → .bookwriter-serial-number.
+                * `bg`/`fg`/`grad` mega-batch: 28 CSS variables, 16
+                  CSS classes, 14 HTML data-attrs split into
+                  data-palette-background-color (palette context)
+                  vs data-background-style-code (background-style
+                  context), JS object keys currentPalette.bg/.fg →
+                  .backgroundColor/.foregroundColor, JS dataset reads
+                  per-context, switch cases 'grad-N' → 'gradient-N',
+                  inline-style refs in inkwell_feedback.html, 3
+                  .bookwriter-cover-background-grad-N CSS class+ID
+                  prefixes (DB-bound 'grad-N' value comparisons in
+                  saved-state branches RETAINED until DB migration).
+                * *El abbreviation cleanup: avatarEl, nameEl, emptyEl,
+                  bodyEl, footerEl, listEl, rowEl, headerEl, kindEl,
+                  timeEl, deleteEl, countEl, focusWordsEl, focusTimeEl
+                  → *Element. catch (e) → catch (error) (5 places).
+
+              **DB naming check: schema is COMPLIANT — NO migration needed.**
+              An earlier interpretation of CLAUDE.md Gate 7 wrongly
+              proposed renaming 16 bookwriter tables to add a `coll_`
+              prefix (chapter → coll_chapter, engagement_serial_* →
+              coll_engagement_serial_*, etc.). That was WRONG. The
+              project convention — visible across blog_art, blog_bangladesh,
+              blog_biography, blog_debate, blog_historybd, blog_poem,
+              blog_probashbarta, blog_stories, blog_studentlife —
+              uses `coll_` ONLY for the PRIMARY collection per app
+              and bare names for child sub-entities. Bookwriter
+              already follows this convention:
+                * Primary: coll_book.
+                * Bare children: chapter, chapter_snapshot, bible_entry,
+                  plot_card, margin_note, book_cover_design,
+                  serial_release, sprint_session, writing_session.
+                * Group-prefixed beta workflow: beta_share_link,
+                  beta_reader, beta_comment.
+                * engagement_serial_* (correct group prefix).
+                * eng_user_streak (computed/derived, eng_ prefix).
+                * 14 ref_* tables (static reference).
+              The earlier `bookwriter-v03-table-prefix-coll-migration.sql`
+              file exists but has been VOIDED with a clarifying note
+              explaining why no migration is needed. CLAUDE.md Gate 7
+              was updated 2026-04-29 with explicit anti-rule against
+              the blanket-coll_ misinterpretation, plus the precedent
+              examples from blog_art, blog_bangladesh, bookwriter so
+              future-me can't reinvent the wrong rule.
+
+              **Documented future work (NOT executed this session —
+              scope too large + risk of regression):**
+                * Modularise sweep findings:
+                  - 9 API endpoints share the same auth/JSON-parse
+                    boilerplate (~10-12 lines each) — extract decorator
+                    @owner_and_json_validated.
+                  - 6 _resolve_*_for_owner functions share the same
+                    lookup-verify pattern — parameterise as
+                    _resolve_model_for_owner(Model, id, user_id).
+                  - 5 Python files >800 lines (views.py 1574,
+                    views_api_helpers.py 1148, views_api_collaboration.py
+                    886, views_api_chapter.py 802) + 3 JS files
+                    (page-inkwell.js 2340, page-book-reader.js 1227,
+                    page-public-reader.js 629) candidates for split
+                    along feature-domain boundaries.
+                  - 6 hardcoded enum lists (beta permissions, comment
+                    kinds, suggestion resolutions, reaction kinds,
+                    image sizes/aligns, cover constraints) shadow DB
+                    ref tables — should query ref tables instead OR
+                    expose via a single ref-table API at app init.
+                  - MAX_CHAPTER_EXCERPT_LENGTH defined twice (helpers
+                    + chapter views) — keep one.
+                * Performance sweep findings (top 10 highest-impact):
+                  - Defer 6 sidebar-card queries on inkwell load
+                    (~500-800ms saved on initial paint).
+                  - Batch-prefetch chapters in feedback comment render
+                    (~2-4s saved on 500-comment pages — currently
+                    per-comment .filter(...).first()).
+                  - Async pagination packing in views_api_helpers.py
+                    pack_chapter_pages_into_book_sheets (~300-600ms on
+                    large book opens — currently sync loop).
+                  - Cache DOM queries in cover designer click handlers
+                    (3 nested querySelectorAll per click — cache on
+                    init).
+                  - Eliminate streak-recompute loop on every inkwell
+                    load (~100-200ms per load — cache in DB column).
+                  - Bulk-validate ref enums (~50-150ms per POST —
+                    currently 6 separate .exists() per request).
+                  - Add chapter prefetch on scroll in 3D reader
+                    (perceived 2-3s faster next-chapter open).
+                  - Use Counter for entries_per_category_count and
+                    single-pass for open/resolved comment counts.
+                * Styling sweep (page-inkwell.css + page-public-reader.css):
+                  41 hardcoded font-size values (5, 8, 10, 11, 17, 22,
+                  28, 32, 38, 42, 44, 56, 72px) do NOT exactly map to
+                  the global --text-* token scale (12/14/16/18/20/24/30/36/48px).
+                  Three options: (a) replace with closest token (changes
+                  visual sizes), (b) extend the token scale to cover
+                  these specific sizes, (c) accept hardcoded with a
+                  per-file design-intent block. Deferred to design review.
+
+              **Verified clean (no work needed):**
+                * id+name attribute compliance: every form/interactive
+                  element + every JS-created element already has both
+                  id+name where required.
+                * Bug scan: ZERO alert/confirm/prompt, ZERO threading.Thread,
+                  ZERO SQL injection, ZERO empty-string field violations,
+                  ZERO !important on display, ZERO nested <main> tags,
+                  ZERO TODO/FIXME comments, ZERO duplicate listeners.
+                * CSS quality: focus-visible rings present on all
+                  interactive classes, touch targets ≥44px, prefers-
+                  reduced-motion blocks present in all 9 CSS files,
+                  mobile breakpoints present, no internal <style> blocks
+                  (one PDF-export exception is allowed), no static design
+                  rules in inline style="" attributes (all 13 inline
+                  styles are dynamic CSS-variable injection — the
+                  documented allowed pattern).
+
   2026-04-27  Single canonical public reading surface — the 3D
               leather-bound book reader. Per-chapter public reader
               URL becomes a redirect.
@@ -1386,7 +1539,7 @@ Inspiration:  Inkwell design template (paper + ink + Fraunces +
                                                          sprint, share, corkboard, bible,
                                                          publish, persistence)
     modules/bookwriter-rail-pickers.js                 chapter status + book metadata fields
-    modules/bookwriter-beta-reader-mgmt.js             beta reader invite / list / remove
+    modules/bookwriter-beta-reader-management.js       beta reader invite / list / remove
     modules/bookwriter-margin-notes.js                 margin notes panel
     pages/page-public-reader.js                        public + beta reader page
                                                          (subscribe / react / comment / view /

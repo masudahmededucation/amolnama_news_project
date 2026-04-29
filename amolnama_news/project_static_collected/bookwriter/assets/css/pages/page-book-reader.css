@@ -23,13 +23,13 @@
      Matches the My Library cream/paper aesthetic so the bookwriter
      app reads as one cohesive surface (not "library cream → reader
      dark theatre"). */
-  --bookwriter-reader-stage-bg-1:        #f5ead0;
-  --bookwriter-reader-stage-bg-2:        #f0e4c8;
-  --bookwriter-reader-stage-bg-3:        #e8d9b4;
-  --bookwriter-reader-paper-bg-1:        #f5ead0;
-  --bookwriter-reader-paper-bg-2:        #f0e4c4;
-  --bookwriter-reader-paper-bg-3:        #ead9b4;
-  --bookwriter-reader-paper-bg-4:        #d9c79a;
+  --bookwriter-reader-stage-background-1:        #f5ead0;
+  --bookwriter-reader-stage-background-2:        #f0e4c8;
+  --bookwriter-reader-stage-background-3:        #e8d9b4;
+  --bookwriter-reader-paper-background-1:        #f5ead0;
+  --bookwriter-reader-paper-background-2:        #f0e4c4;
+  --bookwriter-reader-paper-background-3:        #ead9b4;
+  --bookwriter-reader-paper-background-4:        #d9c79a;
   --bookwriter-reader-paper-edge-light:  #e8d6aa;
   --bookwriter-reader-paper-edge-mid:    #c9b784;
   --bookwriter-reader-paper-edge-dark:   #b8a477;
@@ -37,7 +37,7 @@
   --bookwriter-reader-ink-red:           #c8321e;
   --bookwriter-reader-ink-soft:          rgba(26, 20, 16, .55);
   --bookwriter-reader-ink-muted:         rgba(26, 20, 16, .35);
-  --bookwriter-reader-floating-bg:       #f5ead0;
+  --bookwriter-reader-floating-background:       #f5ead0;
   --bookwriter-reader-floating-border:   rgba(26, 20, 16, .4);
   --bookwriter-reader-cover-main:        #6b1e14;  /* per-book hex (overridden inline) */
   --bookwriter-reader-cover-dark:        #3d0f08;  /* per-book hex (overridden inline) */
@@ -93,9 +93,9 @@
   align-items: flex-start;
   background:
     radial-gradient(ellipse at top,
-      var(--bookwriter-reader-stage-bg-1) 0%,
-      var(--bookwriter-reader-stage-bg-2) 50%,
-      var(--bookwriter-reader-stage-bg-3) 100%);
+      var(--bookwriter-reader-stage-background-1) 0%,
+      var(--bookwriter-reader-stage-background-2) 50%,
+      var(--bookwriter-reader-stage-background-3) 100%);
   border-radius: var(--radius-sm);
   overflow: hidden;
 }
@@ -510,9 +510,9 @@
      approach (likely server-side or a non-3D animation). */
   overflow: hidden;
   background:
-    radial-gradient(ellipse at 30% 20%, var(--bookwriter-reader-paper-bg-1) 0%, transparent 50%),
-    radial-gradient(ellipse at 70% 80%, var(--bookwriter-reader-paper-bg-2) 0%, transparent 50%),
-    linear-gradient(180deg, var(--bookwriter-reader-paper-bg-1) 0%, var(--bookwriter-reader-paper-bg-2) 100%);
+    radial-gradient(ellipse at 30% 20%, var(--bookwriter-reader-paper-background-1) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 80%, var(--bookwriter-reader-paper-background-2) 0%, transparent 50%),
+    linear-gradient(180deg, var(--bookwriter-reader-paper-background-1) 0%, var(--bookwriter-reader-paper-background-2) 100%);
 }
 
 .bookwriter-book-reader-page-front {
@@ -840,13 +840,13 @@
   transition: background-color var(--duration-fast, .15s) ease;
 }
 /* Darker hover background — uses the existing book palette token
-   `--bookwriter-reader-paper-bg-4` (#d9c79a, the deepest cream tone
+   `--bookwriter-reader-paper-background-4` (#d9c79a, the deepest cream tone
    in the paper scale). Reads as "this row is highlighted" against
    the bg-1/bg-2 page background, on-brand with the cream/warm
    typography of the book interior. Was rgba(0,0,0,.04) which the
    user reported as "very very light greyish". */
 .bookwriter-book-reader-toc-link:hover {
-  background-color: var(--bookwriter-reader-paper-bg-4);
+  background-color: var(--bookwriter-reader-paper-background-4);
 }
 .bookwriter-book-reader-toc-link:active {
   background-color: var(--bookwriter-reader-paper-edge-mid);
@@ -974,22 +974,13 @@
     0 3px 0 var(--bookwriter-reader-paper-edge-dark),
     0 6px 12px rgba(60, 40, 20, .3),
     inset 0 1px 0 rgba(255, 255, 255, .7);
-  transition:
-    transform var(--duration-fast, .15s) ease,
-    box-shadow var(--duration-fast, .15s) ease;
+  /* v955 — no hover transition on the bottom controls pill.
+     Previously :hover lifted the tab with translateY(-2px) + a
+     larger box-shadow, animated via the transition property
+     above. User reported "the bottom button bar moves a pixel
+     or two up — don't like it." Removed both the :hover rule
+     and the transition; tab stays visually static on hover. */
   touch-action: manipulation;
-}
-
-.bookwriter-book-reader-tab:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow:
-    0 1px 0 var(--bookwriter-reader-paper-edge-dark),
-    0 2px 0 var(--bookwriter-reader-paper-edge-mid),
-    0 3px 0 var(--bookwriter-reader-paper-edge-dark),
-    0 4px 0 var(--bookwriter-reader-paper-edge-mid),
-    0 5px 0 var(--bookwriter-reader-paper-edge-dark),
-    0 9px 16px rgba(60, 40, 20, .35),
-    inset 0 1px 0 rgba(255, 255, 255, .8);
 }
 
 .bookwriter-book-reader-tab:focus-visible {
@@ -1020,6 +1011,21 @@
   letter-spacing: .5px;
   padding: 0 4px;
   white-space: nowrap;
+  /* v954 — anti-jump reservation. The indicator text varies in
+     width depending on the current sheet ("Title" → "Contents" →
+     "Contents — III" → "Page 17 of 17"). Without a reserved
+     min-width, every page turn shifts the surrounding pill items
+     (Contents button, jump input, Go button) sideways. The 14ch
+     reservation fits the longest realistic label ("Page 999 of 999"
+     and "Contents — XIII"), text-align centers within the reserved
+     box, and tabular-nums makes numerals equal-width so the same
+     "Page X of Y" template doesn't shift between e.g. "Page 2 of 17"
+     and "Page 17 of 17". inline-block is required so min-width
+     applies (the default inline display would ignore it). */
+  display: inline-block;
+  min-width: 14ch;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
 }
 
 .bookwriter-book-reader-tab-divider {
@@ -1107,8 +1113,8 @@
   bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  background: var(--bookwriter-reader-stage-bg-1);
-  color: var(--bookwriter-reader-paper-bg-1);
+  background: var(--bookwriter-reader-stage-background-1);
+  color: var(--bookwriter-reader-paper-background-1);
   padding: 8px 16px;
   border-radius: var(--radius-xs);
   font-family: 'Noto Serif Bengali', 'Cormorant Garamond', serif;
@@ -1129,7 +1135,7 @@
   left: 50%;
   transform: translateX(-50%);
   border: 5px solid transparent;
-  border-top-color: var(--bookwriter-reader-stage-bg-1);
+  border-top-color: var(--bookwriter-reader-stage-background-1);
 }
 .bookwriter-book-reader-jump-error.bookwriter-book-reader-jump-error-show {
   opacity: 1;
@@ -1189,7 +1195,7 @@
   height: 36px;
   min-width: var(--touch-target);
   min-height: var(--touch-target);
-  background: var(--bookwriter-reader-floating-bg);
+  background: var(--bookwriter-reader-floating-background);
   border: 1px solid var(--bookwriter-reader-floating-border);
   color: var(--bookwriter-reader-ink);
   font-family: 'Cormorant Garamond', serif;
@@ -1211,7 +1217,7 @@
   touch-action: manipulation;
 }
 .bookwriter-book-reader-floating-button:hover {
-  background: var(--bookwriter-reader-paper-bg-3);
+  background: var(--bookwriter-reader-paper-background-3);
   color: var(--bookwriter-reader-ink-red);
   text-decoration: none;
 }

@@ -6,7 +6,7 @@ Tables:        beta_share_link, beta_reader, beta_comment, ref_beta_permission
 Templates:     _inkwell_body.html (Beta share modal — .modal with id "shareLink")
                public_reader.html (beta-mode aside — beta-comment form + sidebar)
 JS managed:    page-inkwell.js (BETA SHARE MODAL section)
-               modules/bookwriter-beta-reader-mgmt.js (invite/list/remove)
+               modules/bookwriter-beta-reader-management.js (invite/list/remove)
                page-public-reader.js (beta sidebar + inline highlights)
 Common steps:  See db-mapping-common-steps.txt
 
@@ -69,7 +69,7 @@ B.1 — Beta reader invite (by email)
 ────────────────────────────────────────────────────────────────────────────────
 Endpoint:    POST /api/book/<book_id>/beta-reader/invite/
 Trigger:     #bookwriter-beta-reader-invite-submit-button click
-             (modules/bookwriter-beta-reader-mgmt.js)
+             (modules/bookwriter-beta-reader-management.js)
 
 Form/UI:
   #bookwriter-beta-reader-invite-email-input        <input email>

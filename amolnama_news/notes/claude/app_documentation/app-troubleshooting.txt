@@ -18,6 +18,99 @@ as "pre-existing" or "not from my code" without telling the user.
 ## RESOLVED ISSUES
 --------------------------------------------------------------
 
+### R-bookwriter-3d-reader-stale-cache-page-17-of-13-and-toc-wrong-pages
+Date: 2026-04-29 (v950)
+Was: 3D book reader showed an impossible "Page 17 of 13" in the
+     bottom-right indicator, AND the Contents (TOC) listed each
+     chapter's starting page from the server's word-count estimate
+     (e.g. "Chapter 3 ... 5") that disagreed with the chapter's
+     actual paginated folio (chapter 3 actually starts on page 7
+     after the client paginator measured real pixel sizes). Symptoms
+     only appeared on books where the client paginator's
+     measurement-based layout produced a different page count than
+     the server's word-count estimate (i.e. dense / long books).
+
+Root cause (one-sentence causal chain):
+     v947 cached `maxChapterFolio` ONCE at script init by walking
+     the server-rendered chapter sheets. The client-side paginator
+     then rebuilt the chapter sheets with possibly-different folios.
+     The rebuild block refreshed allPageSheetElements,
+     totalSheetCount, z-index, indicator text — but NOT the cached
+     max. Same applied to the TOC: the server baked toc_page_label
+     into the template via `chapter_first_page_labels_by_chapter_number`
+     and the rebuild had no path to update those static numbers.
+
+Fix (v950 — single source of truth):
+     1. Deleted maxChapterFolio module variable + the
+        _recomputeMaxChapterFolioFromCurrentSheets helper.
+     2. Added pure _computeMaxChapterFolioFromCurrentSheets() which
+        walks the live DOM every refreshPageIndicator call. Called
+        on every page turn / jump (sub-millisecond cost over ~20-30
+        sheets — negligible).
+     3. Added _populateTocPageLabelsFromCurrentSheets() which walks
+        live DOM and writes each chapter's actual starting folio
+        into the matching TOC entry's
+        <span class="bookwriter-book-reader-toc-page">. Called at
+        script init AND after every paginator rebuild.
+     4. views.py: deleted lines 588-601 that built
+        chapter_first_page_labels_by_chapter_number — server stops
+        baking page labels into the template.
+     5. Template: removed the dead `{{ chapter.toc_page_label }}`
+        reference (template now ships empty span; JS populates).
+
+Architectural lesson — STALE-CACHE-WITH-NO-INVALIDATION pattern:
+     A derived/max value should NEVER be cached separately from its
+     source. Either (a) compute live every time (one O(N) walk per
+     access — trivial cost for small DOMs), OR (b) if you cache,
+     enforce invalidation via a single chokepoint that BOTH mutates
+     the source AND recomputes the cache (never two separate
+     operations). v947 did neither. It cached, then required every
+     future code path that touches sheets to remember to call the
+     recompute helper. That's a "leaky invariant" — it broke the
+     moment a new code path forgot.
+
+     Apply this lesson elsewhere: any time you find yourself caching
+     a value that's derived from DOM/list state, ask: "what enforces
+     that the cache invalidates when the source changes?" If the
+     answer is "every code path remembers to call the helper", you
+     have a leaky invariant. Compute live or use a setter/observer.
+
+
+### R-bookwriter-3d-reader-double-cursor-after-first-click-on-prev-or-next-button
+Date: 2026-04-29 (v948)
+Was: After the first click on the floating prev or next button in
+     the 3D reader, two cursor pointers appeared at once on Windows
+     (a "hand" cursor and a "not-allowed" cursor visible
+     simultaneously) — happened in incognito too, ruling out browser
+     extensions.
+
+Root cause (one-sentence causal chain):
+     refreshPageIndicator was setting `prevButtonElement.disabled =
+     sheetsAlreadyTurnedCount === 0 || isCurrentlyAnimating` (and
+     same for next). When isCurrentlyAnimating flipped to true at
+     the start of a flip, the button's CSS state shifted from
+     `:not(:disabled):hover` (cursor: pointer + transform:
+     translateX(±4px)) to `:disabled` (cursor: not-allowed + no
+     transform). The button physically MOVED out from under the
+     cursor and Windows briefly rendered the not-allowed icon next
+     to the still-tracked pointer hand.
+
+Fix (v948 — JS-flag pattern from app-core.txt:52):
+     Stopped toggling .disabled based on isCurrentlyAnimating. The
+     animation gate is already enforced inside every turn handler
+     via `if (isCurrentlyAnimating) return;` — the .disabled toggle
+     was redundant AND was the cause. .disabled is now kept ONLY
+     for the true boundary conditions (no prev sheet at start of
+     book, no next sheet at end of book). Cursor stays as `pointer`
+     consistently throughout the flip.
+
+Apply this pattern: never toggle the HTML `disabled` attribute
+mid-animation if the button uses any hover transform that moves the
+button. Use a JS in-progress flag at handler entry instead. The
+documented pattern is in `content/.../actions-bar.js`
+(`likeRequestInProgress[entityId]`, `bookmarkRequestInProgress[key]`).
+
+
 ### R-bookwriter-book-reader-jump-snapshot-of-next-page-on-forward-turn-only. "Flat snapshot of the next page flashes for one frame before the page-flip rotation animation begins"
 Date: 2026-04-27
 Was: In the 3D book reader (/bookwriter/read/<id>/<slug>/) on Chrome,

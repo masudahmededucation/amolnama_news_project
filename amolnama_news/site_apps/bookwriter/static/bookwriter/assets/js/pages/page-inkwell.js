@@ -52,7 +52,7 @@
     try {
       var rawStoredStateJson = window.localStorage.getItem(STATE_KEY);
       return rawStoredStateJson ? JSON.parse(rawStoredStateJson) : null;
-    } catch (e) { return null; }
+    } catch (error) { return null; }
   }
 
   function saveState(patch) {
@@ -60,7 +60,7 @@
       var current = loadState() || {};
       var next = Object.assign({}, current, patch);
       window.localStorage.setItem(STATE_KEY, JSON.stringify(next));
-    } catch (e) { /* quota / private mode — drop silently */ }
+    } catch (error) { /* quota / private mode — drop silently */ }
   }
 
 
@@ -79,7 +79,7 @@
       if (legacyKey in legacyCleanupState) { delete legacyCleanupState[legacyKey]; hadLegacyKey = true; }
     });
     if (hadLegacyKey) window.localStorage.setItem(STATE_KEY, JSON.stringify(legacyCleanupState));
-  } catch (e) { /* private mode / quota — ignore */ }
+  } catch (error) { /* private mode / quota — ignore */ }
   document.body.classList.remove(
     'bookwriter-app-is-left-rail-collapsed',
     'bookwriter-app-is-right-desk-collapsed',
@@ -977,8 +977,8 @@
      ======================================================== */
   var focusTitle   = document.getElementById('focusTitle');
   var focusText    = document.getElementById('focusText');
-  var focusWordsEl = document.getElementById('focusWords');
-  var focusTimeEl  = document.getElementById('focusTime');
+  var focusWordsElement = document.getElementById('focusWords');
+  var focusTimeElement  = document.getElementById('focusTime');
   var focusStart   = 0;
   var focusTimer   = null;
 
@@ -1008,12 +1008,12 @@
   function updateFocusStats() {
     if (!focusText) return;
     var wordCount = (focusText.innerText.trim().match(/\S+/g) || []).length;
-    if (focusWordsEl) focusWordsEl.textContent = wordCount.toLocaleString();
-    if (focusTimeEl) {
+    if (focusWordsElement) focusWordsElement.textContent = wordCount.toLocaleString();
+    if (focusTimeElement) {
       var elapsedSeconds = Math.floor((Date.now() - focusStart) / 1000);
       var minutesPart = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
       var secondsPart = String(elapsedSeconds % 60).padStart(2, '0');
-      focusTimeEl.textContent = minutesPart + ':' + secondsPart;
+      focusTimeElement.textContent = minutesPart + ':' + secondsPart;
     }
   }
 
@@ -1331,10 +1331,10 @@
     });
   });
 
-  document.querySelectorAll('.bookwriter-bible-cat').forEach(function (cat) {
-    cat.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-cat').forEach(function (otherBibleCategoryElement) { otherBibleCategoryElement.classList.remove('bookwriter-bible-cat-is-selected'); });
-      cat.classList.add('bookwriter-bible-cat-is-selected');
+  document.querySelectorAll('.bookwriter-bible-category').forEach(function (categoryRowElement) {
+    categoryRowElement.addEventListener('click', function () {
+      document.querySelectorAll('.bookwriter-bible-category').forEach(function (otherBibleCategoryElement) { otherBibleCategoryElement.classList.remove('bookwriter-bible-category-is-selected'); });
+      categoryRowElement.classList.add('bookwriter-bible-category-is-selected');
     });
   });
 
@@ -1449,17 +1449,17 @@
   window.openShare  = openShare;
   window.closeShare = closeShare;
 
-  function pickPerm(el) {
+  function pickPermission(clickedPermissionTileElement) {
     document.querySelectorAll('.bookwriter-share-permission-tile').forEach(function (sharePermissionTileElement) { sharePermissionTileElement.classList.remove('bookwriter-share-permission-tile-is-selected'); });
-    el.classList.add('bookwriter-share-permission-tile-is-selected');
+    clickedPermissionTileElement.classList.add('bookwriter-share-permission-tile-is-selected');
   }
-  window.pickPerm = pickPerm;
+  window.pickPermission = pickPermission;
 
   function copyShareLink(btn) {
     var link = document.getElementById('shareLink');
     if (!link) return;
     link.select();
-    try { navigator.clipboard.writeText(link.value); } catch (e) { /* clipboard blocked */ }
+    try { navigator.clipboard.writeText(link.value); } catch (error) { /* clipboard blocked */ }
     var sourceBtn = btn || (typeof event !== 'undefined' ? event.target : null);
     if (!sourceBtn) return;
     var orig = sourceBtn.innerText;
@@ -1475,7 +1475,7 @@
   function copyToClipboard(btn) {
     var input = btn.previousElementSibling;
     if (!input) return;
-    try { navigator.clipboard.writeText(input.value); } catch (e) { /* clipboard blocked */ }
+    try { navigator.clipboard.writeText(input.value); } catch (error) { /* clipboard blocked */ }
     var orig = btn.innerText;
     btn.innerText = 'copied ✓';
     setTimeout(function () { btn.innerText = orig; }, 1500);
@@ -1710,21 +1710,21 @@
   loadBibleEntriesFromIsland();
 
   function activeBibleCategoryCode() {
-    var activeCategoryElement = document.querySelector('.bookwriter-bible-cats .bookwriter-bible-cat-is-selected');
-    return activeCategoryElement ? activeCategoryElement.dataset.cat : null;
+    var activeCategoryElement = document.querySelector('.bookwriter-bible-categories .bookwriter-bible-category-is-selected');
+    return activeCategoryElement ? activeCategoryElement.dataset.categoryCode : null;
   }
 
   function applyBibleCategoryFilter() {
     var activeCategory = activeBibleCategoryCode();
     document.querySelectorAll('.bookwriter-bible-list .bookwriter-bible-item').forEach(function (rowElement) {
-      var rowCategory = rowElement.dataset.cat;
+      var rowCategory = rowElement.dataset.categoryCode;
       var shouldShow = (!activeCategory) || (rowCategory === activeCategory);
       rowElement.hidden = !shouldShow;
     });
   }
 
   function refreshBibleCategoryCount(categoryCode, delta) {
-    var countElement = document.querySelector('.bookwriter-bible-cat-count[data-cat-count="' + categoryCode + '"]');
+    var countElement = document.querySelector('.bookwriter-bible-category-count[data-category-entry-count="' + categoryCode + '"]');
     if (!countElement) return;
     var currentCount = parseInt(countElement.textContent.trim(), 10) || 0;
     var nextCount = Math.max(0, currentCount + delta);
@@ -1976,7 +1976,7 @@
       onConfirm: function () {
         window.bookwriter.apiDelete('/bookwriter/api/bible-entry/' + encodeURIComponent(bibleEntryId) + '/delete/')
           .then(function () {
-            var deletedCategoryCode = rowElement.dataset.cat;
+            var deletedCategoryCode = rowElement.dataset.categoryCode;
             var wasActive = rowElement.classList.contains('bookwriter-bible-item-is-selected');
             rowElement.parentNode.removeChild(rowElement);
             delete bibleEntriesById[bibleEntryId];
@@ -2011,7 +2011,7 @@
     var rowElement = document.createElement('div');
     rowElement.className = 'bookwriter-bible-item';
     rowElement.dataset.bibleEntryId = String(entryRow.bookwriter_bible_entry_id);
-    rowElement.dataset.cat = entryRow.bible_category_code;
+    rowElement.dataset.categoryCode = entryRow.bible_category_code;
 
     var avatarElement = document.createElement('div');
     avatarElement.className = 'bookwriter-bible-avatar';
@@ -2086,10 +2086,10 @@
   }
 
   // Wire categories — click filters the list, swaps active class.
-  document.querySelectorAll('.bookwriter-bible-cats .bookwriter-bible-cat').forEach(function (categoryRow) {
+  document.querySelectorAll('.bookwriter-bible-categories .bookwriter-bible-category').forEach(function (categoryRow) {
     categoryRow.addEventListener('click', function () {
-      document.querySelectorAll('.bookwriter-bible-cats .bookwriter-bible-cat').forEach(function (otherCategory) {
-        otherCategory.classList.toggle('bookwriter-bible-cat-is-selected', otherCategory === categoryRow);
+      document.querySelectorAll('.bookwriter-bible-categories .bookwriter-bible-category').forEach(function (otherCategory) {
+        otherCategory.classList.toggle('bookwriter-bible-category-is-selected', otherCategory === categoryRow);
       });
       applyBibleCategoryFilter();
       // Auto-select the first visible entry in the new category, if any.
@@ -2148,7 +2148,7 @@
       }
     }
     var activePermissionTile = document.querySelector('.bookwriter-share-permission-tile-is-selected');
-    var permissionCode = (activePermissionTile && activePermissionTile.dataset.perm) || 'read';
+    var permissionCode = (activePermissionTile && activePermissionTile.dataset.permissionCode) || 'read';
     window.bookwriter.apiPost('/bookwriter/api/book/' + encodeURIComponent(betaBookId) + '/beta-share/create/', { beta_permission_code: permissionCode })
       .then(function (data) {
         var newShare = data.beta_share_link || {};
@@ -2177,9 +2177,9 @@
     nameElement.className = 'bookwriter-reader-name';
     nameElement.textContent = '…/' + (newShare.token || '').slice(0, 12);
 
-    var permElement = document.createElement('div');
-    permElement.className = 'bookwriter-reader-perm';
-    permElement.textContent = newShare.permission_code || 'read';
+    var permissionElement = document.createElement('div');
+    permissionElement.className = 'bookwriter-reader-permission';
+    permissionElement.textContent = newShare.permission_code || 'read';
 
     var revokeButton = document.createElement('button');
     revokeButton.type = 'button';
@@ -2191,7 +2191,7 @@
 
     rowElement.appendChild(avatarElement);
     rowElement.appendChild(nameElement);
-    rowElement.appendChild(permElement);
+    rowElement.appendChild(permissionElement);
     rowElement.appendChild(revokeButton);
     listElement.appendChild(rowElement);
 
@@ -2223,7 +2223,7 @@
   // [extracted to modules/bookwriter-rail-pickers.js — chapter status, book metadata fields]
 
 
-  // [extracted to modules/bookwriter-beta-reader-mgmt.js — invite / list / remove]
+  // [extracted to modules/bookwriter-beta-reader-management.js — invite / list / remove]
 
   // Wrap the existing openShare() so the modal lazy-mints a URL on open.
   var originalOpenShare = window.openShare;

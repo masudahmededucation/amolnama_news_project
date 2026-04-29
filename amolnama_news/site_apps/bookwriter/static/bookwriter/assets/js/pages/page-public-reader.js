@@ -63,8 +63,8 @@
         if (!reactionKindCode) return;
 
         var wasReacted = reactionButton.classList.contains('bookwriter-is-reacted');
-        var countElement = reactionButton.querySelector('.bookwriter-reader-reaction-count');
-        var previousCount = parseInt(countElement.textContent, 10) || 0;
+        var countElementement = reactionButton.querySelector('.bookwriter-reader-reaction-count');
+        var previousCount = parseInt(countElementement.textContent, 10) || 0;
         var optimisticCount = wasReacted ? Math.max(0, previousCount - 1) : previousCount + 1;
         applyReactionButtonState(reactionButton, !wasReacted, optimisticCount);
 
@@ -85,8 +85,8 @@
   function applyReactionButtonState(buttonElement, isReacted, nextCount) {
     buttonElement.classList.toggle('bookwriter-is-reacted', isReacted);
     buttonElement.setAttribute('aria-pressed', isReacted ? 'true' : 'false');
-    var countElement = buttonElement.querySelector('.bookwriter-reader-reaction-count');
-    if (countElement) countElement.textContent = String(nextCount);
+    var countElementement = buttonElement.querySelector('.bookwriter-reader-reaction-count');
+    if (countElementement) countElementement.textContent = String(nextCount);
   }
 
 
@@ -136,23 +136,23 @@
 
   function appendCommentRowToList(commentRecord, parentCommentId) {
     if (!commentRecord || !commentListElement) return;
-    var rowElement = document.createElement('article');
-    rowElement.className = 'bookwriter-reader-comment-row' + (parentCommentId ? ' bookwriter-is-reply' : '');
-    rowElement.id = 'bookwriter-reader-comment-' + commentRecord.id;
-    rowElement.dataset.commentId = String(commentRecord.id);
-    rowElement.dataset.parentCommentId = parentCommentId == null ? '' : String(parentCommentId);
+    var rowElementement = document.createElement('article');
+    rowElementement.className = 'bookwriter-reader-comment-row' + (parentCommentId ? ' bookwriter-is-reply' : '');
+    rowElementement.id = 'bookwriter-reader-comment-' + commentRecord.id;
+    rowElementement.dataset.commentId = String(commentRecord.id);
+    rowElementement.dataset.parentCommentId = parentCommentId == null ? '' : String(parentCommentId);
 
     var headerHtml =
       '<header class="bookwriter-reader-comment-header">' +
         '<span class="bookwriter-reader-comment-author">You</span>' +
         '<time class="bookwriter-reader-comment-time" datetime="' + escapeAttribute(commentRecord.created_at || '') + '">' + escapeAttribute(commentRecord.created_at || 'just now') + '</time>' +
       '</header>';
-    var bodyEl = document.createElement('p');
-    bodyEl.className = 'bookwriter-reader-comment-body';
-    bodyEl.textContent = commentRecord.text || '';
+    var bodyElement = document.createElement('p');
+    bodyElement.className = 'bookwriter-reader-comment-body';
+    bodyElement.textContent = commentRecord.text || '';
 
-    var footerEl = document.createElement('footer');
-    footerEl.className = 'bookwriter-reader-comment-footer';
+    var footerElement = document.createElement('footer');
+    footerElement.className = 'bookwriter-reader-comment-footer';
     var deleteButton = document.createElement('button');
     deleteButton.type = 'button';
     deleteButton.className = 'bookwriter-reader-comment-delete-button';
@@ -160,20 +160,20 @@
     deleteButton.name = 'bookwriter_reader_comment_' + commentRecord.id + '_delete_button';
     deleteButton.dataset.targetCommentId = String(commentRecord.id);
     deleteButton.textContent = 'Delete';
-    footerEl.appendChild(deleteButton);
+    footerElement.appendChild(deleteButton);
 
-    rowElement.insertAdjacentHTML('beforeend', headerHtml);
-    rowElement.appendChild(bodyEl);
-    rowElement.appendChild(footerEl);
+    rowElementement.insertAdjacentHTML('beforeend', headerHtml);
+    rowElementement.appendChild(bodyElement);
+    rowElementement.appendChild(footerElement);
 
     if (parentCommentId) {
       var parentRow = document.getElementById('bookwriter-reader-comment-' + parentCommentId);
-      if (parentRow && parentRow.parentNode) parentRow.parentNode.insertBefore(rowElement, parentRow.nextSibling);
-      else commentListElement.appendChild(rowElement);
+      if (parentRow && parentRow.parentNode) parentRow.parentNode.insertBefore(rowElementement, parentRow.nextSibling);
+      else commentListElement.appendChild(rowElementement);
     } else {
-      commentListElement.insertBefore(rowElement, commentListElement.firstChild);
+      commentListElement.insertBefore(rowElementement, commentListElement.firstChild);
     }
-    wireCommentRowAffordances(rowElement);
+    wireCommentRowAffordances(rowElementement);
   }
 
   function escapeAttribute(rawValue) {
@@ -182,18 +182,18 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  function wireCommentRowAffordances(rowElement) {
-    if (rowElement.dataset.wired === '1') return;
-    rowElement.dataset.wired = '1';
+  function wireCommentRowAffordances(rowElementement) {
+    if (rowElementement.dataset.wired === '1') return;
+    rowElementement.dataset.wired = '1';
 
-    var replyToggleButton = rowElement.querySelector('.bookwriter-reader-comment-reply-toggle-button');
+    var replyToggleButton = rowElementement.querySelector('.bookwriter-reader-comment-reply-toggle-button');
     if (replyToggleButton) {
       replyToggleButton.addEventListener('click', function () {
-        toggleReplyFormUnderRow(rowElement, replyToggleButton.dataset.targetCommentId);
+        toggleReplyFormUnderRow(rowElementement, replyToggleButton.dataset.targetCommentId);
       });
     }
 
-    var pinButton = rowElement.querySelector('.bookwriter-reader-comment-pin-button');
+    var pinButton = rowElementement.querySelector('.bookwriter-reader-comment-pin-button');
     if (pinButton) {
       pinButton.addEventListener('click', function () {
         var commentId = pinButton.dataset.targetCommentId;
@@ -203,19 +203,19 @@
             var isNowPinned = !!data.is_pinned;
             pinButton.dataset.isPinned = isNowPinned ? '1' : '0';
             pinButton.textContent = isNowPinned ? 'Unpin' : 'Pin';
-            rowElement.classList.toggle('bookwriter-is-pinned', isNowPinned);
+            rowElementement.classList.toggle('bookwriter-is-pinned', isNowPinned);
           })
           .catch(function () { /* leave UI as-is */ });
       });
     }
 
-    var deleteButton = rowElement.querySelector('.bookwriter-reader-comment-delete-button');
+    var deleteButton = rowElementement.querySelector('.bookwriter-reader-comment-delete-button');
     if (deleteButton) {
       deleteButton.addEventListener('click', function () {
         var commentId = deleteButton.dataset.targetCommentId;
         window.bookwriter.apiDelete('/bookwriter/api/serial-comment/' + encodeURIComponent(commentId) + '/delete/')
           .then(function () {
-            rowElement.parentNode.removeChild(rowElement);
+            rowElementement.parentNode.removeChild(rowElementement);
             if (commentCountElement) {
               var current = parseInt(commentCountElement.textContent, 10) || 0;
               commentCountElement.textContent = String(Math.max(0, current - 1));
@@ -293,16 +293,16 @@
     var observer = new IntersectionObserver(function (entries) {
       entries.forEach(function (entry) {
         if (!entry.isIntersecting) return;
-        var rowElement = entry.target;
-        if (rowElement.dataset.impressionFired === '1') return;
-        rowElement.dataset.impressionFired = '1';
-        observer.unobserve(rowElement);
-        var releaseIdToBump = rowElement.dataset.previewReleaseId;
+        var rowElementement = entry.target;
+        if (rowElementement.dataset.impressionFired === '1') return;
+        rowElementement.dataset.impressionFired = '1';
+        observer.unobserve(rowElementement);
+        var releaseIdToBump = rowElementement.dataset.previewReleaseId;
         window.bookwriter.apiPost('/bookwriter/api/release/' + encodeURIComponent(releaseIdToBump) + '/preview-impression/', {}).catch(function () { /* best-effort */ });
       });
     }, { threshold: 0.5 });
 
-    tocRowsWithReleaseId.forEach(function (rowElement) { observer.observe(rowElement); });
+    tocRowsWithReleaseId.forEach(function (rowElementement) { observer.observe(rowElementement); });
   })();
 
 
@@ -328,11 +328,11 @@
     if (anchoredRows.length === 0) return;
     // Sort by offset ascending so we can apply highlights in order
     var anchorRecords = [];
-    anchoredRows.forEach(function (rowElement) {
-      var offset = parseInt(rowElement.dataset.anchorOffset, 10);
-      var length = parseInt(rowElement.dataset.anchorLength, 10);
-      var anchorText = rowElement.dataset.anchorText || '';
-      var commentId = rowElement.dataset.betaCommentId;
+    anchoredRows.forEach(function (rowElementement) {
+      var offset = parseInt(rowElementement.dataset.anchorOffset, 10);
+      var length = parseInt(rowElementement.dataset.anchorLength, 10);
+      var anchorText = rowElementement.dataset.anchorText || '';
+      var commentId = rowElementement.dataset.betaCommentId;
       if (Number.isFinite(offset) && Number.isFinite(length) && length > 0 && commentId) {
         anchorRecords.push({ offset: offset, length: length, anchorText: anchorText, commentId: commentId });
       }
@@ -516,53 +516,53 @@
   }
 
   function appendBetaCommentRow(commentRecord) {
-    var listEl = document.getElementById('bookwriter-beta-comment-list');
-    if (!listEl || !commentRecord.id) return;
-    var rowEl = document.createElement('article');
-    rowEl.className = 'bookwriter-beta-comment-row';
-    rowEl.id = 'bookwriter-beta-comment-' + commentRecord.id;
-    rowEl.dataset.betaCommentId = String(commentRecord.id);
+    var listElement = document.getElementById('bookwriter-beta-comment-list');
+    if (!listElement || !commentRecord.id) return;
+    var rowElement = document.createElement('article');
+    rowElement.className = 'bookwriter-beta-comment-row';
+    rowElement.id = 'bookwriter-beta-comment-' + commentRecord.id;
+    rowElement.dataset.betaCommentId = String(commentRecord.id);
 
-    var headerEl = document.createElement('header');
-    headerEl.className = 'bookwriter-beta-comment-header';
-    var kindEl = document.createElement('span');
-    kindEl.className = 'bookwriter-beta-comment-kind';
-    kindEl.textContent = commentRecord.kind || 'comment';
-    var timeEl = document.createElement('time');
-    timeEl.className = 'bookwriter-beta-comment-time';
+    var headerElement = document.createElement('header');
+    headerElement.className = 'bookwriter-beta-comment-header';
+    var kindElement = document.createElement('span');
+    kindElement.className = 'bookwriter-beta-comment-kind';
+    kindElement.textContent = commentRecord.kind || 'comment';
+    var timeElement = document.createElement('time');
+    timeElement.className = 'bookwriter-beta-comment-time';
     var nowIso = commentRecord.created_at || new Date().toISOString();
-    timeEl.dateTime = nowIso;
-    timeEl.textContent = nowIso;
-    headerEl.appendChild(kindEl);
-    headerEl.appendChild(timeEl);
+    timeElement.dateTime = nowIso;
+    timeElement.textContent = nowIso;
+    headerElement.appendChild(kindElement);
+    headerElement.appendChild(timeElement);
 
-    var bodyEl = document.createElement('p');
-    bodyEl.className = 'bookwriter-beta-comment-body';
-    bodyEl.textContent = commentRecord.text || '';
+    var bodyElement = document.createElement('p');
+    bodyElement.className = 'bookwriter-beta-comment-body';
+    bodyElement.textContent = commentRecord.text || '';
 
-    var footerEl = document.createElement('footer');
-    footerEl.className = 'bookwriter-beta-comment-footer';
-    var deleteEl = document.createElement('button');
-    deleteEl.type = 'button';
-    deleteEl.className = 'bookwriter-beta-comment-delete-button';
-    deleteEl.id = 'bookwriter-beta-comment-' + commentRecord.id + '-delete-button';
-    deleteEl.name = 'bookwriter_beta_comment_' + commentRecord.id + '_delete_button';
-    deleteEl.dataset.targetCommentId = String(commentRecord.id);
-    deleteEl.textContent = 'Delete';
-    footerEl.appendChild(deleteEl);
+    var footerElement = document.createElement('footer');
+    footerElement.className = 'bookwriter-beta-comment-footer';
+    var deleteElement = document.createElement('button');
+    deleteElement.type = 'button';
+    deleteElement.className = 'bookwriter-beta-comment-delete-button';
+    deleteElement.id = 'bookwriter-beta-comment-' + commentRecord.id + '-delete-button';
+    deleteElement.name = 'bookwriter_beta_comment_' + commentRecord.id + '_delete_button';
+    deleteElement.dataset.targetCommentId = String(commentRecord.id);
+    deleteElement.textContent = 'Delete';
+    footerElement.appendChild(deleteElement);
 
-    rowEl.appendChild(headerEl);
-    rowEl.appendChild(bodyEl);
-    rowEl.appendChild(footerEl);
-    listEl.insertBefore(rowEl, listEl.firstChild);
-    wireBetaCommentRowAffordances(rowEl);
+    rowElement.appendChild(headerElement);
+    rowElement.appendChild(bodyElement);
+    rowElement.appendChild(footerElement);
+    listElement.insertBefore(rowElement, listElement.firstChild);
+    wireBetaCommentRowAffordances(rowElement);
   }
 
-  function wireBetaCommentRowAffordances(rowElement) {
-    if (rowElement.dataset.wired === '1') return;
-    rowElement.dataset.wired = '1';
+  function wireBetaCommentRowAffordances(rowElementement) {
+    if (rowElementement.dataset.wired === '1') return;
+    rowElementement.dataset.wired = '1';
 
-    var resolveButton = rowElement.querySelector('.bookwriter-beta-comment-resolve-button');
+    var resolveButton = rowElementement.querySelector('.bookwriter-beta-comment-resolve-button');
     if (resolveButton) {
       resolveButton.addEventListener('click', function () {
         var commentId = resolveButton.dataset.targetCommentId;
@@ -571,21 +571,21 @@
           .then(function () {
             resolveButton.dataset.isResolved = nextResolved ? '1' : '0';
             resolveButton.textContent = nextResolved ? 'Reopen' : 'Resolve';
-            rowElement.classList.toggle('bookwriter-is-resolved', nextResolved);
+            rowElementement.classList.toggle('bookwriter-is-resolved', nextResolved);
           })
           .catch(function () { /* leave UI */ });
       });
     }
 
-    var deleteButton = rowElement.querySelector('.bookwriter-beta-comment-delete-button');
+    var deleteButton = rowElementement.querySelector('.bookwriter-beta-comment-delete-button');
     if (deleteButton) {
       deleteButton.addEventListener('click', function () {
         var commentId = deleteButton.dataset.targetCommentId;
         window.bookwriter.apiDelete('/bookwriter/api/beta-comment/' + encodeURIComponent(commentId) + '/delete/')
           .then(function () {
-            rowElement.parentNode.removeChild(rowElement);
-            var countEl = document.getElementById('bookwriter-beta-comments-count');
-            if (countEl) countEl.textContent = String(Math.max(0, (parseInt(countEl.textContent, 10) || 0) - 1));
+            rowElementement.parentNode.removeChild(rowElementement);
+            var countElement = document.getElementById('bookwriter-beta-comments-count');
+            if (countElement) countElement.textContent = String(Math.max(0, (parseInt(countElement.textContent, 10) || 0) - 1));
           })
           .catch(function () { /* leave row */ });
       });

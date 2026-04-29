@@ -30,7 +30,7 @@ Form/UI elements (all live in .cover-rail):
     #tracking  <input type="range" -5..20>     → cover_letter_spacing_unit
 
   PALETTE (#palettes .bookwriter-cover-palette-tile)
-    data-bg / data-fg / data-accent attributes carry hex triplet
+    data-palette-background-color / data-palette-foreground-color / data-accent attributes carry hex triplet
     Saved as cover_palette_*_hex_override (NOT link_cover_palette_id)
 
   BACKGROUND (#bookwriter-cover-background-grid button[data-background-code])
@@ -48,9 +48,9 @@ Request JSON (any subset; UPSERT — fields not supplied keep prior value):
                                         (validated against ref_cover_font)
   cover_title_size_pt                int 16..96      → cover_title_size_pt
   cover_letter_spacing_unit          int -10..40     → cover_letter_spacing_unit
-  cover_palette_bg_hex_override      hex|null        → cover_palette_bg_hex_override
+  cover_palette_background_color_hex_override      hex|null        → cover_palette_background_color_hex_override
                                         (validated via _is_valid_hex_color)
-  cover_palette_fg_hex_override      hex|null        → cover_palette_fg_hex_override
+  cover_palette_foreground_color_hex_override      hex|null        → cover_palette_foreground_color_hex_override
   cover_palette_accent_hex_override  hex|null        → cover_palette_accent_hex_override
   cover_custom_image_url             url ≤1000|null  → cover_custom_image_url
   cover_rendered_preview_url         url ≤1000|null  → cover_rendered_preview_url
@@ -85,8 +85,8 @@ tile/option as `active` on first paint. Returns a dict with:
   cover_background_code             (resolved from FK)
   cover_title_size_pt               (default 42 if no row)
   cover_letter_spacing_unit         (default 0 if no row)
-  cover_palette_bg_hex_override     (raw hex)
-  cover_palette_fg_hex_override     (raw hex)
+  cover_palette_background_color_hex_override     (raw hex)
+  cover_palette_foreground_color_hex_override     (raw hex)
   cover_palette_accent_hex_override (raw hex)
 
 The 6 cover template tiles, 6 palette tiles, 4 font buttons, 8 background

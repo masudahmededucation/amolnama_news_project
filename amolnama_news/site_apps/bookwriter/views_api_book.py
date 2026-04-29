@@ -268,8 +268,8 @@ def api_bookwriter_book_cover_design_save(request, book_id):
         cover_template_code               -> resolved to link_cover_template_id
         cover_title_size_pt    (16-96)
         cover_letter_spacing_unit (-10..40)
-        cover_palette_bg_hex_override     ('#rrggbb' or null)
-        cover_palette_fg_hex_override     ('#rrggbb' or null)
+        cover_palette_background_color_hex_override     ('#rrggbb' or null)
+        cover_palette_foreground_color_hex_override     ('#rrggbb' or null)
         cover_palette_accent_hex_override ('#rrggbb' or null)
 
     First call inserts the row; subsequent calls UPDATE in place.
@@ -319,8 +319,8 @@ def api_bookwriter_book_cover_design_save(request, book_id):
         spacing_to_set = (candidate, True)
 
     hex_overrides = {}
-    for hex_field in ('cover_palette_bg_hex_override',
-                      'cover_palette_fg_hex_override',
+    for hex_field in ('cover_palette_background_color_hex_override',
+                      'cover_palette_foreground_color_hex_override',
                       'cover_palette_accent_hex_override'):
         if hex_field in payload:
             value = payload[hex_field]
@@ -383,8 +383,8 @@ def api_bookwriter_book_cover_design_save(request, book_id):
             link_cover_font_id=cover_fk_id_updates.get('link_cover_font_id'),
             cover_title_size_pt=(title_size_to_set[0] if title_size_to_set else 42),
             cover_letter_spacing_unit=(spacing_to_set[0] if spacing_to_set else 0),
-            cover_palette_bg_hex_override=hex_overrides.get('cover_palette_bg_hex_override'),
-            cover_palette_fg_hex_override=hex_overrides.get('cover_palette_fg_hex_override'),
+            cover_palette_background_color_hex_override=hex_overrides.get('cover_palette_background_color_hex_override'),
+            cover_palette_foreground_color_hex_override=hex_overrides.get('cover_palette_foreground_color_hex_override'),
             cover_palette_accent_hex_override=hex_overrides.get('cover_palette_accent_hex_override'),
             cover_custom_image_url=extra_url_updates.get('cover_custom_image_url'),
             cover_rendered_preview_url=extra_url_updates.get('cover_rendered_preview_url'),
@@ -424,8 +424,8 @@ def api_bookwriter_book_cover_design_save(request, book_id):
             'link_cover_font_id': cover_row.link_cover_font_id,
             'cover_title_size_pt': cover_row.cover_title_size_pt,
             'cover_letter_spacing_unit': cover_row.cover_letter_spacing_unit,
-            'cover_palette_bg_hex_override': cover_row.cover_palette_bg_hex_override,
-            'cover_palette_fg_hex_override': cover_row.cover_palette_fg_hex_override,
+            'cover_palette_background_color_hex_override': cover_row.cover_palette_background_color_hex_override,
+            'cover_palette_foreground_color_hex_override': cover_row.cover_palette_foreground_color_hex_override,
             'cover_palette_accent_hex_override': cover_row.cover_palette_accent_hex_override,
             'cover_custom_image_url': cover_row.cover_custom_image_url,
             'cover_rendered_preview_url': cover_row.cover_rendered_preview_url,

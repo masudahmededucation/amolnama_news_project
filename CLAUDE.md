@@ -98,13 +98,19 @@ This is the master rule. Every other rule in this file is mandatory. There is no
   3. Report the total count changed.
   4. Never fix one, ask user to test, find another, fix that, repeat 10 times.
 
-- **Every table name must be self-documenting.** Someone reading `coll_quiz_session` should know EXACTLY what it stores without opening a dictionary. Rules:
-  1. Prefix tells the data lifecycle: `ref_` = static admin config, `coll_` = growing collection, `eng_` = computed/derived, `map_` = junction/many-to-many.
-  2. `ref_` tables ONLY for data that admin/staff creates rarely and users NEVER create. If users can input data into it, or staff adds rows regularly, it is `coll_`.
-  3. Add the domain word when the table name is ambiguous: `ref_quiz_badge` not `ref_badge`, `coll_quiz_topic` not `ref_topic`. Ask: "topic of WHAT? badge for WHAT?"
-  4. Every new table MUST get an `MS_Description` extended property in SQL Server at creation time, not as an afterthought.
-  5. All column names use `link_` prefix for FKs, entity prefix for grouped columns, `_bn`/`_en` suffix only for display labels needing both languages.
-  6. Before naming a table, check if a similar name exists in another schema. 200+ tables means collisions are likely. Be explicit.
+- **Every table name must be self-documenting.** Someone reading `coll_artwork` should know EXACTLY what it stores without opening a dictionary. Rules:
+  1. Prefix tells the data lifecycle: `ref_` = static admin config, `coll_` = top-level user-writable PRIMARY collection per app, `eng_` = computed/derived, `map_` = junction/many-to-many, `engagement_` = engagement actions on a collection (likes/bookmarks/comments/reactions/views), `fact_` = audit / moderation / edit-history rows.
+  2. **`coll_` is for the PRIMARY collection table per "thing" in an app — NOT every related table.** Naming every table with `coll_` is noise and unhelpful. Real shipped pattern (copy this — do NOT invent):
+     * `[blog_art].[coll_artwork]` is the primary; child sub-entities are bare-named with the parent-entity word in their name: `[blog_art].[artwork_asset]`, `[blog_art].[artwork_step]`, `[blog_art].[artwork_youtube_link]`.
+     * `[blog_bangladesh].[coll_destination]` is primary; children: `[destination_photo]`, `[destination_youtube_link]`, `[destination_reference_link]`, `[transport_route]`, `[travel_tip]`, `[accommodation]`. Engagement: `[engagement_destination_bookmark]`, `[engagement_destination_review]`, `[engagement_destination_video_like]`. Junctions: `[map_media_album_entry]`, `[map_media_entry_tag]`, `[map_media_tag]`. The same app also has secondary primaries: `[coll_media_album]`, `[coll_media_entry]`.
+     * `[bookwriter].[coll_book]` is primary; bare-named children: `[chapter]`, `[chapter_snapshot]`, `[bible_entry]`, `[plot_card]`, `[margin_note]`, `[book_cover_design]`, `[serial_release]`, `[sprint_session]`, `[writing_session]`. Group-prefixed beta workflow: `[beta_share_link]`, `[beta_reader]`, `[beta_comment]`. Engagement: `[engagement_serial_subscriber]`, `[engagement_serial_reaction]`, `[engagement_serial_comment]`, `[engagement_serial_view]`. Engine: `[eng_user_streak]`. Reference: 14 `[ref_*]` tables.
+     * Same pattern repeats across `blog_biography` (`coll_biography_entry` + `biography_entry_photo` + `biography_quote` + `biography_tribute` etc.), `blog_historybd` (`coll_history_event` + `history_event_photo` + `history_event_perspective` etc.), `blog_debate` (`coll_topic` + `coll_post` + `coll_topic_participant` + bare `vote`/`notification` + `fact_debate_post_*`).
+  3. `ref_` tables ONLY for data that admin/staff creates rarely and users NEVER create. If users can input data into it, or staff adds rows regularly, it is `coll_` (if top-level) or bare-named child entity (if sub-entity of a `coll_`).
+  4. Add the domain word when the table name is ambiguous: `ref_quiz_badge` not `ref_badge`. Ask: "badge for WHAT?"
+  5. Every new table MUST get an `MS_Description` extended property in SQL Server at creation time, not as an afterthought.
+  6. All column names use `link_` prefix for FKs, entity prefix for grouped columns, `_bn`/`_en` suffix only for display labels needing both languages.
+  7. Before naming a table, check if a similar name exists in another schema. 200+ tables means collisions are likely. Be explicit.
+  8. **ANTI-RULE — do NOT propose mass-renaming child tables to add `coll_` prefix.** A table that is a child sub-entity of a primary `coll_` (e.g., `chapter` is a child of `coll_book`) STAYS bare-named. Renaming `chapter` to `coll_chapter` adds noise without clarifying anything. Before proposing ANY DB rename in a sweep, READ AT LEAST 3 EXISTING APP SCHEMAS (`blog_art`, `blog_bangladesh`, `blog_biography`) to confirm the project's actual convention rather than imposing a new interpretation. The mastermind plan and the bookwriter v03 migration script were both examples of this anti-pattern; both were rejected. Verify against the existing precedent before touching DB at all.
 
 - **Every DB table must have a dictionary entry (MS_Description).** When creating a new table:
   1. Write the `EXEC sp_addextendedproperty 'MS_Description', '...', 'SCHEMA', '...', 'TABLE', '...'` in the SAME SQL script that creates the table.
