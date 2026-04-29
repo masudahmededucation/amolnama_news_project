@@ -80,12 +80,6 @@
     });
     if (hadLegacyKey) window.localStorage.setItem(STATE_KEY, JSON.stringify(legacyCleanupState));
   } catch (error) { /* private mode / quota — ignore */ }
-  document.body.classList.remove(
-    'bookwriter-app-is-left-rail-collapsed',
-    'bookwriter-app-is-right-desk-collapsed',
-    'bookwriter-app-is-rail-collapsed',
-    'bookwriter-app-is-desk-collapsed'
-  );
 
 
   /* ========================================================

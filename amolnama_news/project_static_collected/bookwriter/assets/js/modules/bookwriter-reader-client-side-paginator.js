@@ -74,7 +74,6 @@
   ---------------------------------------------------------------- */
   function _createGhostMeasurer(options) {
     var ghostElement = document.createElement('div');
-    ghostElement.className = 'bookwriter-book-reader-client-paginator-ghost';
     ghostElement.style.width            = options.contentWidthPx  + 'px';
     ghostElement.style.position         = 'absolute';
     ghostElement.style.top              = '-99999px';
