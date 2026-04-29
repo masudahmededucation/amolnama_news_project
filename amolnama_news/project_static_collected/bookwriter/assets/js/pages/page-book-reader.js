@@ -139,11 +139,16 @@
        - frontispiece (title page)               — folio "i"
        - toc          (Contents — I / II / III)  — folio "ii", "iii", "iv"...
        - chapter      (body pages)                — folio "1", "2", "3"...
-     `maxChapterFolio` is the highest arabic folio across chapter sheets
-     (= total chapter pages), cached for fast indicator rendering and
-     for `jumpInputElement.max`. Recomputed at script init and after
-     the client-side paginator rebuilds chapter sheets. */
-  var maxChapterFolio = 0;
+
+     v950 — Single source of truth: NO module-level maxChapterFolio
+     cache. Max chapter folio is computed LIVE from the DOM at every
+     refreshPageIndicator call AND at the jump-input error path.
+     v947's cache required every code path that mutates sheets to
+     remember to recompute — a leaky invariant that broke when the
+     client-side paginator rebuilt chapter sheets with different folios
+     than the server's word-count estimate (symptom: "Page 17 of 13").
+     Cost of live compute over ~20-30 sheets is sub-millisecond and
+     runs only on page turns / jumps, not on animation frames. */
 
   function _readChapterFolioFromSheetElement(sheetElement) {
     if (!sheetElement || sheetElement.dataset.bookwriterSheetType !== 'chapter') {
@@ -157,20 +162,72 @@
     return isFinite(folioInteger) ? folioInteger : null;
   }
 
-  function _recomputeMaxChapterFolioFromCurrentSheets() {
-    var newMax = 0;
-    for (var sheetIdx = 0; sheetIdx < allPageSheetElements.length; sheetIdx++) {
-      var folio = _readChapterFolioFromSheetElement(allPageSheetElements[sheetIdx]);
-      if (folio !== null && folio > newMax) newMax = folio;
+  /* Pure function — walks the live DOM and returns the highest arabic
+     folio across chapter sheets. No side effects, no module state.
+     Returns 0 when no chapter sheets are present. */
+  function _computeMaxChapterFolioFromCurrentSheets() {
+    var maxSoFar = 0;
+    for (var folioScanIdx = 0; folioScanIdx < allPageSheetElements.length; folioScanIdx++) {
+      var scannedFolio = _readChapterFolioFromSheetElement(allPageSheetElements[folioScanIdx]);
+      if (scannedFolio !== null && scannedFolio > maxSoFar) {
+        maxSoFar = scannedFolio;
+      }
     }
-    maxChapterFolio = newMax;
-    if (jumpInputElement && newMax > 0) {
-      jumpInputElement.max = String(newMax);
+    return maxSoFar;
+  }
+
+  /* v950 single-source-of-truth fix for TOC body page labels. Server
+     no longer bakes a word-count-estimated page label into each TOC
+     entry's <span class="bookwriter-book-reader-toc-page"> (see
+     bookwriter/views.py — toc_page_label removed from chapter dicts).
+     This function walks the live DOM, matches each TOC entry's
+     data-bookwriter-toc-target-chapter-number attribute (on the
+     parent .bookwriter-book-reader-toc-link button) to the first
+     chapter sheet with that chapter number, and writes the live folio
+     into the inner span. Idempotent — safe to call at script init AND
+     after every paginator rebuild. Replaces the v947 server-side
+     pre-render that drifted whenever the client paginator produced
+     different page breaks than the server's word-count estimate. */
+  function _populateTocPageLabelsFromCurrentSheets() {
+    var allTocLinkButtons = document.querySelectorAll(
+      '.bookwriter-book-reader-toc-link[data-bookwriter-toc-target-chapter-number]'
+    );
+    for (var tocLinkIdx = 0; tocLinkIdx < allTocLinkButtons.length; tocLinkIdx++) {
+      var tocLinkButton = allTocLinkButtons[tocLinkIdx];
+      var targetChapterNumber = tocLinkButton.getAttribute(
+        'data-bookwriter-toc-target-chapter-number'
+      );
+      var tocPageSpan = tocLinkButton.querySelector(
+        '.bookwriter-book-reader-toc-page'
+      );
+      if (!tocPageSpan || !targetChapterNumber) continue;
+      // Find the FIRST chapter sheet matching this chapter number —
+      // a chapter spans multiple sheets, the TOC entry points at the
+      // starting folio.
+      for (var chapterSheetIdx = 0; chapterSheetIdx < allPageSheetElements.length; chapterSheetIdx++) {
+        var candidateChapterSheet = allPageSheetElements[chapterSheetIdx];
+        if (candidateChapterSheet.dataset.bookwriterSheetType !== 'chapter') continue;
+        if (candidateChapterSheet.getAttribute('data-bookwriter-sheet-chapter-number') !== targetChapterNumber) continue;
+        var startingFolio = _readChapterFolioFromSheetElement(candidateChapterSheet);
+        if (startingFolio !== null) {
+          tocPageSpan.textContent = String(startingFolio);
+        }
+        break;
+      }
     }
   }
-  _recomputeMaxChapterFolioFromCurrentSheets();
+  _populateTocPageLabelsFromCurrentSheets();
 
   function refreshPageIndicator() {
+    // v950 — single live compute per call. Used by:
+    //   1. jumpInputElement.max attribute (range bound on page-number input)
+    //   2. indicator denominator on chapter sheets (Page X of Y)
+    // No module-level cache that can drift when the client paginator
+    // rebuilds chapter sheets with different folios.
+    var liveMaxChapterFolio = _computeMaxChapterFolioFromCurrentSheets();
+    if (jumpInputElement && liveMaxChapterFolio > 0) {
+      jumpInputElement.max = String(liveMaxChapterFolio);
+    }
     if (pageIndicatorElement) {
       /* v947 indicator uses BOOK CONVENTION:
          - frontispiece                              → "Title"
@@ -200,8 +257,8 @@
           }
         } else if (sheetTypeForIndicator === 'chapter') {
           var currentFolio = _readChapterFolioFromSheetElement(currentSheetElement);
-          if (currentFolio !== null && maxChapterFolio > 0) {
-            indicatorTextNew = 'Page ' + currentFolio + ' of ' + maxChapterFolio;
+          if (currentFolio !== null && liveMaxChapterFolio > 0) {
+            indicatorTextNew = 'Page ' + currentFolio + ' of ' + liveMaxChapterFolio;
           } else {
             indicatorTextNew = (sheetsAlreadyTurnedCount + 1) + ' / ' + totalSheetCount;
           }
@@ -213,13 +270,18 @@
       }
       pageIndicatorElement.textContent = indicatorTextNew;
     }
+    // JS-flag pattern (see content/.../actions-bar.js): isCurrentlyAnimating
+    // is already enforced inside every turn handler, so we DO NOT toggle
+    // .disabled during the animation. Toggling .disabled mid-flip swaps the
+    // button into :disabled (cursor: not-allowed + no hover transform), which
+    // moves the button out from under the cursor and produces a visible
+    // double-cursor / cursor-jump artifact on Windows. .disabled is kept ONLY
+    // for the true boundary conditions (no prev sheet / no next sheet).
     if (prevButtonElement) {
-      prevButtonElement.disabled =
-        sheetsAlreadyTurnedCount === 0 || isCurrentlyAnimating;
+      prevButtonElement.disabled = sheetsAlreadyTurnedCount === 0;
     }
     if (nextButtonElement) {
-      nextButtonElement.disabled =
-        sheetsAlreadyTurnedCount >= totalSheetCount - 1 || isCurrentlyAnimating;
+      nextButtonElement.disabled = sheetsAlreadyTurnedCount >= totalSheetCount - 1;
     }
     _refreshChapterPageIndicator();
   }
@@ -540,9 +602,10 @@
       }
     }
     if (resolvedSheetIndex < 0) {
+      var liveMaxFolioForErrorMessage = _computeMaxChapterFolioFromCurrentSheets();
       showJumpErrorMessage(
         'No page ' + requestedChapterFolio
-        + (maxChapterFolio > 0 ? ' (book has ' + maxChapterFolio + ')' : '')
+        + (liveMaxFolioForErrorMessage > 0 ? ' (book has ' + liveMaxFolioForErrorMessage + ')' : '')
       );
       jumpInputElement.focus();
       return;
@@ -1003,9 +1066,15 @@
           pagesContainerElement.querySelectorAll('.bookwriter-book-reader-page-sheet')
         );
         totalSheetCount = allPageSheetElements.length;
-        if (jumpInputElement && totalSheetCount > 0) {
-          jumpInputElement.max = String(totalSheetCount);
-        }
+        // v950 — repopulate TOC body page labels from the live DOM
+        // now that the paginator has produced the real page breaks.
+        // The server-side word-count estimate that originally seeded
+        // the TOC may have predicted different chapter starting folios
+        // than the paginator's pixel measurement; this call replaces
+        // them with the truth. refreshPageIndicator() below also runs
+        // a live max-folio compute, so jumpInputElement.max + the
+        // "Page X of Y" denominator both reflect the rebuilt sheets.
+        _populateTocPageLabelsFromCurrentSheets();
         // Reapply the per-sheet z-index ladder now that the DOM has
         // settled (paginator inserted new chapter sheets, colophon-
         // inline removed the standalone colophon). Each sheet's new

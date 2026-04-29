@@ -585,20 +585,19 @@ def bookwriter_book_reader(request, book_id, book_name_slug=None):
         chapters_with_pages_for_packing,
     )
 
-    # Augment the TOC chapter dicts with the running page number where
-    # each chapter starts so the table of contents matches the real
-    # paginated layout (book convention — TOC entries point at pages).
-    chapter_first_page_labels_by_chapter_number = {
-        sheet['chapter_number']: sheet['front_page_label']
-        for sheet in book_reader_sheets_list
-        if sheet['is_chapter_start_on_front']
-    }
-    for chapter_dict in book_chapters_for_reader:
-        chapter_dict['toc_page_label'] = (
-            chapter_first_page_labels_by_chapter_number.get(
-                chapter_dict['chapter_number'], '',
-            )
-        )
+    # v950 — TOC page labels are NOT computed server-side anymore.
+    # The server's word-count estimate of where each chapter starts
+    # frequently disagrees with the client paginator's pixel-measured
+    # layout (e.g. server says "Chapter 3 starts on page 5" but the
+    # paginator places it on page 7). The reader's
+    # _populateTocPageLabelsFromCurrentSheets() in page-book-reader.js
+    # now writes the live folio into each
+    # <span class="bookwriter-book-reader-toc-page"> by walking the
+    # DOM at script init AND after every paginator rebuild — single
+    # source of truth = whatever sheets are in the DOM right now.
+    # The template renders the span empty until JS populates it (a
+    # ~50ms gap on first paint, invisible in practice because the JS
+    # runs synchronously at end of script load).
 
     book_title_for_display = (
         current_book.book_title_bn
